@@ -1,0 +1,51 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.17.0",
+    "fastapi[standard]>=0.119.1",
+    "psycopg2-binary>=2.9.11",
+    "pydantic-settings>=2.11.0",
+    "python-dotenv>=1.1.1",
+    "sqlalchemy>=2.0.44",
+    "uvicorn[standard]>=0.38.0",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.9.0",
+    "pytest>=8.4.2",
+    "ruff>=0.14.1",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+extend-exclude = '''
+migrations
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+extend-exclude = ["migrations"]
+
+# Enable Ruff rules
+select = ["E", "F", "I", "UP"]
+#   E = Pycodestyle errors
+#   F = Pyflakes
+#   I = Import sorting
+#   UP = Modernization rules (use modern Python syntax)
+
+# Ruff can auto-fix certain issues on save
+fix = true
+
+[tool.ruff.format]
+# Ensure Ruff respects Black formatting style
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
