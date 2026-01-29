@@ -1,0 +1,59 @@
+name: "DevTrackr Services"
+
+services:
+  database:
+    container_name: devtrackr-database
+    image: postgres:18.1-trixie
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    volumes:
+      - devtrackr-postgres-data:/var/lib/postgresql/data
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+      - POSTGRES_DB=${POSTGRES_DB?Variable not set}
+
+  backend:
+    container_name: devtrackr-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: prod
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      - DOMAIN=${DOMAIN?Variable not set}
+      - FRONTEND_HOST=${FRONTEND_HOST?Variable not set}
+      - ENVIRONMENT=${ENVIRONMENT?Variable not set}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS?Variable not set}
+      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+      - POSTGRES_DB=${POSTGRES_DB?Variable not set}
+      - POSTGRES_HOST=${POSTGRES_HOST?Variable not set}
+      - POSTGRES_PORT=${POSTGRES_PORT?Variable not set}
+
+  frontend:
+    container_name: devtrackr-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: prod
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=${VITE_API_URL?Variable not set}
+    ports:
+      - "80:80" # Only expose the Production Web Server
+    depends_on:
+      - backend
+
+volumes:
+  devtrackr-postgres-data:

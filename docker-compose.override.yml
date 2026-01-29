@@ -1,0 +1,33 @@
+services:
+  database:
+    ports:
+      - "${POSTGRES_PORT?Variable not set}:5432"
+
+  backend:
+    build:
+      target: dev
+    ports:
+      - "8000:8000"
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          target: /app
+          ignore:
+            - ./backend/.venv
+            - ./backend/__pycache__
+        - action: rebuild
+          path: ./backend/pyproject.toml
+
+  frontend:
+    build:
+      target: dev
+    ports:
+      - "5173:5173"
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend/src
+          target: /app/src
+        - action: rebuild
+          path: ./frontend/package.json
