@@ -14,7 +14,10 @@ env/
 
 # uv
 .uv/
-uv.lock
+.uv_cache/
+# Note: backend/uv.lock is committed. If a uv.lock is generated at the root
+# and should NOT be committed, uncomment the line below.
+# uv.lock
 
 # IDEs
 .vscode/
