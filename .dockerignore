@@ -1,4 +1,27 @@
+# base
+README.md
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+.gitignore
+LICENSE
+.env
+.env.local
+.env.*.local
+
+# backend
 .venv
 __pycache__
 .pytest_cache
 *.pyc
+
+# frontend
+node_modules
+build
+
+# IDE
+.vscode
+Makefile
+.editorconfig
+.idea
