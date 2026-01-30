@@ -3,9 +3,21 @@ COPY --from=docker.io/astral/uv:0.9.27 /uv /uvx /bin/
 
 WORKDIR /app
 
+# Install Build Dependencies
+# libpq-dev: Required to link against Postgres
+# gcc, python3-dev: Required to compile the C extension
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # Ensure the created virtual environment is used for all commands
 ENV VIRTUAL_ENV=/app/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Use the system python
+ENV UV_SYSTEM_PYTHON=1
 
 # Copy from the cache instead of linking since it's a mounted volume
 ENV UV_LINK_MODE=copy
