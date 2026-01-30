@@ -11,6 +11,7 @@ dependencies = [
     "pydantic-settings>=2.11.0",
     "python-dotenv>=1.1.1",
     "sqlalchemy>=2.0.44",
+    "sqlmodel>=0.0.31",
     "uvicorn[standard]>=0.38.0",
 ]
 
