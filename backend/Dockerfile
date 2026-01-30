@@ -1,9 +1,9 @@
-FROM python:3.14.2-slim-trixie AS base
+FROM python:3.13-slim-bookworm AS base
 COPY --from=docker.io/astral/uv:0.9.27 /uv /uvx /bin/
 
 WORKDIR /app
 
-# Install Build Dependencies
+# Install Build Dependencies required to compile some packages
 # libpq-dev: Required to link against Postgres
 # gcc, python3-dev: Required to compile the C extension
 RUN apt-get update && apt-get install -y \
@@ -35,6 +35,9 @@ FROM base AS dev
 
 COPY . .
 
+# Ensure prestart script has execute permissions
+RUN chmod +x ./scripts/prestart.sh
+
 # Install project and dev dependencies
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked
@@ -44,6 +47,9 @@ CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "800
 FROM base AS prod
 
 COPY . .
+
+# Ensure prestart script has execute permissions
+RUN chmod +x ./scripts/prestart.sh
 
 # Enable bytecode compilation,
 # improve startup time but higher install time and image size

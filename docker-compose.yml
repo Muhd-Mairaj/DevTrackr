@@ -19,6 +19,31 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
 
+  prestart:
+    container_name: devtrackr-prestart
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: prod
+    restart: "no"
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      - DOMAIN=${DOMAIN?Variable not set}
+      - PROJECT_NAME=${PROJECT_NAME?Variable not set}
+      - FRONTEND_HOST=${FRONTEND_HOST?Variable not set}
+      - ENVIRONMENT=${ENVIRONMENT?Variable not set}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS?Variable not set}
+      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+      - POSTGRES_DB=${POSTGRES_DB?Variable not set}
+      - POSTGRES_HOST=database
+      - POSTGRES_PORT=${POSTGRES_PORT?Variable not set}
+
+    command: ["./scripts/prestart.sh"]
+
   backend:
     container_name: devtrackr-backend
     build:
@@ -26,7 +51,13 @@ services:
       dockerfile: Dockerfile
       target: prod
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/ping'); exit(0)"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/ping'); exit(0)",
+        ]
       interval: 10s
       retries: 5
       start_period: 40s
@@ -35,8 +66,11 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      prestart:
+        condition: service_completed_successfully
     environment:
       - DOMAIN=${DOMAIN?Variable not set}
+      - PROJECT_NAME=${PROJECT_NAME?Variable not set}
       - FRONTEND_HOST=${FRONTEND_HOST?Variable not set}
       - ENVIRONMENT=${ENVIRONMENT?Variable not set}
       - SECRET_KEY=${SECRET_KEY?Variable not set}
@@ -44,7 +78,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
-      - POSTGRES_HOST=${POSTGRES_HOST?Variable not set}
+      - POSTGRES_HOST=database
       - POSTGRES_PORT=${POSTGRES_PORT?Variable not set}
 
   frontend:

@@ -1,7 +1,17 @@
 services:
   database:
+    # expose port for local gui tools
     ports:
       - "${POSTGRES_PORT?Variable not set}:5432"
+
+  prestart:
+    build:
+      target: dev
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend/app/alembic/versions
+          target: /app/app/alembic/versions
 
   backend:
     build:
