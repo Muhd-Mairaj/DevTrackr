@@ -168,11 +168,11 @@ Key goals:
 ### ⏳ Planned
 
 - [ ] FastAPI application structure
-- [ ] Prestart service to docker compose
+- [x] Prestart service to docker compose
 - [ ] Database schema design
-- [ ] Alembic for db migrations
+- [x] Alembic for db migrations
 - [ ] GitHub OAuth & API integration
-- [ ] Time tracking provider integration
+- [ ] Time tracking provider integration (Toggl)
 - [ ] AI summarization pipeline
 - [ ] CI/CD pipeline
 - [ ] Self-hosted deployment
