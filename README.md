@@ -9,22 +9,27 @@
 ![AI Badge](https://img.shields.io/badge/AI-Pluggable%20Providers-purple)
 ![License Badge](https://img.shields.io/badge/License-MIT-black)
 
+## Setup
+1. Clone the repo.
+2. Run `uv tool install pre-commit` (if not already installed).
+3. Run `pre-commit install` to activate the git hooks.
+
 ---
 
 ## 🧠 What is DevTrackr?
 
 **DevTrackr** is a developer-focused productivity and documentation platform that automatically generates **structured, professional logbooks** by combining:
 
-- ⏱️ Time tracking data  
-- 🧑‍💻 GitHub activity (commits, PRs, issues)  
-- 🤖 AI-powered summaries  
+- ⏱️ Time tracking data
+- 🧑‍💻 GitHub activity (commits, PRs, issues)
+- 🤖 AI-powered summaries
 
 Whether you’re logging hours for:
 
 - payroll
 - internships / industrial training
 - academic requirements
-- or personal accountability  
+- or personal accountability
 
 DevTrackr eliminates manual logging so you can focus on building.
 
