@@ -20,7 +20,4 @@ class BaseModel(SQLModel):
             "onupdate": lambda: datetime.now(UTC),  # Auto-update on save
         },
     )
-    deleted_at: datetime | None = Field(
-        default=None, 
-        sa_type=DateTime(timezone=True)
-    )
+    deleted_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))

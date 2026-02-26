@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     @property
     def emails_enabled(self) -> bool:
         return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
-    
+
     # Database
     POSTGRES_HOST: str
     POSTGRES_PORT: int = 5432
@@ -64,5 +64,6 @@ class Settings(BaseSettings):
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
+
 
 settings = Settings()
