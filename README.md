@@ -164,13 +164,13 @@ Key goals:
 - [x] Frontend scaffolding (React + Vite + Bun)
 - [x] Formatting & linting setup (Biome)
 - [x] Dockerization
+- [x] Prestart service to docker compose
+- [x] Alembic for db migrations
 
 ### ⏳ Planned
 
 - [ ] FastAPI application structure
-- [x] Prestart service to docker compose
 - [ ] Database schema design
-- [x] Alembic for db migrations
 - [ ] GitHub OAuth & API integration
 - [ ] Time tracking provider integration (Toggl)
 - [ ] AI summarization pipeline
