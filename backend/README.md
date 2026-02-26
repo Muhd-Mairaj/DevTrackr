@@ -64,7 +64,7 @@ app/
    ```bash
    cp .env.template .env
    ```
-   
+
    Edit `.env` and update the `DATABASE_URL` with your PostgreSQL credentials.
 
 3. Sync dependencies (this will create a virtual environment and install all dependencies):

@@ -1,0 +1,42 @@
+# See https://pre-commit.com/ for more details.
+# Find more hooks here: https://pre-commit.com/hooks.html
+#
+# To install the pre-commit hooks, run:
+#   pre-commit install
+#
+# It is recommended to run the hooks on all files when adding a new hook:
+#   pre-commit run --all-files
+
+repos:
+  # https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: detect-private-key
+
+  # https://github.com/astral-sh/ruff-pre-commit?tab=readme-ov-file#ruff-pre-commit
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.15.2
+    hooks:
+      # Run the linter.
+      - id: ruff-check
+        args: [ --fix ]
+        files: ^backend/
+      # Run the formatter.
+      - id: ruff-format
+        files: ^backend/
+
+  # https://github.com/biomejs/pre-commit?tab=readme-ov-file#using-biome-with-a-local-pre-commit-hook
+  - repo: local
+    hooks:
+      - id: local-biome-check
+        name: biome check
+        entry: bunx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched
+        language: system
+        types: [text]
+        files: "\\.(jsx?|tsx?|c(js|ts)|m(js|ts)|d\\.(ts|cts|mts)|jsonc?|css|svelte|vue|astro|graphql|gql)$"
