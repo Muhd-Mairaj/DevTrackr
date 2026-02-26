@@ -35,15 +35,16 @@ line-length = 88
 target-version = "py311"
 extend-exclude = ["migrations"]
 
+# Ruff can auto-fix certain issues on save
+fix = true
+
+[tool.ruff.lint]
 # Enable Ruff rules
 select = ["E", "F", "I", "UP"]
 #   E = Pycodestyle errors
 #   F = Pyflakes
 #   I = Import sorting
 #   UP = Modernization rules (use modern Python syntax)
-
-# Ruff can auto-fix certain issues on save
-fix = true
 
 [tool.ruff.format]
 # Ensure Ruff respects Black formatting style
