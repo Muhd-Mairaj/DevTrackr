@@ -30,13 +30,11 @@ extend-exclude = '''
 migrations
 '''
 
+
 [tool.ruff]
 line-length = 88
 target-version = "py311"
 extend-exclude = ["migrations"]
-
-# Ruff can auto-fix certain issues on save
-fix = true
 
 [tool.ruff.lint]
 # Enable Ruff rules
