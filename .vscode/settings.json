@@ -16,7 +16,7 @@
     "editor.indentSize": "tabSize"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.defaultFormatter": "biomejs.biome",
     "editor.indentSize": "tabSize"
   },
   // Format on save using Biome for JSX/TSX
