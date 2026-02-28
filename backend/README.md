@@ -60,12 +60,12 @@ app/
    cd backend
    ```
 
-2. Copy the environment template and configure your database:
+2. Copy the environment template from project root and configure your database:
    ```bash
-   cp .env.template .env
+   cp ../.env.template ../.env
    ```
-   
-   Edit `.env` and update the `DATABASE_URL` with your PostgreSQL credentials.
+
+   Edit `.env` and update the `POSTGRES_` variables with your PostgreSQL credentials.
 
 3. Sync dependencies (this will create a virtual environment and install all dependencies):
    ```bash
@@ -77,8 +77,9 @@ app/
 Run the FastAPI development server with auto-reload:
 
 ```bash
-uv run fastapi dev
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
+Note: using `uv run fastapi dev app/main.py` is possible but needs creating an `__init__.py` file
 
 The API will be available at:
 - **API**: http://localhost:8000
@@ -98,12 +99,12 @@ black .
 
 Check code with Ruff:
 ```bash
-ruff check .
+uv run ruff check .
 ```
 
 Auto-fix issues:
 ```bash
-ruff check . --fix
+uv run ruff check . --fix
 ```
 
 ### Testing
@@ -124,17 +125,17 @@ pytest --cov=.
 
 Generate a new migration:
 ```bash
-alembic revision --autogenerate -m "description of changes"
+uv run alembic revision --autogenerate -m "description of changes"
 ```
 
 Apply migrations:
 ```bash
-alembic upgrade head
+uv run alembic upgrade head
 ```
 
 Rollback one migration:
 ```bash
-alembic downgrade -1
+uv run alembic downgrade -1
 ```
 
 ## API Endpoints

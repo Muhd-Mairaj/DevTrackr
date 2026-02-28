@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import EmailStr, PostgresDsn, computed_field, model_validator
 from pydantic_core import MultiHostUrl
@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str
     API_V1_STR: str = "/api/v1"
+    ENVIRONMENT: Literal["development", "staging", "production"]
 
     # Security
     SECRET_KEY: str
@@ -45,7 +46,7 @@ class Settings(BaseSettings):
     @property
     def emails_enabled(self) -> bool:
         return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
-    
+
     # Database
     POSTGRES_HOST: str
     POSTGRES_PORT: int = 5432
@@ -64,5 +65,6 @@ class Settings(BaseSettings):
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
+
 
 settings = Settings()
