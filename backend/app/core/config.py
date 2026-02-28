@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import EmailStr, PostgresDsn, computed_field, model_validator
 from pydantic_core import MultiHostUrl
@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str
     API_V1_STR: str = "/api/v1"
+    ENVIRONMENT: Literal["local", "staging", "production"]
 
     # Security
     SECRET_KEY: str
