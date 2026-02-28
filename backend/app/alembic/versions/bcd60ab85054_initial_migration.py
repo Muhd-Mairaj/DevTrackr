@@ -1,22 +1,18 @@
 """initial migration
 
 Revision ID: bcd60ab85054
-Revises: 
+Revises:
 Create Date: 2026-01-30 11:15:03.548500
 
 """
-from typing import Sequence, Union
 
-from alembic import op
-import sqlalchemy as sa
-import sqlmodel
-
+from collections.abc import Sequence
 
 # revision identifiers, used by Alembic.
-revision: str = 'bcd60ab85054'
-down_revision: Union[str, Sequence[str], None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+revision: str = "bcd60ab85054"
+down_revision: str | Sequence[str] | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
