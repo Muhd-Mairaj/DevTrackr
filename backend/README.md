@@ -60,12 +60,12 @@ app/
    cd backend
    ```
 
-2. Copy the environment template and configure your database:
+2. Copy the environment template from project root and configure your database:
    ```bash
-   cp .env.template .env
+   cp ../.env.template ../.env
    ```
 
-   Edit `.env` and update the `DATABASE_URL` with your PostgreSQL credentials.
+   Edit `.env` and update the `POSTGRES_` variables with your PostgreSQL credentials.
 
 3. Sync dependencies (this will create a virtual environment and install all dependencies):
    ```bash
