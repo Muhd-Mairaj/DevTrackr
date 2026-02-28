@@ -7,7 +7,6 @@ from app.core.config import settings
 engine = create_async_engine(
     str(settings.DATABASE_URL),
     echo=settings.ENVIRONMENT == "local",  # Log SQL queries in local environment
-    future=True,
 )
 
 # Use AsyncSession with sessionmaker
