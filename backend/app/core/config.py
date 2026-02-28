@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str
     API_V1_STR: str = "/api/v1"
-    ENVIRONMENT: Literal["local", "staging", "production"]
+    ENVIRONMENT: Literal["development", "staging", "production"]
 
     # Security
     SECRET_KEY: str
