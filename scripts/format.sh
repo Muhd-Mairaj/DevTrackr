@@ -7,6 +7,7 @@ cd "$(dirname "$0")/.."
 echo "🎨 Formatting Frontend..."
 cd frontend
 bun run format
+bun run check --fix
 cd ..
 
 echo "🐍 Formatting Backend..."
