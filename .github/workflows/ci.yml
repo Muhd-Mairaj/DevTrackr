@@ -28,7 +28,7 @@ jobs:
         run: bun biome ci .
 
       - name: Type Check (TypeScript)
-        run: bun run tsc --noEmit
+        run: bun run tsc -b --noEmit
 
       - name: Test Build
         run: bun run build
