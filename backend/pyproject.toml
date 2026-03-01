@@ -1,8 +1,8 @@
 [project]
-name = "backend"
+name = "devTrackr"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+description = "From commits to clock-ins. Your dev logbook, done for you."
+readme = "../README.md"
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.17.0",
@@ -18,22 +18,14 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black>=25.9.0",
     "pytest>=8.4.2",
     "ruff>=0.14.1",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ["py311"]
-extend-exclude = '''
-migrations
-'''
-
 
 [tool.ruff]
 line-length = 88
-target-version = "py311"
+target-version = "py313"
 extend-exclude = ["migrations"]
 
 [tool.ruff.lint]

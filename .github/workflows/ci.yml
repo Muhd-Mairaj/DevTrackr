@@ -1,0 +1,112 @@
+name: DevTrackr CI
+
+on:
+  push:
+    branches: [dev, prod]
+  pull_request:
+
+jobs:
+  frontend-checks:
+    name: Frontend CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.8" # Match your Dockerfile
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run Biome (Format & Lint)
+        # Without --fix to prevent auto fix
+        # run: bun run check
+        run: bun biome ci .
+
+      - name: Type Check (TypeScript) & Test Build
+        run: bun run build
+
+  backend-checks:
+    name: Backend CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install uv (The official Astral action is blazingly fast)
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.9.27"
+          enable-cache: true
+          cache-dependency-glob: "backend/uv.lock"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Dependencies
+        run: uv sync --frozen
+
+      - name: Check Formatting (Ruff)
+        # --check tells Ruff to fail if files need formatting
+        run: uv run ruff format --check .
+
+      - name: Run Linter (Ruff)
+        run: uv run ruff check .
+
+  docker-checks:
+    name: Docker Compose Build
+    runs-on: ubuntu-latest
+    needs: [frontend-checks, backend-checks]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Images
+        # These environment variables are used only for GitHub Actions testing, safe to commit
+        env:
+          PROJECT_NAME: DevTrackr
+
+          DOMAIN: localhost
+          FRONTEND_HOST: http://localhost:5173
+
+          # Environment: development, staging, production
+          ENVIRONMENT: staging
+
+          BACKEND_CORS_ORIGINS: "http://localhost,http://localhost:5173,https://localhost,https://localhost:5173"
+          # can be generated with openssl rand -hex 16
+          SECRET_KEY: changeme
+
+          # Database settings
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: changeme
+          POSTGRES_DB: devtrackr_db
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+
+          # Frontend
+          VITE_API_URL: http://localhost:8000
+
+          # Brevo Email settings
+          # SMTP_PORT:
+          # SMTP_HOST:
+          # SMTP_LOGIN:
+          # SMTP_API_KEY:
+          # EMAILS_FROM_EMAIL:
+          # EMAILS_FROM_NAME:
+
+        run: docker compose build
