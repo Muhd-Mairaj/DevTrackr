@@ -77,4 +77,36 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker Images
+      # These environment variables are used only for Github Actions testing, safe to commit
+        env:
+          PROJECT_NAME: DevTrackr
+
+          DOMAIN: localhost
+          FRONTEND_HOST: http://localhost:5173
+
+          # Environment: development, staging, production
+          ENVIRONMENT: staging
+
+          BACKEND_CORS_ORIGINS: "http://localhost,http://localhost:5173,https://localhost,https://localhost:5173"
+          # can be generated with openssl rand -hex 16
+          SECRET_KEY: changeme
+
+          # Database settings
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: changeme
+          POSTGRES_DB: devtrackr_db
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+
+          # Frontend
+          VITE_API_URL: http://localhost:8000
+
+          # Brevo Email settings
+          # SMTP_PORT:
+          # SMTP_HOST:
+          # SMTP_LOGIN:
+          # SMTP_API_KEY:
+          # EMAILS_FROM_EMAIL:
+          # EMAILS_FROM_NAME:
+
         run: docker compose build
