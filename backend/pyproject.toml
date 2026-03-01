@@ -18,17 +18,9 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black>=25.9.0",
     "pytest>=8.4.2",
     "ruff>=0.14.1",
 ]
-
-[tool.black]
-line-length = 88
-target-version = ["py313"]
-extend-exclude = '''
-migrations
-'''
 
 
 [tool.ruff]
