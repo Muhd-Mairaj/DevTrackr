@@ -1,6 +1,10 @@
 name: DevTrackr CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   frontend-checks:
@@ -77,7 +81,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker Images
-      # These environment variables are used only for Github Actions testing, safe to commit
+        # These environment variables are used only for Github Actions testing, safe to commit
         env:
           PROJECT_NAME: DevTrackr
 
