@@ -2,8 +2,7 @@ name: DevTrackr CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [dev, prod]
   pull_request:
 
 jobs:
