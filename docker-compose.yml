@@ -41,6 +41,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
       - POSTGRES_HOST=database
       - POSTGRES_PORT=${POSTGRES_PORT?Variable not set}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY?Variable not set}
 
     command: ["./scripts/prestart.sh"]
 
@@ -80,6 +81,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
       - POSTGRES_HOST=database
       - POSTGRES_PORT=${POSTGRES_PORT?Variable not set}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY?Variable not set}
 
   frontend:
     container_name: devtrackr-frontend
