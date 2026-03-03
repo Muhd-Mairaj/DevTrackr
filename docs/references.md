@@ -20,4 +20,8 @@
 - https://cryptography.io/en/latest/fernet/
 - Used for transparently encrypting tokens.
 
+### Mypy
+- https://mypy.readthedocs.io/en/latest/extending_mypy.html
+- https://docs.pydantic.dev/latest/integrations/mypy/#__tabbed_2_2
+
 ### Docker
