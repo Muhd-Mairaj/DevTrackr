@@ -19,9 +19,31 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "mypy>=1.19.1",
     "pytest>=8.4.2",
     "ruff>=0.14.1",
 ]
+
+
+[tool.mypy]
+plugins = ['pydantic.mypy']
+
+# Strict mode enables a battery of checks (highly recommended)
+strict = true
+
+# Ignore missing type hints from third-party libraries (like SQLModel/Alembic)
+ignore_missing_imports = true
+
+# Don't check the migration files or virtual environments
+exclude = ["alembic/", "\\.venv/"]
+
+[tool.pydantic-mypy]
+# Catch trying to pass arguments to a Pydantic model that don't exist
+init_forbid_extra = true
+# Ensure the arguments you pass to a Pydantic model match the correct types
+init_typed = true
+# Warn if you are doing weird things with dynamic aliases
+warn_required_dynamic_aliases = true
 
 
 [tool.ruff]
