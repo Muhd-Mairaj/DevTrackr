@@ -10,7 +10,10 @@ class EncryptedString(TypeDecorator):
 
     @property
     def _fernet(self):
-        return Fernet(settings.ENCRYPTION_KEY.get_secret_value())
+        try:
+            return Fernet(settings.ENCRYPTION_KEY.get_secret_value().encode("utf-8"))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Invalid Fernet key in settings.ENCRYPTION_KEY") from exc
 
     def process_bind_param(self, value, dialect):
         if value is None:
