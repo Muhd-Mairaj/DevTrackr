@@ -13,7 +13,10 @@ class EncryptedString(TypeDecorator):
         try:
             return Fernet(settings.ENCRYPTION_KEY.get_secret_value().encode("utf-8"))
         except (TypeError, ValueError) as exc:
-            raise ValueError("Invalid Fernet key in settings.ENCRYPTION_KEY") from exc
+            raise ValueError(
+                "Invalid ENCRYPTION_KEY, must be a 32-byte "
+                "url-safe base64-encoded Fernet key."
+            ) from exc
 
     def process_bind_param(self, value, dialect):
         if value is None:
