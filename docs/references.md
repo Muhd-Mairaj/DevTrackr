@@ -16,4 +16,8 @@
     - https://github.com/astral-sh/ruff-pre-commit?tab=readme-ov-file#ruff-pre-commit
     - https://github.com/biomejs/pre-commit?tab=readme-ov-file#using-biome-with-a-local-pre-commit-hook
 
+### Cryptography (Fernet):
+- https://cryptography.io/en/latest/fernet/
+- Used for transparently encrypting tokens.
+
 ### Docker

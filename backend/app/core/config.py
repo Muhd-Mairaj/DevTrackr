@@ -1,6 +1,6 @@
 from typing import Literal, Self
 
-from pydantic import EmailStr, PostgresDsn, computed_field, model_validator
+from pydantic import EmailStr, PostgresDsn, SecretStr, computed_field, model_validator
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
+    ENCRYPTION_KEY: SecretStr
 
     DOMAIN: str = "localhost"
     FRONTEND_HOST: str = "http://localhost:5173"
