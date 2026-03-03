@@ -90,6 +90,8 @@ jobs:
           BACKEND_CORS_ORIGINS: "http://localhost,http://localhost:5173,https://localhost,https://localhost:5173"
           # can be generated with openssl rand -hex 16
           SECRET_KEY: changeme
+          # dummy encryption key generated using `python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())`
+          ENCRYPTION_KEY: 2O2FBPk5N3ei2n1ldh5RkvU0TvcT8ia5QLOW4DAyvw0=
 
           # Database settings
           POSTGRES_USER: admin
