@@ -31,6 +31,11 @@ plugins = ['pydantic.mypy']
 # Strict mode enables a battery of checks (highly recommended)
 strict = true
 
+# Use explicit package bases and namespace packages to handle project structure
+# without requiring __init__.py files in every directory.
+explicit_package_bases = true
+namespace_packages = true
+
 # Ignore missing type hints from third-party libraries (like SQLModel/Alembic)
 ignore_missing_imports = true
 
