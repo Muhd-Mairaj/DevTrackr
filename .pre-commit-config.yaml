@@ -25,10 +25,22 @@ repos:
     hooks:
       # Run the linter.
       - id: ruff-check
-        args: [ --fix ]
+        args: [--fix]
         files: ^backend/
       # Run the formatter.
       - id: ruff-format
+        files: ^backend/
+
+  # Static Type Checking
+  - repo: local
+    hooks:
+      - id: local-mypy-check
+        name: mypy
+        entry: uv run --directory backend mypy .
+        language: system
+        types: [python]
+        # Must be false to catch cross-file breakages by checking the whole project
+        pass_filenames: false
         files: ^backend/
 
   # https://github.com/biomejs/pre-commit?tab=readme-ov-file#using-biome-with-a-local-pre-commit-hook
