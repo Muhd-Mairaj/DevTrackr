@@ -11,17 +11,13 @@ class TimeEntry(BaseModel, table=True):
 
     description: str | None = Field(default=None)
     start_time: datetime = Field(
-        sa_column_kwargs={
-            "type_": DateTime(timezone=True),
-            "nullable": False,
-        },
+        sa_type=DateTime(timezone=True),  # type: ignore[call-overload]
+        nullable=False,
     )
     end_time: datetime | None = Field(
         default=None,
-        sa_column_kwargs={
-            "type_": DateTime(timezone=True),
-            "nullable": True,
-        },
+        sa_type=DateTime(timezone=True),  # type: ignore[call-overload]
+        nullable=True,
     )
     duration_seconds: int | None = None
     project_id: uuid.UUID = Field(
