@@ -42,8 +42,8 @@ class Settings(BaseSettings):
             self.EMAILS_FROM_NAME = self.PROJECT_NAME
         return self
 
+    @computed_field  # type: ignore[prop-decorator]
     @property
-    @computed_field
     def emails_enabled(self) -> bool:
         return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
 
@@ -54,8 +54,8 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str = ""
 
+    @computed_field  # type: ignore[prop-decorator]
     @property
-    @computed_field
     def DATABASE_URL(self) -> PostgresDsn:
         return PostgresDsn.build(
             scheme="postgresql+psycopg",

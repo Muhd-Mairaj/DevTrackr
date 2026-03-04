@@ -28,8 +28,8 @@ dev = [
 [tool.mypy]
 plugins = ['pydantic.mypy']
 
-# Strict mode enables a battery of checks (highly recommended)
 strict = true
+disable_error_code = ["unused-ignore"]
 
 # Use explicit package bases and namespace packages to handle project structure
 # without requiring __init__.py files in every directory.
@@ -40,7 +40,7 @@ namespace_packages = true
 ignore_missing_imports = true
 
 # Don't check the migration files or virtual environments
-exclude = ["alembic/", "\\.venv/"]
+exclude = ["venv", ".venv", "alembic"]
 
 [tool.pydantic-mypy]
 # Catch trying to pass arguments to a Pydantic model that don't exist
@@ -58,11 +58,26 @@ extend-exclude = ["migrations"]
 
 [tool.ruff.lint]
 # Enable Ruff rules
-select = ["E", "F", "I", "UP"]
+# select = ["E", "F", "I", "UP"]
 #   E = Pycodestyle errors
 #   F = Pyflakes
 #   I = Import sorting
 #   UP = Modernization rules (use modern Python syntax)
+
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "B",  # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "I",   # Import sorting
+    "ARG001", # unused arguments in functions
+]
+
+ignore = [
+    "B008",  # do not perform function calls in argument defaults
+]
 
 [tool.ruff.format]
 # Ensure Ruff respects Black formatting style

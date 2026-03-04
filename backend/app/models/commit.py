@@ -10,10 +10,8 @@ class Commit(BaseModel, table=True):
     sha: str
     message: str
     committed_at: datetime = Field(
-        sa_column_kwargs={
-            "type_": DateTime(timezone=True),
-            "nullable": False,
-        },
+        sa_type=DateTime(timezone=True),  # type: ignore[call-overload]
+        nullable=False,
     )
     url: str | None = None
     repository_id: uuid.UUID = Field(
