@@ -15,8 +15,9 @@ Backend service for DevTrackr - a developer activity tracking and logging system
 
 ## Development Tools
 
-- **Code Formatting**: Black (line length: 88)
+- **Code Formatting**: Ruff (line length: 88)
 - **Linting**: Ruff (with Pycodestyle, Pyflakes, Import sorting, and modernization rules)
+- **Type Checking**: mypy (strict mode), configured in pyproject.toml
 - **Testing**: pytest
 
 ## Architecture

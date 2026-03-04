@@ -19,7 +19,7 @@ wait_seconds = 1
     before=before_log(logger, logging.INFO),
     after=after_log(logger, logging.WARN),
 )
-async def init():
+async def init() -> None:
     try:
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
@@ -28,7 +28,7 @@ async def init():
         raise e
 
 
-async def main():
+async def main() -> None:
     logger.info("Initializing service")
     await init()
     logger.info("Service finished initializing")
