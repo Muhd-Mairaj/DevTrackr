@@ -6,10 +6,14 @@ readme = "../README.md"
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.17.0",
+    "authlib>=1.6.9",
     "cryptography>=46.0.5",
     "fastapi[standard]>=0.119.1",
+    "itsdangerous>=2.2.0",
+    "passlib[bcrypt]>=1.7.4",
     "psycopg>=3.3.2",
     "pydantic-settings>=2.11.0",
+    "pyjwt>=2.11.0",
     "python-dotenv>=1.1.1",
     "sqlalchemy>=2.0.44",
     "sqlmodel>=0.0.31",
@@ -22,6 +26,7 @@ dev = [
     "mypy>=1.19.1",
     "pytest>=8.4.2",
     "ruff>=0.14.1",
+    "types-passlib>=1.7.7.20260211",
 ]
 
 
@@ -77,6 +82,7 @@ select = [
 
 ignore = [
     "B008",  # do not perform function calls in argument defaults
+    "B904",  # Allow raising exceptions without from e, for HTTPException
 ]
 
 [tool.ruff.format]
