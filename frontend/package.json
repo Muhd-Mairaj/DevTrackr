@@ -8,9 +8,9 @@
     "build": "tsc -b && vite build",
     "generate-client": "openapi-ts",
     "preview": "vite preview",
-    "lint": "biome lint .",
-    "format": "biome format .",
-    "check": "biome check ."
+    "lint": "biome lint --css-parse-tailwind-directives=true .",
+    "format": "biome format --css-parse-tailwind-directives=true .",
+    "check": "biome check --css-parse-tailwind-directives=true ."
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.5",
