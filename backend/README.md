@@ -89,23 +89,36 @@ The API will be available at:
 
 ## Development
 
-### Code Formatting
+### Code Formatting & Linting
 
-Format code with Black:
+To maintain code quality across the entire project (Backend & Frontend), use the provided format script from the project root:
+
+**To check for issues (dry-run):**
 ```bash
-black .
+./scripts/format.sh
 ```
 
-### Linting
-
-Check code with Ruff:
+**To automatically fix formatting and linting issues:**
 ```bash
+./scripts/format.sh --fix
+```
+
+### Manual Backend-only Commands
+
+**Linting and Formatting with Ruff:**
+```bash
+# Check formatting and linting
+uv run ruff format --check .
 uv run ruff check .
+
+# Fix formatting and linting
+uv run ruff format .
+uv run ruff check --fix .
 ```
 
-Auto-fix issues:
+**Type Checking with Mypy:**
 ```bash
-uv run ruff check . --fix
+uv run mypy .
 ```
 
 ### Testing
@@ -122,7 +135,7 @@ pytest --cov=.
 
 ## Database Migrations
 
-> ⚠️ **Note**: Alembic is not yet configured for this project. The migration setup is pending.
+Database migrations are managed by Alembic.
 
 Generate a new migration:
 ```bash
@@ -153,7 +166,7 @@ Required environment variables (see `.env.template`):
 
 ## Configuration
 
-- **Black & Ruff**: Both configured to use 88 character line length
+- **Ruff**: Configured to use 88 character line length for both linting and formatting
 - **Ruff Rules Enabled**:
   - E: Pycodestyle errors
   - F: Pyflakes
