@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "generate-client": "openapi-ts",
     "preview": "vite preview",
     "lint": "biome lint .",
     "format": "biome format .",
@@ -21,6 +22,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.6",
+    "@hey-api/client-axios": "^0.9.1",
+    "@hey-api/openapi-ts": "^0.93.1",
     "@tanstack/react-devtools": "^0.7.7",
     "@tanstack/router-plugin": "^1.133.15",
     "@types/node": "^24.8.1",

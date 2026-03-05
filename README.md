@@ -11,8 +11,15 @@
 
 ## Setup
 1. Clone the repo.
-2. Run `uv tool install pre-commit` (if not already installed).
-3. Run `pre-commit install` to activate the git hooks.
+2. Install backend dependencies: `cd backend && uv sync`
+3. Install frontend dependencies: `cd frontend && bun install`
+4. Run `uv tool install pre-commit` (if not already installed).
+5. Run `pre-commit install` to activate the git hooks.
+6. **Generate the frontend client SDK**:
+   ```bash
+   bash scripts/generate-client.sh
+   ```
+   *Note: Ensure backend and frontend dependencies are installed before running this. Run it whenever you change backend routes or models to sync the frontend client.*
 
 ---
 
