@@ -28,25 +28,25 @@ The backend follows a layered architecture pattern:
 app/
 ├── main.py              # FastAPI application entry point
 ├── api/
-│   └── v1/
-│       ├── __init__.py
-│       └── routes.py    # API v1 route definitions
+│   ├── routes/          # API route modules (auth, github, etc.)
+│   ├── deps.py          # FastAPI dependencies (auth, session, etc.)
+│   └── main.py          # Central router aggregator
 ├── core/
 │   ├── __init__.py
 │   └── config.py        # Settings and configuration (Pydantic Settings)
 ├── db/
 │   ├── __init__.py
-│   ├── base.py          # SQLAlchemy declarative base
+│   ├── base.py          # SQLAlchemy base and helper models
 │   └── session.py       # Database session management
 └── models/
-    └── __init__.py      # SQLAlchemy models
+    └── __init__.py      # SQLAlchemy/SQLModel tables
 ```
 
 **Design Patterns:**
-- **API Versioning**: Routes organized under `/api/v1` for future compatibility
+- **Modular Routes**: Organized under `app/api/routes` for maintainability
+- **Dependency Injection**: Centralized in `app/api/deps.py`
 - **Configuration Management**: Environment-based settings using Pydantic Settings
 - **Database Session Management**: SQLAlchemy session factory pattern
-- **Dependency Injection**: FastAPI's dependency injection for database sessions
 
 ## Prerequisites
 
@@ -89,23 +89,36 @@ The API will be available at:
 
 ## Development
 
-### Code Formatting
+### Code Formatting & Linting
 
-Format code with Black:
+To maintain code quality across the entire project (Backend & Frontend), use the provided format script from the project root:
+
+**To check for issues (dry-run):**
 ```bash
-black .
+./scripts/format.sh
 ```
 
-### Linting
-
-Check code with Ruff:
+**To automatically fix formatting and linting issues:**
 ```bash
+./scripts/format.sh --fix
+```
+
+### Manual Backend-only Commands
+
+**Linting and Formatting with Ruff:**
+```bash
+# Check formatting and linting
+uv run ruff format --check .
 uv run ruff check .
+
+# Fix formatting and linting
+uv run ruff format .
+uv run ruff check --fix .
 ```
 
-Auto-fix issues:
+**Type Checking with Mypy:**
 ```bash
-uv run ruff check . --fix
+uv run mypy .
 ```
 
 ### Testing
@@ -122,7 +135,7 @@ pytest --cov=.
 
 ## Database Migrations
 
-> ⚠️ **Note**: Alembic is not yet configured for this project. The migration setup is pending.
+Database migrations are managed by Alembic.
 
 Generate a new migration:
 ```bash
@@ -142,7 +155,7 @@ uv run alembic downgrade -1
 ## API Endpoints
 
 - `GET /` - Welcome message
-- `GET /api/v1/ping` - Health check endpoint
+- `GET /api/ping` - Health check endpoint
 
 ## Environment Variables
 
@@ -153,7 +166,7 @@ Required environment variables (see `.env.template`):
 
 ## Configuration
 
-- **Black & Ruff**: Both configured to use 88 character line length
+- **Ruff**: Configured to use 88 character line length for both linting and formatting
 - **Ruff Rules Enabled**:
   - E: Pycodestyle errors
   - F: Pyflakes

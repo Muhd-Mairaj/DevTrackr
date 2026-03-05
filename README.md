@@ -21,6 +21,21 @@
    ```
    *Note: Ensure backend and frontend dependencies are installed before running this. Run it whenever you change backend routes or models to sync the frontend client.*
 
+## 🛠️ Developer Scripts
+
+We provide standard scripts in the `scripts/` directory to simplify common tasks:
+
+### Formatting & Linting
+Use the project-wide format script to keep the codebase clean:
+
+- **Check only:** `./scripts/format.sh`
+- **Fix automatically:** `./scripts/format.sh --fix`
+
+### API Client Synchronization
+Whenever you update your backend routes, regenerate the frontend TypeScript SDK:
+
+- **Generate:** `./scripts/generate-client.sh`
+
 ---
 
 ## 🧠 What is DevTrackr?
