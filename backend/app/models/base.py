@@ -23,3 +23,10 @@ class BaseModel(SQLModel):
         sa_type=DateTime(timezone=True),  # type: ignore[call-overload]
         nullable=True,
     )
+
+
+class TokenPayload(SQLModel):
+    sub: str | None = None
+    exp: int | None = None
+    type: str | None = None
+    jti: str | None = None

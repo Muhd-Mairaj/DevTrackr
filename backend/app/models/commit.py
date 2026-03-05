@@ -1,12 +1,12 @@
 import uuid
 from datetime import datetime
 
-from sqlmodel import DateTime, Field
+from sqlmodel import DateTime, Field, SQLModel
 
 from .base import BaseModel
 
 
-class Commit(BaseModel, table=True):
+class CommitBase(SQLModel):
     sha: str
     message: str
     committed_at: datetime = Field(
@@ -14,6 +14,13 @@ class Commit(BaseModel, table=True):
         nullable=False,
     )
     url: str | None = None
+
+
+class CommitCreate(CommitBase):
+    pass
+
+
+class Commit(CommitBase, BaseModel, table=True):
     repository_id: uuid.UUID = Field(
         foreign_key="repository.id", nullable=False, ondelete="CASCADE"
     )
