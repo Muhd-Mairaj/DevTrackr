@@ -1,73 +1,75 @@
-# React + TypeScript + Vite
+# DevTrackr Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React application for DevTrackr - built with TypeScript, Vite, and TanStack Router.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Runtime**: Bun
+- **Framework**: React 19
+- **Build Tool**: Vite
+- **Routing**: TanStack Router
+- **Data Fetching**: TanStack Query (React Query)
+- **Formatting & Linting**: Biome
+- **API Client**: Generated with Hey API (Axios)
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
 
-## Expanding the ESLint configuration
+2. Install dependencies:
+   ```bash
+   bun install
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+3. Run the development server:
+   ```bash
+   bun dev
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Development Tools
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Code Formatting & Linting
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+We use **Biome** for high-performance formatting and linting. While you can run individual commands, it is recommended to use the shared script from the project root:
+
+**Project-wide fix:**
+```bash
+./scripts/format.sh --fix
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Manual Frontend-only commands:**
+```bash
+# Check formatting and linting
+bun run check
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+# Fix formatting and linting
+bun run check --fix
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Formatting only
+bun run format [--fix]
+```
+
+### API Client Synchronization
+
+The frontend uses a generated SDK based on the backend's OpenAPI schema. **Do not modify files in `src/client` manually.**
+
+To sync the client after backend changes:
+```bash
+./scripts/generate-client.sh
+```
+
+## Structure
+
+```
+src/
+├── client/          # Automatically generated API SDK (DO NOT EDIT)
+├── components/      # Reusable UI components
+├── hooks/           # Custom React hooks
+├── lib/             # Utility functions and shared logic
+├── routes/          # TanStack Router page definitions
+├── App.tsx          # Main application component
+└── main.tsx         # Application entry point
 ```

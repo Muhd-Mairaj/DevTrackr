@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     )
 
     PROJECT_NAME: str
-    API_V1_STR: str = "/api/v1"
+    API_STR: str = "/api"
     ENVIRONMENT: Literal["development", "staging", "production"]
 
     # Security
