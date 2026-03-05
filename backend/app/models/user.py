@@ -30,6 +30,12 @@ class UserCreate(UserBase):
     password: str
 
 
+class UserUpdate(SQLModel):
+    email: EmailStr | None = Field(default=None)
+    username: str | None = Field(default=None)
+    password: str | None = Field(default=None)
+
+
 class UserLogin(SQLModel):
     email: EmailStr
     password: str
