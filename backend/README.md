@@ -28,25 +28,25 @@ The backend follows a layered architecture pattern:
 app/
 ├── main.py              # FastAPI application entry point
 ├── api/
-│   └── v1/
-│       ├── __init__.py
-│       └── routes.py    # API v1 route definitions
+│   ├── routes/          # API route modules (auth, github, etc.)
+│   ├── deps.py          # FastAPI dependencies (auth, session, etc.)
+│   └── main.py          # Central router aggregator
 ├── core/
 │   ├── __init__.py
 │   └── config.py        # Settings and configuration (Pydantic Settings)
 ├── db/
 │   ├── __init__.py
-│   ├── base.py          # SQLAlchemy declarative base
+│   ├── base.py          # SQLAlchemy base and helper models
 │   └── session.py       # Database session management
 └── models/
-    └── __init__.py      # SQLAlchemy models
+    └── __init__.py      # SQLAlchemy/SQLModel tables
 ```
 
 **Design Patterns:**
-- **API Versioning**: Routes organized under `/api/v1` for future compatibility
+- **Modular Routes**: Organized under `app/api/routes` for maintainability
+- **Dependency Injection**: Centralized in `app/api/deps.py`
 - **Configuration Management**: Environment-based settings using Pydantic Settings
 - **Database Session Management**: SQLAlchemy session factory pattern
-- **Dependency Injection**: FastAPI's dependency injection for database sessions
 
 ## Prerequisites
 
@@ -155,7 +155,7 @@ uv run alembic downgrade -1
 ## API Endpoints
 
 - `GET /` - Welcome message
-- `GET /api/v1/ping` - Health check endpoint
+- `GET /api/ping` - Health check endpoint
 
 ## Environment Variables
 
