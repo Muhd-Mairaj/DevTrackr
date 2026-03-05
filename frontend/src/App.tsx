@@ -1,6 +1,5 @@
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import viteLogo from "/vite.svg";
-import reactLogo from "./assets/react.svg";
 import "./App.css";
 
 function App() {
@@ -8,7 +7,7 @@ function App() {
 
   return (
     <>
-      <div>
+      {/* <div>
         <a href="https://vite.dev" target="_blank" rel="noopener">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
@@ -27,7 +26,9 @@ function App() {
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
-      </p>
+      </p> */}
+      <p>DevTrackr meow meow</p>
+      <Button size="lg">Zingy</Button>
     </>
   );
 }
