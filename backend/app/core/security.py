@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import jwt
+from fastapi import Response
 from passlib.context import CryptContext
 
 from app.core.config import settings
@@ -55,3 +56,26 @@ def decode_token(token: str) -> dict[str, Any]:
 
 ACCESS_TOKEN_COOKIE_NAME = "devtrackr_access"
 REFRESH_TOKEN_COOKIE_NAME = "devtrackr_refresh"
+
+
+def set_auth_cookies(
+    response: Response, access_token: str, refresh_token: str | None = None
+) -> None:
+    response.set_cookie(
+        key=ACCESS_TOKEN_COOKIE_NAME,
+        value=access_token,
+        max_age=60 * settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+        httponly=True,
+        secure=settings.ENVIRONMENT == "production",
+        samesite="lax",
+    )
+    if refresh_token:
+        max_age_seconds = settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+        response.set_cookie(
+            key=REFRESH_TOKEN_COOKIE_NAME,
+            value=refresh_token,
+            max_age=int(max_age_seconds),
+            httponly=True,
+            secure=settings.ENVIRONMENT == "production",
+            samesite="lax",
+        )

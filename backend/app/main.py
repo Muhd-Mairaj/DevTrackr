@@ -11,7 +11,11 @@ app = FastAPI(title="DevTrackr API")
 # SessionMiddleware is required by authlib's Starlette integration
 # it stores the OAuth "state" (CSRF nonce) during the authorize - callback flow.
 # Prevents CSRF attacks
-app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.SECRET_KEY,
+    https_only=settings.ENVIRONMENT == "production",
+)
 
 app.include_router(api_router, prefix=settings.API_STR)
 
