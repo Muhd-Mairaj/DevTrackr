@@ -54,7 +54,7 @@ async def get_session_by_token(
     """Look up a session in the database using the refresh token."""
     statement = select(UserSessionToken).where(
         UserSessionToken.token_hash == token,
-        not UserSessionToken.is_revoked,
+        UserSessionToken.is_revoked == False,
     )
     result = await session.exec(statement)
     return result.first()
