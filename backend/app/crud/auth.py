@@ -5,8 +5,10 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.config import settings
-from app.core.security import create_session_token
+from app.core.security import create_session_token, hash_token
 from app.models.auth import UserSessionToken
+
+type RefreshToken = str
 
 
 async def create_session(
@@ -16,8 +18,13 @@ async def create_session(
     device_name: str | None = None,
     device_type: str | None = None,
     device_fingerprint: str | None = None,
-) -> UserSessionToken:
-    """Create a persistent user session, generating and storing the refresh token."""
+) -> RefreshToken:
+    """
+    Create a persistent user session and return the raw (unhashed) refresh token.
+
+    The refresh token is a signed JWT that contains the session ID. The version
+    stored in the database is hashed for security.
+    """
     expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
 
     # Create instance; id is automatically assigned via default_factory
@@ -32,13 +39,12 @@ async def create_session(
     # Generate the signed JWT using the model's auto-generated ID
     refresh_token = create_session_token(subject=db_obj.id, expires_at=expires_at)
 
-    # Update hash and save in a single commit
-    db_obj.token_hash = refresh_token
+    db_obj.token_hash = hash_token(refresh_token)
     session.add(db_obj)
     await session.commit()
     await session.refresh(db_obj)
 
-    return db_obj
+    return refresh_token
 
 
 async def get_session_by_id(
@@ -52,8 +58,10 @@ async def get_session_by_token(
     *, session: AsyncSession, token: str
 ) -> UserSessionToken | None:
     """Look up a session in the database using the refresh token."""
+    # Hash the provided token string before querying
+    hashed_token = hash_token(token)
     statement = select(UserSessionToken).where(
-        UserSessionToken.token_hash == token,
+        UserSessionToken.token_hash == hashed_token,
         UserSessionToken.is_revoked == False,
     )
     result = await session.exec(statement)

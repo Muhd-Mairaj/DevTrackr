@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -52,6 +53,10 @@ def create_session_token(subject: uuid.UUID, expires_at: datetime) -> str:
 
 def decode_token(token: str) -> dict[str, Any]:
     return jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+
+
+def hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 ACCESS_TOKEN_COOKIE_NAME = "devtrackr_access"

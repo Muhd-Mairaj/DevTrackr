@@ -149,7 +149,7 @@ async def github_callback(
 
     access_token = create_access_token(user.id)
     # Create a stateful DB session (Refresh Token)
-    db_session = await create_session(
+    refresh_token = await create_session(
         session=session,
         user_id=user.id,
         device_name=request.headers.get("user-agent"),
@@ -157,7 +157,7 @@ async def github_callback(
 
     response = RedirectResponse(url=settings.FRONTEND_HOST, status_code=302)
 
-    set_auth_cookies(response, access_token, db_session.token_hash)
+    set_auth_cookies(response, access_token, refresh_token)
 
     return response
 
