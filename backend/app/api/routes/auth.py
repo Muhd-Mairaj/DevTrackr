@@ -13,13 +13,13 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.api.deps import CurrentUser
-from app.core.config import settings
 from app.core.security import (
     ACCESS_TOKEN_COOKIE_NAME,
     REFRESH_TOKEN_COOKIE_NAME,
     create_access_token,
     decode_token,
     hash_password,
+    set_auth_cookies,
     verify_password,
 )
 from app.crud.auth import (
@@ -31,29 +31,6 @@ from app.db.session import get_db
 from app.models.user import AuthResponse, User, UserCreate, UserLogin, UserPublic
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
-
-def _set_auth_cookies(
-    response: Response, access_token: str, refresh_token: str | None = None
-) -> None:
-    response.set_cookie(
-        key=ACCESS_TOKEN_COOKIE_NAME,
-        value=access_token,
-        max_age=60 * settings.ACCESS_TOKEN_EXPIRE_MINUTES,
-        httponly=True,
-        secure=settings.ENVIRONMENT == "production",
-        samesite="lax",
-    )
-    if refresh_token:
-        max_age_seconds = settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
-        response.set_cookie(
-            key=REFRESH_TOKEN_COOKIE_NAME,
-            value=refresh_token,
-            max_age=int(max_age_seconds),
-            httponly=True,
-            secure=settings.ENVIRONMENT == "production",
-            samesite="lax",
-        )
 
 
 @router.post(
@@ -91,8 +68,7 @@ async def register(
     )
 
     access_token = create_access_token(user.id)
-
-    _set_auth_cookies(response, access_token, db_session.token_hash)
+    set_auth_cookies(response, access_token, db_session.token_hash)
 
     return AuthResponse(user=UserPublic.model_validate(user))
 
@@ -131,7 +107,7 @@ async def login(
     )
 
     access_token = create_access_token(user.id)
-    _set_auth_cookies(response, access_token, db_session.token_hash)
+    set_auth_cookies(response, access_token, db_session.token_hash)
 
     return AuthResponse(user=UserPublic.model_validate(user))
 
@@ -170,7 +146,7 @@ async def refresh(
         )
 
     new_access_token = create_access_token(user.id)
-    _set_auth_cookies(response, new_access_token)
+    set_auth_cookies(response, new_access_token)
 
     return AuthResponse(user=UserPublic.model_validate(user))
 
