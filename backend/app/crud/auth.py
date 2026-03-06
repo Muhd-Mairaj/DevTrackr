@@ -44,7 +44,7 @@ async def create_session(
 async def get_session_by_id(
     *, session: AsyncSession, id: uuid.UUID
 ) -> UserSessionToken | None:
-    """Get a valid session by its UUID."""
+    """Get a session record by its UUID."""
     return await session.get(UserSessionToken, id)
 
 
