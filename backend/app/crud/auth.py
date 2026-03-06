@@ -20,22 +20,19 @@ async def create_session(
     """Create a persistent user session, generating and storing the refresh token."""
     expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
 
-    # Store initial record to get ID
+    # Create instance; id is automatically assigned via default_factory
     db_obj = UserSessionToken(
         user_id=user_id,
         expires_at=expires_at,
         device_name=device_name,
         device_type=device_type,
         device_fingerprint=device_fingerprint,
-        token_hash="",  # Placeholder to finalize in next step
     )
-    session.add(db_obj)
-    await session.commit()
-    await session.refresh(db_obj)
 
-    # Generate the signed JWT with the DB record ID as the 'sub'
+    # Generate the signed JWT using the model's auto-generated ID
     refresh_token = create_session_token(subject=db_obj.id, expires_at=expires_at)
 
+    # Update hash and save in a single commit
     db_obj.token_hash = refresh_token
     session.add(db_obj)
     await session.commit()
