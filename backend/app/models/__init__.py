@@ -1,3 +1,4 @@
+from .auth import UserSessionToken
 from .base import BaseModel
 from .commit import Commit
 from .integration import Integration
@@ -16,4 +17,5 @@ __all__ = [
     "Repository",
     "TimeEntry",
     "User",
+    "UserSessionToken",
 ]

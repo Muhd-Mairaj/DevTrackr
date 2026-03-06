@@ -24,4 +24,13 @@
 - https://mypy.readthedocs.io/en/latest/extending_mypy.html
 - https://docs.pydantic.dev/latest/integrations/mypy/#__tabbed_2_2
 
+### Authlib
+- https://docs.authlib.org/en/latest/
+- https://docs.authlib.org/en/latest/client/frameworks.html#using-oauth-2-0-to-log-in
+- https://docs.authlib.org/en/latest/client/fastapi.html
+- https://docs.authlib.org/en/latest/client/starlette.html
+- https://starlette.dev/middleware/#sessionmiddleware
+- https://blog.authlib.org/2020/fastapi-google-login
+- https://docs.github.com/en/rest/quickstart?apiVersion=2022-11-28
+
 ### Docker
