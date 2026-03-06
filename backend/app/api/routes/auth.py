@@ -19,6 +19,7 @@ from app.core.security import (
     create_access_token,
     decode_token,
     hash_password,
+    hash_token,
     set_auth_cookies,
     verify_password,
 )
@@ -61,14 +62,14 @@ async def register(
     await session.commit()
     await session.refresh(user)
 
-    db_session = await create_session(
+    refresh_token = await create_session(
         session=session,
         user_id=user.id,
         device_name=request.headers.get("user-agent"),
     )
 
     access_token = create_access_token(user.id)
-    set_auth_cookies(response, access_token, db_session.token_hash)
+    set_auth_cookies(response, access_token, refresh_token)
 
     return AuthResponse(user=UserPublic.model_validate(user))
 
@@ -100,14 +101,14 @@ async def login(
         )
 
     # Create a stateful DB session
-    db_session = await create_session(
+    refresh_token = await create_session(
         session=session,
         user_id=user.id,
         device_name=request.headers.get("user-agent"),
     )
 
     access_token = create_access_token(user.id)
-    set_auth_cookies(response, access_token, db_session.token_hash)
+    set_auth_cookies(response, access_token, refresh_token)
 
     return AuthResponse(user=UserPublic.model_validate(user))
 
@@ -137,7 +138,15 @@ async def refresh(
     db_session = await get_session_by_id(session=session, id=session_id)
 
     if not db_session or not db_session.is_valid:
-        raise HTTPException(status_code=401, detail="Session revoked or expired")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session revoked or expired",
+        )
+
+    if db_session.token_hash != hash_token(refresh_token):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session token"
+        )
 
     user = await session.get(User, db_session.user_id)
     if not user:
