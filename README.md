@@ -9,32 +9,16 @@
 ![AI Badge](https://img.shields.io/badge/AI-Pluggable%20Providers-purple)
 ![License Badge](https://img.shields.io/badge/License-MIT-black)
 
-## Setup
-1. Clone the repo.
-2. Install backend dependencies: `cd backend && uv sync`
-3. Install frontend dependencies: `cd frontend && bun install`
-4. Run `uv tool install pre-commit` (if not already installed).
-5. Run `pre-commit install` to activate the git hooks.
-6. **Generate the frontend client SDK**:
-   ```bash
-   bash scripts/generate-client.sh
-   ```
-   *Note: Ensure backend and frontend dependencies are installed before running this. Run it whenever you change backend routes or models to sync the frontend client.*
+## 🏁 Getting Started
 
-## 🛠️ Developer Scripts
+To get started with DevTrackr, please follow our detailed **[Setup Guide](./docs/setup-guide.md)**.
 
-We provide standard scripts in the `scripts/` directory to simplify common tasks:
-
-### Formatting & Linting
-Use the project-wide format script to keep the codebase clean:
-
-- **Check only:** `./scripts/format.sh`
-- **Fix automatically:** `./scripts/format.sh --fix`
-
-### API Client Synchronization
-Whenever you update your backend routes, regenerate the frontend TypeScript SDK:
-
-- **Generate:** `./scripts/generate-client.sh`
+It covers:
+- Prerequisites & Installation
+- Code Quality & Formatting
+- API Client Synchronization
+- Database Migrations
+- Running Locally with Docker
 
 ---
 
