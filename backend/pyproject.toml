@@ -85,6 +85,7 @@ select = [
 ignore = [
     "B008",  # do not perform function calls in argument defaults
     "B904",  # Allow raising exceptions without from e, for HTTPException
+    "E712",  # Allow equality comparisons to True/False for SQLModel/SQLAlchemy
 ]
 
 [tool.ruff.format]

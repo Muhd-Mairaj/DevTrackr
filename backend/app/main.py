@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.main import api_router
 
@@ -6,6 +7,15 @@ from app.api.main import api_router
 from app.core.config import settings  # noqa: F401
 
 app = FastAPI(title="DevTrackr API")
+
+# SessionMiddleware is required by authlib's Starlette integration
+# it stores the OAuth "state" (CSRF nonce) during the authorize - callback flow.
+# Prevents CSRF attacks
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.SECRET_KEY,
+    https_only=settings.ENVIRONMENT == "production",
+)
 
 app.include_router(api_router, prefix=settings.API_STR)
 

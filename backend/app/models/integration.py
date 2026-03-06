@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 from sqlmodel import DateTime, Field, Relationship, SQLModel
 
@@ -9,6 +9,13 @@ from .base_types import EncryptedString
 
 if TYPE_CHECKING:
     from .user import User
+
+
+class OAuth2Token(TypedDict):
+    access_token: str
+    token_type: str
+    refresh_token: str | None
+    expires_at: int | None
 
 
 class IntegrationBase(SQLModel):
@@ -46,3 +53,13 @@ class Integration(IntegrationBase, BaseModel, table=True):
         foreign_key="users.id", nullable=False, ondelete="CASCADE"
     )
     user: "User" = Relationship(back_populates="integrations")
+
+    def to_token(self) -> OAuth2Token:
+        return {
+            "access_token": self.access_token,
+            "token_type": "bearer",
+            "refresh_token": self.refresh_token,
+            "expires_at": int(self.token_expiry.timestamp())
+            if self.token_expiry
+            else None,
+        }
