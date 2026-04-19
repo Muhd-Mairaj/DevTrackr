@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "bun run generate-routes && tsc -b && vite build",
+    "generate-routes": "tsr generate",
     "generate-client": "openapi-ts",
     "preview": "vite preview",
     "lint": "biome lint --css-parse-tailwind-directives=true .",
@@ -30,6 +31,7 @@
     "@hey-api/openapi-ts": "^0.93.1",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-devtools": "^0.7.7",
+    "@tanstack/router-cli": "^1.166.33",
     "@tanstack/router-plugin": "^1.133.15",
     "@types/node": "^24.8.1",
     "@types/react": "^19.2.2",
