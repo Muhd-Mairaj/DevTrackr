@@ -6,7 +6,7 @@ services:
     image: postgres:18.1-trixie
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
       retries: 5
       start_period: 30s
@@ -43,7 +43,7 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT?Variable not set}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY?Variable not set}
 
-    command: ["./scripts/prestart.sh"]
+    command: [ "./scripts/prestart.sh" ]
 
   backend:
     container_name: devtrackr-backend
@@ -57,7 +57,8 @@ services:
           "CMD",
           "python",
           "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/ping'); exit(0)",
+          "import urllib.request;
+            urllib.request.urlopen('http://localhost:8000/api/ping'); exit(0)",
         ]
       interval: 10s
       retries: 5
@@ -93,7 +94,9 @@ services:
     environment:
       - VITE_API_URL=${VITE_API_URL?Variable not set}
     ports:
-      - "80:80" # Only expose the Production Web Server
+      # VPS must have a reverse proxy like Caddy or Nginx to forward traffic
+      # to the frontend container's port
+      - "127.0.0.1:${FRONTEND_PORT?Frontend Port Not Set}:80"
     depends_on:
       backend:
         condition: service_healthy
