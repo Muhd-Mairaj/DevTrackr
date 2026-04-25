@@ -1,7 +1,7 @@
 # Use Vitest and Playwright for Frontend Testing and E2E
 
 **Date:** 2026-04-08
-**Status:** Proposed
+**Status:** Accepted
 
 ## Context
 DevTrackr's frontend is built with **Vite**, **TypeScript**, **Tailwind CSS**, and **Biome**. We need a testing strategy that verifies:
