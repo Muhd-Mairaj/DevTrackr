@@ -20,7 +20,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U admin -d postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -41,7 +41,8 @@ jobs:
 
       - name: Create Test Database
         run: |
-          docker exec ${{ job.services.postgres.id }} psql -U admin -c "CREATE DATABASE devtrackr_db_test;"
+          docker exec -e PGPASSWORD=changeme ${{ job.services.postgres.id }} \
+            psql -U admin -d postgres -c "CREATE DATABASE devtrackr_db_test;"
 
       - name: Run Backend Tests
         run: |
