@@ -34,3 +34,14 @@
 - https://docs.github.com/en/rest/quickstart?apiVersion=2022-11-28
 
 ### Docker
+- https://docs.docker.com/engine/reference/builder/
+- https://docs.docker.com/compose/compose-file/
+
+### Testing (Backend)
+- [Pytest Documentation](https://docs.pytest.org/en/stable/): The main testing framework used for the backend.
+- [pytest-asyncio](https://pytest-asyncio.readthedocs.io/en/latest/): Essential for testing FastAPI's async endpoints and database operations.
+- [SQLModel Testing](https://sqlmodel.tiangolo.com/tutorial/fastapi/tests/): Guidance on testing SQLModel applications with FastAPI.
+- [Alembic Programmatic API](https://alembic.sqlalchemy.org/en/latest/api/commands.html): Used in `conftest.py` to ensure the test database is marked with the correct migration version.
+- [Httpx Transports](https://www.python-httpx.org/advanced/transports/): Detailed explanation of how `ASGITransport` works for testing against local applications.
+- [FastAPI Testing Tutorial](https://fastapi.tiangolo.com/tutorial/testing/): Official guide for testing FastAPI applications.
+- [FastAPI Async Tests](https://fastapi.tiangolo.com/advanced/async-tests/): Guidance on testing async endpoints with HTTPX and pytest-asyncio.

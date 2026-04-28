@@ -1,0 +1,59 @@
+name: Backend Tests
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18.1-trixie
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: changeme
+          POSTGRES_DB: devtrackr_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "backend/uv.lock"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "backend/.python-version"
+
+      - name: Create Test Database
+        run: |
+          docker exec ${{ job.services.postgres.id }} psql -U admin -c "CREATE DATABASE devtrackr_db_test;"
+
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          uv run pytest
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: changeme
+          POSTGRES_DB: devtrackr_db
+          SECRET_KEY: changeme
+          ENCRYPTION_KEY: ${{ secrets.TEST_ENCRYPTION_KEY }}
+          ENVIRONMENT: development
+          PROJECT_NAME: DevTrackr
