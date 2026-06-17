@@ -146,6 +146,7 @@ This process is repetitive, fragmented, and error-prone.
     ├── backend/            # FastAPI backend
     ├── docker-compose.yml
     ├── docker-compose.override.yml
+    ├── docker-compose.prod.yml    # Production-specific overrides
     ├── .github/            # CI/CD workflows
     ├── README.md
 

@@ -93,10 +93,9 @@ services:
     restart: unless-stopped
     environment:
       - VITE_API_URL=${VITE_API_URL?Variable not set}
-    ports:
-      # VPS must have a reverse proxy like Caddy or Nginx to forward traffic
-      # to the frontend container's port
-      - "127.0.0.1:${FRONTEND_PORT?Frontend Port Not Set}:80"
+    # Port mapping is environment-specific:
+    #   Dev:  docker-compose.override.yml maps 5173:5173 (Vite dev server)
+    #   Prod: docker-compose.prod.yml maps 127.0.0.1:${FRONTEND_PORT}:80 (nginx)
     depends_on:
       backend:
         condition: service_healthy
