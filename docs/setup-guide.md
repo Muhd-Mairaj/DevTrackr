@@ -107,10 +107,31 @@ This script ensures that the frontend TypeScript types match the backend's OpenA
 ## 🚀 Running Locally
 
 ### With Docker (Recommended Service Setup)
+
 ```bash
 docker compose watch
 ```
-This will start the database, backend, and frontend, as well as ensure that the migrations are up to date.
+
+This starts the database, backend, and frontend with hot reload.
+The frontend is accessible at `http://localhost:5173`.
+
+### With Docker (Production / Staging)
+
+For a production or staging deployment on a VPS:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+This starts the services with production settings (no hot reload, nginx
+serving the built frontend). Ensure `FRONTEND_PORT` is set in your `.env`
+file (defaults to 5173). The VPS must have a reverse proxy (e.g., Caddy,
+Nginx) forwarding traffic from ports 80/443 to `localhost:${FRONTEND_PORT}`.
+
+> **Important:** Do not copy `docker-compose.override.yml` to the production
+> server. Compose auto-loads it and would reintroduce the port conflict.
+> The production server should only have `docker-compose.yml` and
+> `docker-compose.prod.yml`.
 
 ### Individual Services
 - **Backend**: `cd backend && uv run uvicorn app.main:app --reload`
