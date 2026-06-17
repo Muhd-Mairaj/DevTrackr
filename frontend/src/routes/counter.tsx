@@ -1,13 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute('/counter')({
+export const Route = createFileRoute("/counter")({
   component: CounterComponent,
-})
+});
 
 function CounterComponent() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <div className="p-4 flex flex-col items-center gap-4">
@@ -18,5 +18,5 @@ function CounterComponent() {
         <Button onClick={() => setCount(count + 1)}>Increment</Button>
       </div>
     </div>
-  )
+  );
 }
