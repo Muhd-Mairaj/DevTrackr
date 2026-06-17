@@ -1,0 +1,172 @@
+name: DevTrackr CD
+
+on:
+  workflow_run:
+    workflows: ["DevTrackr CI"]
+    types: [completed]
+    branches: [dev, prod]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.event.workflow_run.head_branch == 'prod' && 'production' || 'staging' }}
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment: ${{ github.event.workflow_run.head_branch == 'prod' && 'production' || 'staging' }}
+
+    env:
+      GIT_SHA: ${{ github.event.workflow_run.head_sha }}
+      BRANCH: ${{ github.event.workflow_run.head_branch }}
+      ENVIRONMENT: ${{ github.event.workflow_run.head_branch == 'prod' && 'production' || 'staging' }}
+      ENV_TAG: ${{ github.event.workflow_run.head_branch == 'prod' && 'production' || 'staging' }}
+
+    steps:
+      - name: Checkout repository at triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Compute lowercase GHCR image paths
+        run: |
+          # GHCR requires lowercase repository names — Docker rejects mixed case.
+          # e.g. "Muhd-Mairaj" → "muhd-mairaj"
+          OWNER_LC="${{ github.repository_owner }}"
+          OWNER_LC="${OWNER_LC,,}"
+          echo "BACKEND_IMAGE_SHA=ghcr.io/${OWNER_LC}/devtrackr-backend:${{ env.GIT_SHA }}" >> "$GITHUB_ENV"
+          echo "FRONTEND_IMAGE_SHA=ghcr.io/${OWNER_LC}/devtrackr-frontend:${{ env.GIT_SHA }}" >> "$GITHUB_ENV"
+          echo "BACKEND_IMAGE_TAG=ghcr.io/${OWNER_LC}/devtrackr-backend:${{ env.ENV_TAG }}" >> "$GITHUB_ENV"
+          echo "FRONTEND_IMAGE_TAG=ghcr.io/${OWNER_LC}/devtrackr-frontend:${{ env.ENV_TAG }}" >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          target: prod
+          push: true
+          tags: |
+            ${{ env.BACKEND_IMAGE_SHA }}
+            ${{ env.BACKEND_IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          target: prod
+          push: true
+          tags: |
+            ${{ env.FRONTEND_IMAGE_SHA }}
+            ${{ env.FRONTEND_IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            PROJECT_ROOT="${{ vars.VPS_PROJECT_ROOT }}"
+            ENVIRONMENT="${{ env.ENVIRONMENT }}"
+            COMPOSE_FLAGS="-f docker-compose.yml -f docker-compose.${ENVIRONMENT}.yml"
+
+            cd "$PROJECT_ROOT"
+
+            # Write environment file from GitHub secrets and variables
+            cat > .env <<'EOF'
+            COMPOSE_PROJECT_NAME=devtrackr-${{ env.ENVIRONMENT }}
+            PROJECT_NAME=DevTrackr
+            DOMAIN=${{ vars.DOMAIN }}
+            FRONTEND_HOST=${{ vars.FRONTEND_HOST }}
+            ENVIRONMENT=${{ env.ENVIRONMENT }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            BACKEND_CORS_ORIGINS=${{ vars.BACKEND_CORS_ORIGINS }}
+            POSTGRES_USER=${{ vars.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB=${{ vars.POSTGRES_DB }}
+            POSTGRES_HOST=database
+            POSTGRES_PORT=${{ vars.POSTGRES_PORT }}
+            ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
+            VITE_API_URL=${{ vars.VITE_API_URL }}
+            FRONTEND_PORT=${{ vars.FRONTEND_PORT }}
+            BACKEND_PORT=${{ vars.BACKEND_PORT }}
+            BACKEND_IMAGE=${{ env.BACKEND_IMAGE_TAG }}
+            FRONTEND_IMAGE=${{ env.FRONTEND_IMAGE_TAG }}
+            GITHUB_CLIENT_ID=${{ secrets.GITHUB_CLIENT_ID }}
+            GITHUB_CLIENT_SECRET=${{ secrets.GITHUB_CLIENT_SECRET }}
+            SMTP_API_KEY=${{ secrets.SMTP_API_KEY }}
+            SMTP_HOST=${{ vars.SMTP_HOST }}
+            SMTP_PORT=${{ vars.SMTP_PORT }}
+            SMTP_LOGIN=${{ vars.SMTP_LOGIN }}
+            EMAILS_FROM_EMAIL=${{ vars.EMAILS_FROM_EMAIL }}
+            EMAILS_FROM_NAME=${{ vars.EMAILS_FROM_NAME }}
+            EOF
+
+            # Capture current images for potential rollback
+            BACKEND_CONTAINER=$(docker compose $COMPOSE_FLAGS ps -q backend || true)
+            FRONTEND_CONTAINER=$(docker compose $COMPOSE_FLAGS ps -q frontend || true)
+            OLD_BACKEND=$(docker inspect --format='{{.Image}}' "$BACKEND_CONTAINER" 2>/dev/null || echo "")
+            OLD_FRONTEND=$(docker inspect --format='{{.Image}}' "$FRONTEND_CONTAINER" 2>/dev/null || echo "")
+
+            # Pull only the GHCR-published services (not database, which uses a pinned image)
+            docker compose $COMPOSE_FLAGS pull prestart backend frontend
+            docker compose $COMPOSE_FLAGS up -d
+
+            # Health check
+            BACKEND_PORT="${{ vars.BACKEND_PORT }}"
+            for i in {1..30}; do
+              if curl -fsS "http://localhost:${BACKEND_PORT}/api/ping" > /dev/null; then
+                echo "Backend is healthy"
+                exit 0
+              fi
+              sleep 2
+            done
+
+            echo "Backend did not become healthy. Attempting rollback..."
+
+            # IMPORTANT: Rollback only redeploys old images — it does NOT reverse
+            # Alembic migrations that prestart already ran. All migrations must be
+            # backward-compatible with the previous backend code. If a migration is
+            # not backward-compatible and the health check fails, manual intervention
+            # (alembic downgrade) will be required.
+
+            # Rollback to previous images
+            if [ -n "$OLD_BACKEND" ] && [ -n "$OLD_FRONTEND" ]; then
+              printf 'services:\n  prestart:\n    image: %s\n  backend:\n    image: %s\n  frontend:\n    image: %s\n' "$OLD_BACKEND" "$OLD_BACKEND" "$OLD_FRONTEND" > docker-compose.${ENVIRONMENT}.rollback.yml
+
+              docker compose $COMPOSE_FLAGS -f docker-compose.${ENVIRONMENT}.rollback.yml up -d
+
+              for i in {1..30}; do
+                if curl -fsS "http://localhost:${BACKEND_PORT}/api/ping" > /dev/null; then
+                  echo "Rollback successful"
+                  rm -f docker-compose.${ENVIRONMENT}.rollback.yml
+                  exit 1
+                fi
+                sleep 2
+              done
+
+              rm -f docker-compose.${ENVIRONMENT}.rollback.yml
+              echo "Rollback failed"
+            fi
+
+            exit 1
