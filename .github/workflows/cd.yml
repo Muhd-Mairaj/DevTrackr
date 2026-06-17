@@ -112,8 +112,8 @@ jobs:
             BACKEND_PORT=${{ vars.BACKEND_PORT }}
             BACKEND_IMAGE=${{ env.BACKEND_IMAGE_TAG }}
             FRONTEND_IMAGE=${{ env.FRONTEND_IMAGE_TAG }}
-            GITHUB_CLIENT_ID=${{ secrets.GITHUB_CLIENT_ID }}
-            GITHUB_CLIENT_SECRET=${{ secrets.GITHUB_CLIENT_SECRET }}
+            GITHUB_CLIENT_ID=${{ secrets.GH_OAUTH_CLIENT_ID }}
+            GITHUB_CLIENT_SECRET=${{ secrets.GH_OAUTH_CLIENT_SECRET }}
             SMTP_API_KEY=${{ secrets.SMTP_API_KEY }}
             SMTP_HOST=${{ vars.SMTP_HOST }}
             SMTP_PORT=${{ vars.SMTP_PORT }}
