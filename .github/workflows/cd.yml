@@ -20,8 +20,8 @@ jobs:
     env:
       GIT_SHA: ${{ github.event.workflow_run.head_sha }}
       BRANCH: ${{ github.event.workflow_run.head_branch }}
-      ENVIRONMENT: ${{ github.event.workflow_run.head_branch == 'prod' && 'production' || 'staging' }}
-      ENV_TAG: ${{ github.event.workflow_run.head_branch == 'prod' && 'production' || 'staging' }}
+      ENVIRONMENT: ${{ github.event.workflow_run.head_branch == 'prod' && 'prod' || 'staging' }}
+      ENV_TAG: ${{ github.event.workflow_run.head_branch == 'prod' && 'prod' || 'staging' }}
 
     steps:
       - name: Checkout repository at triggering commit
