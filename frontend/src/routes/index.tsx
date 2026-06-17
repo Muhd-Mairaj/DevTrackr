@@ -1,9 +1,9 @@
-import { Button } from '@/components/ui/button'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   component: HomeComponent,
-})
+});
 
 function HomeComponent() {
   return (
@@ -11,5 +11,5 @@ function HomeComponent() {
       <p>DevTrackr meow meow</p>
       <Button size="lg">Zingy</Button>
     </>
-  )
+  );
 }
