@@ -34,8 +34,8 @@ Create two environments in the repository settings:
 | `SECRET_KEY` | FastAPI secret key |
 | `ENCRYPTION_KEY` | Fernet encryption key |
 | `POSTGRES_PASSWORD` | Database password |
-| `GITHUB_CLIENT_ID` | GitHub OAuth app ID |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth app secret |
+| `GH_OAUTH_CLIENT_ID` | GitHub OAuth app ID |
+| `GH_OAUTH_CLIENT_SECRET` | GitHub OAuth app secret |
 | `SMTP_API_KEY` | Optional email API key |
 
 ### Variables per environment
@@ -74,6 +74,6 @@ To pin to a specific image, set `BACKEND_IMAGE` and `FRONTEND_IMAGE` in `.env` f
 
 ### Common issues
 
-- **Port already allocated:** Ensure staging and production use different `FRONTEND_PORT`, `BACKEND_PORT`, and `POSTGRES_PORT` values.
+- **Port already allocated:** Ensure staging and production use different `FRONTEND_PORT` and `BACKEND_PORT` values. (The database is not published to a host port in these environments, so `POSTGRES_PORT` can't collide.)
 - **Permission denied:** Verify the SSH key in GitHub secrets matches the authorized key on the VPS.
 - **Image pull failed:** Confirm the VPS can reach `ghcr.io` and that `GHCR_PULL_TOKEN` is set to a valid PAT with `read:packages`. The workflow's `GITHUB_TOKEN` only authenticates the runner that builds and pushes — it does not reach the VPS, so the VPS logs in with `GHCR_PULL_TOKEN` instead. A `denied`/`unauthorized` error means that secret is missing, expired, or lacks `read:packages` (or the images aren't visible to that account).
