@@ -1,0 +1,16 @@
+# docker-compose.prod.yml
+# Production-specific overrides for DevTrackr.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# This file adds the production port mapping for the frontend service.
+# All other production defaults (target: prod, restart policies, healthchecks)
+# are already set in the base docker-compose.yml.
+
+services:
+  frontend:
+    ports:
+      # VPS must have a reverse proxy like Caddy or Nginx to forward traffic
+      # to the frontend container's port.
+      - "127.0.0.1:${FRONTEND_PORT?Frontend Port Not Set}:80"
