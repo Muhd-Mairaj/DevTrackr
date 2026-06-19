@@ -10,6 +10,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: deploy-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false # Do not cancel ongoing deployments
+
 jobs:
   deploy:
     name: Deploy to ${{ github.event.workflow_run.head_branch == 'prod' && 'production' || 'staging' }}
@@ -78,11 +82,18 @@ jobs:
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script_stop: true
+          # Forward GHCR creds into the remote shell. The runner's GHCR login
+          # does not reach the VPS, so the VPS needs its own credentials to
+          # pull private images.
+          envs: GHCR_USER,GHCR_TOKEN
           script: |
             set -euo pipefail
 
@@ -110,8 +121,8 @@ jobs:
             VITE_API_URL=${{ vars.VITE_API_URL }}
             FRONTEND_PORT=${{ vars.FRONTEND_PORT }}
             BACKEND_PORT=${{ vars.BACKEND_PORT }}
-            BACKEND_IMAGE=${{ env.BACKEND_IMAGE_TAG }}
-            FRONTEND_IMAGE=${{ env.FRONTEND_IMAGE_TAG }}
+            BACKEND_IMAGE=${{ env.BACKEND_IMAGE_SHA }}
+            FRONTEND_IMAGE=${{ env.FRONTEND_IMAGE_SHA }}
             GITHUB_CLIENT_ID=${{ secrets.GH_OAUTH_CLIENT_ID }}
             GITHUB_CLIENT_SECRET=${{ secrets.GH_OAUTH_CLIENT_SECRET }}
             SMTP_API_KEY=${{ secrets.SMTP_API_KEY }}
@@ -127,6 +138,9 @@ jobs:
             FRONTEND_CONTAINER=$(docker compose $COMPOSE_FLAGS ps -q frontend || true)
             OLD_BACKEND=$(docker inspect --format='{{.Image}}' "$BACKEND_CONTAINER" 2>/dev/null || echo "")
             OLD_FRONTEND=$(docker inspect --format='{{.Image}}' "$FRONTEND_CONTAINER" 2>/dev/null || echo "")
+
+            # Authenticate to GHCR so private image pulls succeed on the VPS.
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 
             # Pull only the GHCR-published services (not database, which uses a pinned image)
             docker compose $COMPOSE_FLAGS pull prestart backend frontend
@@ -152,7 +166,10 @@ jobs:
 
             # Rollback to previous images
             if [ -n "$OLD_BACKEND" ] && [ -n "$OLD_FRONTEND" ]; then
-              printf 'services:\n  prestart:\n    image: %s\n  backend:\n    image: %s\n  frontend:\n    image: %s\n' "$OLD_BACKEND" "$OLD_BACKEND" "$OLD_FRONTEND" > docker-compose.${ENVIRONMENT}.rollback.yml
+              # pull_policy: never - the override files set pull_policy: always,
+              # but OLD_* are local image IDs (sha256:...) with no registry ref.
+              # Without this, up -d would try `docker pull sha256:<id>` and fail.
+              printf 'services:\n  prestart:\n    image: %s\n    pull_policy: never\n  backend:\n    image: %s\n    pull_policy: never\n  frontend:\n    image: %s\n    pull_policy: never\n' "$OLD_BACKEND" "$OLD_BACKEND" "$OLD_FRONTEND" > docker-compose.${ENVIRONMENT}.rollback.yml
 
               docker compose $COMPOSE_FLAGS -f docker-compose.${ENVIRONMENT}.rollback.yml up -d
 

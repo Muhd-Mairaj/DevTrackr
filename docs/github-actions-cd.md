@@ -30,6 +30,7 @@ Create two environments in the repository settings:
 | `VPS_HOST` | VPS IP or hostname |
 | `VPS_USERNAME` | SSH user |
 | `VPS_SSH_PRIVATE_KEY` | SSH private key |
+| `GHCR_PULL_TOKEN` | GitHub PAT with `read:packages` — the VPS uses it to `docker login ghcr.io` and pull the private images |
 | `SECRET_KEY` | FastAPI secret key |
 | `ENCRYPTION_KEY` | Fernet encryption key |
 | `POSTGRES_PASSWORD` | Database password |
@@ -75,4 +76,4 @@ To pin to a specific image, set `BACKEND_IMAGE` and `FRONTEND_IMAGE` in `.env` f
 
 - **Port already allocated:** Ensure staging and production use different `FRONTEND_PORT`, `BACKEND_PORT`, and `POSTGRES_PORT` values.
 - **Permission denied:** Verify the SSH key in GitHub secrets matches the authorized key on the VPS.
-- **Image pull failed:** Confirm the VPS can reach `ghcr.io` and the `GITHUB_TOKEN` has `packages: write` permission.
+- **Image pull failed:** Confirm the VPS can reach `ghcr.io` and that `GHCR_PULL_TOKEN` is set to a valid PAT with `read:packages`. The workflow's `GITHUB_TOKEN` only authenticates the runner that builds and pushes — it does not reach the VPS, so the VPS logs in with `GHCR_PULL_TOKEN` instead. A `denied`/`unauthorized` error means that secret is missing, expired, or lacks `read:packages` (or the images aren't visible to that account).
