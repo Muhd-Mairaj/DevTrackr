@@ -1,12 +1,11 @@
-# docker-compose.prod.yml
-# Production-specific overrides for DevTrackr.
+# docker-compose.staging.yml
+# Staging-specific overrides for DevTrackr.
 #
 # Usage:
-#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#   docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
 #
-# This file points services to published GHCR images, adds the production
-# frontend port mapping, and renames containers so staging and production
-# can coexist on one VPS.
+# This file points services to published GHCR images, exposes staging ports,
+# and renames containers so staging and production can coexist on one VPS.
 
 services:
   database:
@@ -22,11 +21,11 @@ services:
     image: ${BACKEND_IMAGE}
     pull_policy: always
     ports:
-      - "127.0.0.1:${BACKEND_PORT?Backend Port Not Set}:8000"
+      - "127.0.0.1:${BACKEND_PORT}:8000"
 
   frontend:
     container_name: devtrackr-${ENVIRONMENT}-frontend
     image: ${FRONTEND_IMAGE}
     pull_policy: always
     ports:
-      - "127.0.0.1:${FRONTEND_PORT?Frontend Port Not Set}:80"
+      - "127.0.0.1:${FRONTEND_PORT}:80"
