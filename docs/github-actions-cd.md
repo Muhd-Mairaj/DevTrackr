@@ -52,24 +52,6 @@ Create two environments in the repository settings:
 | `BACKEND_PORT` | Backend host port |
 | `VITE_API_URL` | Frontend API base URL |
 
-## VPS setup
-
-1. Create the environment directories:
-   ```bash
-   sudo mkdir -p /opt/devtrackr-staging /opt/devtrackr
-   ```
-
-2. Copy compose files:
-   ```bash
-   scp docker-compose.yml docker-compose.staging.yml user@<vps>:/opt/devtrackr-staging/
-   scp docker-compose.yml docker-compose.prod.yml user@<vps>:/opt/devtrackr/
-   ```
-
-3. Ensure the deploy user can run Docker:
-   ```bash
-   sudo usermod -aG docker <deploy-user>
-   ```
-
 ## Operations
 
 ### View logs
