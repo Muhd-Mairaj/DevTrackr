@@ -4,13 +4,29 @@
 # Usage:
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 #
-# This file adds the production port mapping for the frontend service.
-# All other production defaults (target: prod, restart policies, healthchecks)
-# are already set in the base docker-compose.yml.
+# This file points services to published GHCR images, adds the production
+# frontend port mapping, and renames containers so staging and production
+# can coexist on one VPS.
 
 services:
-  frontend:
+  database:
+    container_name: devtrackr-${ENVIRONMENT}-database
+
+  prestart:
+    container_name: devtrackr-${ENVIRONMENT}-prestart
+    image: ${BACKEND_IMAGE}
+    pull_policy: always
+
+  backend:
+    container_name: devtrackr-${ENVIRONMENT}-backend
+    image: ${BACKEND_IMAGE}
+    pull_policy: always
     ports:
-      # VPS must have a reverse proxy like Caddy or Nginx to forward traffic
-      # to the frontend container's port.
+      - "127.0.0.1:${BACKEND_PORT?Backend Port Not Set}:8000"
+
+  frontend:
+    container_name: devtrackr-${ENVIRONMENT}-frontend
+    image: ${FRONTEND_IMAGE}
+    pull_policy: always
+    ports:
       - "127.0.0.1:${FRONTEND_PORT?Frontend Port Not Set}:80"
