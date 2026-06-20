@@ -4,9 +4,9 @@
 # Usage:
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 #
-# This file points services to published GHCR images, adds the production
-# frontend port mapping, and renames containers so staging and production
-# can coexist on one VPS.
+# This file points services to published GHCR images, renames containers so
+# staging and production can coexist on one VPS, and exposes the frontend to
+# the caddy-docker-proxy reverse proxy via labels on the shared `caddy` network.
 
 services:
   database:
@@ -21,6 +21,8 @@ services:
     container_name: devtrackr-${ENVIRONMENT}-backend
     image: ${BACKEND_IMAGE}
     pull_policy: always
+    # Bound to localhost only
+    # This mapping exists so the CD health check can curl http://localhost:${BACKEND_PORT}/api/ping.
     ports:
       - "127.0.0.1:${BACKEND_PORT?Backend Port Not Set}:8000"
 
@@ -28,5 +30,16 @@ services:
     container_name: devtrackr-${ENVIRONMENT}-frontend
     image: ${FRONTEND_IMAGE}
     pull_policy: always
-    ports:
-      - "127.0.0.1:${FRONTEND_PORT?Frontend Port Not Set}:80"
+    # No published ports: nginx listens on port 80
+    networks:
+      - default
+      - caddy
+    labels:
+      # Hostname injected via $DOMAIN (bare host, no scheme); set per env in CD.
+      caddy: ${DOMAIN}
+      caddy.reverse_proxy: "{{upstreams 80}}"
+
+networks:
+  default:
+  caddy:
+    external: true
