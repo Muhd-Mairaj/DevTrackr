@@ -14,7 +14,7 @@ app = FastAPI(title="DevTrackr API")
 app.add_middleware(
     SessionMiddleware,
     secret_key=settings.SECRET_KEY,
-    https_only=settings.ENVIRONMENT == "production",
+    https_only=settings.ENVIRONMENT in ("production", "staging"),
 )
 
 app.include_router(api_router, prefix=settings.API_STR)

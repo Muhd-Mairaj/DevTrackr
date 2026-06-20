@@ -71,7 +71,7 @@ def set_auth_cookies(
         value=access_token,
         max_age=60 * settings.ACCESS_TOKEN_EXPIRE_MINUTES,
         httponly=True,
-        secure=settings.ENVIRONMENT == "production",
+        secure=settings.ENVIRONMENT in ("production", "staging"),
         samesite="lax",
     )
     if refresh_token:
@@ -79,8 +79,8 @@ def set_auth_cookies(
         response.set_cookie(
             key=REFRESH_TOKEN_COOKIE_NAME,
             value=refresh_token,
-            max_age=int(max_age_seconds),
+            max_age=max_age_seconds,
             httponly=True,
-            secure=settings.ENVIRONMENT == "production",
+            secure=settings.ENVIRONMENT in ("production", "staging"),
             samesite="lax",
         )
