@@ -99,9 +99,16 @@ jobs:
 
             PROJECT_ROOT="${{ vars.VPS_PROJECT_ROOT }}"
             ENVIRONMENT="${{ env.ENVIRONMENT }}"
+            GIT_SHA="${{ env.GIT_SHA }}"
             COMPOSE_FLAGS="-f docker-compose.yml -f docker-compose.${ENVIRONMENT}.yml"
 
             cd "$PROJECT_ROOT"
+
+            # Sync compose files to the exact commit being deployed. Images are
+            # pinned to $GIT_SHA, so the compose files must match it. .env is
+            # gitignored, so the env file written below is never touched.
+            git fetch --quiet origin
+            git checkout --quiet --force "$GIT_SHA"
 
             # Write environment file from GitHub secrets and variables
             cat > .env <<'EOF'
