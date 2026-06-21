@@ -89,7 +89,6 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-          script_stop: true
           # Forward GHCR creds into the remote shell. The runner's GHCR login
           # does not reach the VPS, so the VPS needs its own credentials to
           # pull private images.
