@@ -32,7 +32,8 @@ target_metadata = SQLModel.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-config.set_main_option("sqlalchemy.url", str(settings.DATABASE_URL))
+# https://alembic.sqlalchemy.org/en/latest/tutorial.html#escaping-characters-in-ini-files
+config.set_main_option("sqlalchemy.url", str(settings.DATABASE_URL).replace("%", "%%"))
 
 
 def run_migrations_offline() -> None:
