@@ -30,6 +30,13 @@ services:
     container_name: devtrackr-${ENVIRONMENT}-frontend
     image: ${FRONTEND_IMAGE}
     pull_policy: always
+    # nginx:alpine ships busybox wget; confirms nginx is serving the SPA.
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:80/" ]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
     # No published ports: nginx listens on port 80
     networks:
       - default
