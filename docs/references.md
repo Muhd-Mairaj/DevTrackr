@@ -8,6 +8,7 @@
 - https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps
 - https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/using-webhooks-with-github-apps#choosing-a-webhook-url-for-development-and-testing
 - https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries
+- https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app#about-json-web-tokens-jwts
 
 ### ADR (Architecture Decision Record):
 - https://github.com/joelparkerhenderson/architecture-decision-record?tab=readme-ov-file
