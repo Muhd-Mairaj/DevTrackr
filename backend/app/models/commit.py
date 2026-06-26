@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlmodel import DateTime, Field, SQLModel
+from sqlmodel import Column, DateTime, Field, SQLModel
 
 from .base import BaseModel
 
@@ -10,8 +10,7 @@ class CommitBase(SQLModel):
     sha: str
     message: str
     committed_at: datetime = Field(
-        sa_type=DateTime(timezone=True),  # type: ignore[call-overload]
-        nullable=False,
+        sa_column=Column(DateTime(timezone=True), nullable=False),
     )
     url: str | None = None
 
