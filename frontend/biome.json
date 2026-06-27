@@ -20,11 +20,6 @@
       "recommended": true
     }
   },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2
-  },
   "javascript": {
     "formatter": {
       "quoteStyle": "double"
