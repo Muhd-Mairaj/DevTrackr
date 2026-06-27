@@ -20,6 +20,23 @@ async def create_user(*, session: AsyncSession, user_create: UserCreate) -> User
     return db_obj
 
 
+async def create_oauth_user(
+    *, session: AsyncSession, email: str, username: str
+) -> User:
+    """Create a passwordless user for OAuth-only sign-ups.
+
+    ``hashed_password`` stays NULL; the password-login paths reject NULL hashes,
+    so the account simply can't be accessed with a password (correct for an
+    OAuth-only account). The user can set a password later via the normal
+    update flow if you ever want to allow hybrid login.
+    """
+    db_obj = User(email=email, username=username, hashed_password=None)
+    session.add(db_obj)
+    await session.commit()
+    await session.refresh(db_obj)
+    return db_obj
+
+
 async def authenticate(
     *, session: AsyncSession, email: str, password: str
 ) -> User | None:
