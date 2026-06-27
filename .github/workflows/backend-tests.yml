@@ -15,7 +15,7 @@ jobs:
         image: postgres:18.1-trixie
         env:
           POSTGRES_USER: admin
-          POSTGRES_PASSWORD: changeme
+          POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
           POSTGRES_DB: devtrackr_db
         ports:
           - 5432:5432
@@ -39,20 +39,29 @@ jobs:
         with:
           python-version-file: "backend/.python-version"
 
+      - name: Install PostgreSQL Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
       - name: Create Test Database
         run: |
-          docker exec -e PGPASSWORD=changeme ${{ job.services.postgres.id }} \
-            psql -U admin -d postgres -c "CREATE DATABASE devtrackr_db_test;"
+          PGPASSWORD=${{ secrets.TEST_POSTGRES_PASSWORD }} psql -h localhost -U admin -d postgres -c "CREATE DATABASE devtrackr_db_test;"
+
+      - name: Install Dependencies
+        run: |
+          cd backend
+          uv sync --frozen
 
       - name: Run Backend Tests
         run: |
           cd backend
-          uv run pytest
+          uv run pytest -v --tb=short
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
           POSTGRES_USER: admin
-          POSTGRES_PASSWORD: changeme
+          POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
           POSTGRES_DB: devtrackr_db
           SECRET_KEY: changeme
           ENCRYPTION_KEY: ${{ secrets.TEST_ENCRYPTION_KEY }}
