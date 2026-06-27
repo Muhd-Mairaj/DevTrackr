@@ -4,7 +4,6 @@ from collections.abc import AsyncGenerator
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
-from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -14,18 +13,17 @@ from app.main import app
 
 TEST_DATABASE_URL = str(settings.TEST_DATABASE_URL)
 
-engine: AsyncEngine = create_async_engine(TEST_DATABASE_URL, echo=False)
 
-TestingSessionLocal = sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autoflush=False,
-)  # type: ignore
+@pytest.fixture(scope="session")
+async def engine() -> AsyncGenerator[AsyncEngine]:
+    """Create a session-scoped AsyncEngine and ensure it is disposed of at teardown."""
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+    yield engine
+    await engine.dispose()
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def setup_test_db() -> AsyncGenerator[None]:
+async def setup_test_db(engine: AsyncEngine) -> AsyncGenerator[None]:
     # Models must be imported before create_all to populate SQLModel metadata
     from app.models.auth import UserSessionToken  # noqa: F401
     from app.models.commit import Commit  # noqa: F401
@@ -36,15 +34,18 @@ async def setup_test_db() -> AsyncGenerator[None]:
     from app.models.time_entry import TimeEntry  # noqa: F401
     from app.models.user import User  # noqa: F401
 
+    # Clean the database first to ensure migrations run from scratch
     async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
+        await conn.run_sync(SQLModel.metadata.drop_all)
+        from sqlalchemy import text
 
-    def stamp_db() -> None:
+        await conn.execute(text("DROP TABLE IF EXISTS alembic_version"))
+
+    def upgrade_db() -> None:
         import os
 
+        from alembic.command import upgrade
         from alembic.config import Config
-        from alembic.script import ScriptDirectory
-        from sqlalchemy import create_engine, text
 
         alembic_cfg = Config("alembic.ini")
         base_dir = os.path.dirname(
@@ -54,25 +55,15 @@ async def setup_test_db() -> AsyncGenerator[None]:
             "script_location", os.path.join(base_dir, "app/alembic")
         )
         alembic_cfg.set_main_option("sqlalchemy.url", str(settings.TEST_DATABASE_URL))
+        upgrade(alembic_cfg, "head")
 
-        sync_engine = create_engine(str(settings.TEST_DATABASE_URL))
-        with sync_engine.connect() as conn:
-            conn.execute(
-                text(
-                    "CREATE TABLE IF NOT EXISTS alembic_version"
-                    " (version_num VARCHAR(32) NOT NULL)"
-                )
-            )
-            head = ScriptDirectory.from_config(alembic_cfg).get_current_head()
-            conn.execute(text("DELETE FROM alembic_version"))
-            conn.execute(
-                text("INSERT INTO alembic_version (version_num) VALUES (:head)"),
-                {"head": head},
-            )
-            conn.commit()
-
-    # stamp_db runs sync Alembic operations; must be offloaded from the async loop
-    await asyncio.to_thread(stamp_db)
+    try:
+        # upgrade_db runs sync Alembic operations; must be offloaded from the async loop
+        await asyncio.to_thread(upgrade_db)
+    except Exception:
+        async with engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.drop_all)
+        raise
 
     yield
 
@@ -81,12 +72,17 @@ async def setup_test_db() -> AsyncGenerator[None]:
 
 
 @pytest.fixture
-async def db() -> AsyncGenerator[AsyncSession]:
-    # Nested transaction ensures each test gets a clean slate via rollback
+async def db(engine: AsyncEngine) -> AsyncGenerator[AsyncSession]:
+    # Use a nested transaction (savepoint) to support test-level commits
+    # while guaranteeing isolation via rollback.
     async with engine.connect() as connection:
         transaction = await connection.begin()
         async with AsyncSession(connection, expire_on_commit=False) as session:
-            yield session
+            await connection.begin_nested()  # savepoint
+            try:
+                yield session
+            finally:
+                await connection.rollback()  # always safe
         await transaction.rollback()
 
 
@@ -96,8 +92,10 @@ async def client(db: AsyncSession) -> AsyncGenerator[AsyncClient]:
         yield db
 
     app.dependency_overrides[get_db] = _get_test_db
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as ac:
-        yield ac
-    app.dependency_overrides.clear()
+    try:
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as ac:
+            yield ac
+    finally:
+        app.dependency_overrides.pop(get_db, None)
