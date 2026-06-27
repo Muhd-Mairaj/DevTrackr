@@ -4,6 +4,12 @@
 - https://docs.github.com/en/actions/get-started/continuous-integration
 - https://docs.github.com/en/actions/reference/workflows-and-actions/contexts
 
+### GitHub Apps
+- https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps
+- https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/using-webhooks-with-github-apps#choosing-a-webhook-url-for-development-and-testing
+- https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries
+- https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app#about-json-web-tokens-jwts
+
 ### ADR (Architecture Decision Record):
 - https://github.com/joelparkerhenderson/architecture-decision-record?tab=readme-ov-file
 - https://github.com/joelparkerhenderson/architecture-decision-record/tree/main/locales/en/templates/decision-record-template-by-michael-nygard
@@ -34,3 +40,4 @@
 - https://docs.github.com/en/rest/quickstart?apiVersion=2022-11-28
 
 ### Docker
+- https://docs.docker.com/reference/compose-file/extension/

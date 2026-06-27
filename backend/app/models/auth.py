@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlmodel import DateTime, Field, Relationship
+from sqlmodel import Column, DateTime, Field, Relationship
 
 from .base import BaseModel
 
@@ -17,8 +17,7 @@ class UserSessionToken(BaseModel, table=True):
     # Token data
     token_hash: str = Field(index=True, nullable=False)
     expires_at: datetime = Field(
-        sa_type=DateTime(timezone=True),  # type: ignore[call-overload]
-        nullable=False,
+        sa_column=Column(DateTime(timezone=True), nullable=False),
     )
     is_revoked: bool = Field(default=False)
 

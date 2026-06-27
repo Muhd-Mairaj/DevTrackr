@@ -1,3 +1,4 @@
+import time
 import uuid
 from typing import Annotated
 
@@ -73,3 +74,57 @@ async def get_current_user(
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+async def get_current_user_optional(
+    session: Annotated[AsyncSession, Depends(get_db)],
+    access_token: Annotated[str | None, Cookie(alias=ACCESS_TOKEN_COOKIE_NAME)] = None,
+) -> User | None:
+    if not access_token:
+        return None
+
+    try:
+        payload = decode_token(access_token)
+        if payload.get("type") != "access":
+            return None
+        token_data = TokenPayload(**payload)
+        if not token_data.sub:
+            return None
+        user_id = uuid.UUID(token_data.sub)
+    except (jwt.PyJWTError, ValueError):
+        return None
+
+    user = await session.get(User, user_id)
+    if user is None or not user.is_active:
+        return None
+    return user
+
+
+OptionalCurrentUser = Annotated[User | None, Depends(get_current_user_optional)]
+
+
+async def get_github_jwt_token() -> str:
+    # Get PEM file path
+    pem = settings.GITHUB_PRIVATE_KEY_PATH
+
+    # Get the Client ID
+    client_id = settings.GITHUB_CLIENT_ID
+
+    # Open PEM
+    with open(pem, "rb") as pem_file:
+        signing_key = pem_file.read()
+
+    # https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app#about-json-web-tokens-jwts
+    payload = {
+        "iat": int(time.time() - 60),
+        "exp": int(time.time()) + 600,
+        "iss": client_id,
+    }
+
+    # Create JWT
+    encoded_jwt = jwt.encode(payload, signing_key, algorithm="RS256")
+
+    return encoded_jwt
+
+
+GithubJWT = Annotated[str, Depends(get_github_jwt_token)]
