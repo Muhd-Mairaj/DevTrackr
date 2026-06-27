@@ -58,7 +58,7 @@ oauth.register(
 @router.get("/authorize")
 async def github_authorize(request: Request) -> RedirectResponse:
     """Redirect the user to GitHub's OAuth consent page."""
-    redirect_uri = request.url_for("github_callback")
+    redirect_uri = f"{settings.FRONTEND_HOST}{settings.API_STR}/auth/github/callback"
     return cast(
         RedirectResponse, await oauth.github.authorize_redirect(request, redirect_uri)
     )
