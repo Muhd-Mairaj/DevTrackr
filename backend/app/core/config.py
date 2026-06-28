@@ -26,8 +26,10 @@ class Settings(BaseSettings):
     FRONTEND_HOST: str = "http://localhost:5173"
 
     # GitHub OAuth
-    GITHUB_CLIENT_ID: str = ""
-    GITHUB_CLIENT_SECRET: str = ""
+    GITHUB_CLIENT_ID: str
+    GITHUB_CLIENT_SECRET: str
+    GITHUB_PRIVATE_KEY_PATH: str
+    GITHUB_APP_SLUG: str
 
     # Integrations
     # None for now

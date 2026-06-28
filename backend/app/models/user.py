@@ -7,6 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from .base import BaseModel
 
 if TYPE_CHECKING:
+    from .github_installation import GitHubInstallation
     from .integration import Integration
 
 
@@ -23,6 +24,9 @@ class User(UserBase, BaseModel, table=True):
 
     integrations: list["Integration"] = Relationship(
         back_populates="user", sa_relationship_kwargs={"lazy": "joined"}
+    )
+    github_installations: list["GitHubInstallation"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
 

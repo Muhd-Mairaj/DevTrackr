@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, TypedDict
 
-from sqlmodel import DateTime, Field, Relationship, SQLModel
+from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 
 from .base import BaseModel
 from .base_types import EncryptedString
@@ -46,7 +46,7 @@ class Integration(IntegrationBase, BaseModel, table=True):
     )
     token_expiry: datetime | None = Field(
         default=None,
-        sa_type=DateTime(timezone=True),  # type: ignore[call-overload]
+        sa_column=Column(DateTime(timezone=True), nullable=True),
     )
 
     user_id: uuid.UUID = Field(

@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -5,6 +7,10 @@ from app.api.main import api_router
 
 # Import settings to ensure it's loaded or fails fast if config is missing/invalid
 from app.core.config import settings  # noqa: F401
+
+# Surface app-level logs: uvicorn doesn't attach a root handler, so without this
+# our logger.info(...) calls would be swallowed (only WARNING+ would show).
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="DevTrackr API")
 
