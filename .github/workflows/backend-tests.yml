@@ -67,3 +67,8 @@ jobs:
           ENCRYPTION_KEY: ${{ secrets.TEST_ENCRYPTION_KEY }}
           ENVIRONMENT: development
           PROJECT_NAME: DevTrackr
+          # GitHub App/OAuth - dummy values
+          GITHUB_CLIENT_ID: dummy_client_id
+          GITHUB_CLIENT_SECRET: dummy_client_secret
+          GITHUB_PRIVATE_KEY_PATH: /tmp/dummy.pem
+          GITHUB_APP_SLUG: devtrackr-test
