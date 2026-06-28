@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlmodel import DateTime, Field, SQLModel
+from sqlmodel import Column, DateTime, Field, SQLModel
 
 from .base import BaseModel
 
@@ -9,13 +9,11 @@ from .base import BaseModel
 class TimeEntryBase(SQLModel):
     description: str | None = Field(default=None)
     start_time: datetime = Field(
-        sa_type=DateTime(timezone=True),  # type: ignore[call-overload]
-        nullable=False,
+        sa_column=Column(DateTime(timezone=True), nullable=False),
     )
     end_time: datetime | None = Field(
         default=None,
-        sa_type=DateTime(timezone=True),  # type: ignore[call-overload]
-        nullable=True,
+        sa_column=Column(DateTime(timezone=True), nullable=True),
     )
     duration_seconds: int | None = None
 
