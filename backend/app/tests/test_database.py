@@ -1,10 +1,9 @@
-import os
 import uuid
 
-from alembic.config import Config
+from alembic.autogenerate import compare_metadata
 from alembic.runtime.migration import MigrationContext
-from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine, text
+from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.config import settings
@@ -12,28 +11,31 @@ from app.models.user import User
 
 
 def test_migrations_up_to_date() -> None:
-    """Verify that the database schema is in sync with Alembic heads."""
-    alembic_cfg = Config("alembic.ini")
+    """Verify that the database schema is fully in sync with SQLModel definitions."""
+    # Ensure all models are imported so SQLModel.metadata is fully populated
+    from app.models.auth import UserSessionToken  # noqa: F401
+    from app.models.commit import Commit  # noqa: F401
+    from app.models.integration import Integration  # noqa: F401
+    from app.models.logbook import Logbook  # noqa: F401
+    from app.models.project import Project  # noqa: F401
+    from app.models.repository import Repository  # noqa: F401
+    from app.models.time_entry import TimeEntry  # noqa: F401
+    from app.models.user import User  # noqa: F401
 
-    # Map the absolute path to migration scripts for the test environment
-    base_dir = os.path.dirname(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    )
-    alembic_cfg.set_main_option(
-        "script_location", os.path.join(base_dir, "app/alembic")
-    )
-
-    script = ScriptDirectory.from_config(alembic_cfg)
-    head = script.get_current_head()
-
-    # Use the async-capable driver for synchronous inspection
+    # Use the sync-capable driver to inspect the schema
     sync_url = str(settings.TEST_DATABASE_URL)
     engine = create_engine(sync_url)
-    with engine.connect() as conn:
-        context = MigrationContext.configure(conn)
-        current = context.get_current_revision()
 
-    assert current == head, f"Database is at {current}, expected head {head}"
+    with engine.connect() as conn:
+        # Configure MigrationContext with SQLModel metadata
+        context = MigrationContext.configure(
+            conn, opts={"target_metadata": SQLModel.metadata}
+        )
+
+        # Compare current database state with the metadata definitions
+        diff = compare_metadata(context, SQLModel.metadata)
+
+    assert diff == [], f"Detected schema differences not captured in migrations: {diff}"
 
 
 async def test_database_connection(db: AsyncSession) -> None:
@@ -44,7 +46,6 @@ async def test_database_connection(db: AsyncSession) -> None:
 
 async def test_transaction_rollback(db: AsyncSession) -> None:
     """Verify that data created in this test is visible during the test."""
-
     # Insert a unique test user
     test_email = f"test-{uuid.uuid4()}@example.com"
     test_user = User(email=test_email, username="testuser", hashed_password="fake")
@@ -58,9 +59,7 @@ async def test_transaction_rollback(db: AsyncSession) -> None:
     assert result.scalar() == 1
 
 
-async def test_no_data_leakage_from_rollback(db: AsyncSession) -> None:
-    """Verify data from test_transaction_rollback was cleaned up and not leaked."""
-    result = await db.execute(
-        text("SELECT count(*) FROM users WHERE email LIKE 'test-%@example.com'")
-    )
+async def test_transaction_rollback_is_isolated(db: AsyncSession) -> None:
+    """Each test gets a clean slate — verify no users from other tests exist."""
+    result = await db.execute(text("SELECT count(*) FROM users"))
     assert result.scalar() == 0
