@@ -42,18 +42,14 @@ async def setup_test_db(engine: AsyncEngine) -> AsyncGenerator[None]:
         await conn.execute(text("DROP TABLE IF EXISTS alembic_version"))
 
     def upgrade_db() -> None:
-        import os
+        from pathlib import Path
 
         from alembic.command import upgrade
         from alembic.config import Config
 
         alembic_cfg = Config("alembic.ini")
-        base_dir = os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        )
-        alembic_cfg.set_main_option(
-            "script_location", os.path.join(base_dir, "app/alembic")
-        )
+        alembic_dir = Path(__file__).parent.parent / "alembic"
+        alembic_cfg.set_main_option("script_location", str(alembic_dir))
         alembic_cfg.set_main_option("sqlalchemy.url", str(settings.TEST_DATABASE_URL))
         upgrade(alembic_cfg, "head")
 
