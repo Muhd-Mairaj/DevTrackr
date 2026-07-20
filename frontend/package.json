@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "bun run generate-routes && tsc -b && vite build",
+    "build": "bun run generate-client && bun run generate-routes && tsc -b && vite build",
     "generate-routes": "tsr generate",
     "generate-client": "openapi-ts",
     "preview": "vite preview",

@@ -1,22 +1,26 @@
 import { useEffect, useState } from "react";
-import { pingApiV1PingGet } from "@/client";
+import { pingApiUtilsPingGet } from "@/client";
+
+type PingResponse = {
+  status?: string;
+  message?: string;
+};
 
 export function PingStatus() {
-  const [data, setData] = useState<{
-    status?: string;
-    message?: string;
-  } | null>(null);
+  const [data, setData] = useState<PingResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    pingApiV1PingGet()
-      .then((res) => {
+    pingApiUtilsPingGet()
+      .then((res: { data?: PingResponse }) => {
         if (res.data) {
-          setData(res.data as { status?: string; message?: string });
+          setData(res.data);
         }
       })
-      .catch((err) => {
-        setError(err.message || "Error fetching ping status");
+      .catch((err: unknown) => {
+        setError(
+          err instanceof Error ? err.message : "Error fetching ping status",
+        );
       });
   }, []);
 
