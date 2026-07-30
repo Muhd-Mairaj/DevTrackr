@@ -73,9 +73,6 @@ async def get_current_user(
     return user
 
 
-CurrentUser = Annotated[User, Depends(get_current_user)]
-
-
 async def get_current_user_optional(
     session: Annotated[AsyncSession, Depends(get_db)],
     access_token: Annotated[str | None, Cookie(alias=ACCESS_TOKEN_COOKIE_NAME)] = None,
@@ -98,9 +95,6 @@ async def get_current_user_optional(
     if user is None or not user.is_active:
         return None
     return user
-
-
-OptionalCurrentUser = Annotated[User | None, Depends(get_current_user_optional)]
 
 
 async def get_github_jwt_token() -> str:
@@ -127,4 +121,7 @@ async def get_github_jwt_token() -> str:
     return encoded_jwt
 
 
+CurrentUser = Annotated[User, Depends(get_current_user)]
+OptionalCurrentUser = Annotated[User | None, Depends(get_current_user_optional)]
 GithubJWT = Annotated[str, Depends(get_github_jwt_token)]
+SessionDep = Annotated[AsyncSession, Depends(get_db)]
