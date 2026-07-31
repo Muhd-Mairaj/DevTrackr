@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, DeleteProjectData, DeleteProjectResponses, GetGithubRepositoriesData, GetGithubRepositoriesErrors, GetGithubRepositoriesResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses } from './types.gen';
+import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, DeleteProjectData, DeleteProjectErrors, DeleteProjectResponses, GetGithubRepositoriesData, GetGithubRepositoriesErrors, GetGithubRepositoriesResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -184,9 +184,10 @@ export class ProjectsService {
     /**
      * Delete Project Route
      */
-    public static deleteProject<ThrowOnError extends boolean = false>(options?: Options<DeleteProjectData, ThrowOnError>) {
-        return (options?.client ?? client).delete<DeleteProjectResponses, unknown, ThrowOnError>({
+    public static deleteProject<ThrowOnError extends boolean = false>(options: Options<DeleteProjectData, ThrowOnError>) {
+        return (options.client ?? client).delete<DeleteProjectResponses, DeleteProjectErrors, ThrowOnError>({
             responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/projects/{id}',
             ...options
         });

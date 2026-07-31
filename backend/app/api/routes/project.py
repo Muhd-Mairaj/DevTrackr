@@ -5,7 +5,12 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, status
 
 from app.api.deps import CurrentUser, SessionDep
-from app.crud.project import create_project, get_project, get_projects_by_user
+from app.crud.project import (
+    create_project,
+    delete_project,
+    get_project,
+    get_projects_by_user,
+)
 from app.models.project import ProjectCreate, ProjectPublic
 
 logger = logging.getLogger(__name__)
@@ -36,6 +41,16 @@ async def create_project_route(
     return await create_project(session=session, project_in=project_in, user_id=user.id)
 
 
-@router.delete("/{id}")
-async def delete_project_route(session: SessionDep) -> Any:
-    pass
+@router.delete("/{id}", response_model=ProjectPublic)
+async def delete_project_route(
+    session: SessionDep, id: uuid.UUID, user: CurrentUser
+) -> Any:
+    project = await get_project(session=session, id=id)
+
+    if not project or project.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
+
+    await delete_project(session=session, db_obj=project)
+    return project

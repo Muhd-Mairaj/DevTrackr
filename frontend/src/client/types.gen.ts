@@ -431,19 +431,33 @@ export type CreateProjectResponse = CreateProjectResponses[keyof CreateProjectRe
 
 export type DeleteProjectData = {
     body?: never;
-    path?: never;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
     query?: never;
     url: '/api/projects/{id}';
 };
 
+export type DeleteProjectErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteProjectError = DeleteProjectErrors[keyof DeleteProjectErrors];
+
 export type DeleteProjectResponses = {
     /**
-     * Response Delete Project
-     *
      * Successful Response
      */
-    200: unknown;
+    200: ProjectPublic;
 };
+
+export type DeleteProjectResponse = DeleteProjectResponses[keyof DeleteProjectResponses];
 
 export type GetProjectData = {
     body?: never;

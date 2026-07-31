@@ -62,9 +62,6 @@ async def update_project(
     return db_obj
 
 
-async def delete_project(*, session: AsyncSession, id: uuid.UUID) -> Project | None:
-    db_obj = await session.get(Project, id)
-    if db_obj:
-        await session.delete(db_obj)
-        await session.commit()
-    return db_obj
+async def delete_project(*, session: AsyncSession, db_obj: Project) -> None:
+    await session.delete(db_obj)
+    await session.commit()
