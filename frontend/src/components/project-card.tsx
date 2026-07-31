@@ -1,5 +1,5 @@
 import { Clock, FolderGit2, MoreHorizontal } from "lucide-react";
-import type { ProjectPublic } from "@/client";
+import type { ProjectPublic } from "@/client/types.gen";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
