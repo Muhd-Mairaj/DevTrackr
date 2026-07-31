@@ -7,8 +7,6 @@ import {
 import { ProjectsService } from "@/client";
 import type { ProjectCreate, ProjectPublic } from "@/client/types.gen";
 
-export type { ProjectPublic };
-
 export const projectKeys = {
   all: ["projects"] as const,
   detail: (id: string) => ["projects", id] as const,
