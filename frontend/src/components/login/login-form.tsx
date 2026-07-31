@@ -1,12 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import z from "zod";
 import { useAuth } from "@/lib/auth";
 import { Divider } from "../divider";
 import { Button } from "../ui/button";
 import {
+  Form,
   FormControl,
   FormField,
   FormItem,
