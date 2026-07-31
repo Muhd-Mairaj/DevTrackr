@@ -149,224 +149,224 @@ export type ValidationError = {
     type: string;
 };
 
-export type RegisterApiAuthRegisterPostData = {
+export type RegisterData = {
     body: UserCreate;
     path?: never;
     query?: never;
     url: '/api/auth/register';
 };
 
-export type RegisterApiAuthRegisterPostErrors = {
+export type RegisterErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type RegisterApiAuthRegisterPostError = RegisterApiAuthRegisterPostErrors[keyof RegisterApiAuthRegisterPostErrors];
+export type RegisterError = RegisterErrors[keyof RegisterErrors];
 
-export type RegisterApiAuthRegisterPostResponses = {
+export type RegisterResponses = {
     /**
      * Successful Response
      */
     201: AuthResponse;
 };
 
-export type RegisterApiAuthRegisterPostResponse = RegisterApiAuthRegisterPostResponses[keyof RegisterApiAuthRegisterPostResponses];
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
 
-export type LoginApiAuthLoginPostData = {
+export type LoginData = {
     body: UserLogin;
     path?: never;
     query?: never;
     url: '/api/auth/login';
 };
 
-export type LoginApiAuthLoginPostErrors = {
+export type LoginErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type LoginApiAuthLoginPostError = LoginApiAuthLoginPostErrors[keyof LoginApiAuthLoginPostErrors];
+export type LoginError = LoginErrors[keyof LoginErrors];
 
-export type LoginApiAuthLoginPostResponses = {
+export type LoginResponses = {
     /**
      * Successful Response
      */
     200: AuthResponse;
 };
 
-export type LoginApiAuthLoginPostResponse = LoginApiAuthLoginPostResponses[keyof LoginApiAuthLoginPostResponses];
+export type LoginResponse = LoginResponses[keyof LoginResponses];
 
-export type RefreshApiAuthRefreshPostData = {
+export type RefreshData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/auth/refresh';
 };
 
-export type RefreshApiAuthRefreshPostErrors = {
+export type RefreshErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type RefreshApiAuthRefreshPostError = RefreshApiAuthRefreshPostErrors[keyof RefreshApiAuthRefreshPostErrors];
+export type RefreshError = RefreshErrors[keyof RefreshErrors];
 
-export type RefreshApiAuthRefreshPostResponses = {
+export type RefreshResponses = {
     /**
      * Successful Response
      */
     200: AuthResponse;
 };
 
-export type RefreshApiAuthRefreshPostResponse = RefreshApiAuthRefreshPostResponses[keyof RefreshApiAuthRefreshPostResponses];
+export type RefreshResponse = RefreshResponses[keyof RefreshResponses];
 
-export type LogoutApiAuthLogoutPostData = {
+export type LogoutData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/auth/logout';
 };
 
-export type LogoutApiAuthLogoutPostErrors = {
+export type LogoutErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type LogoutApiAuthLogoutPostError = LogoutApiAuthLogoutPostErrors[keyof LogoutApiAuthLogoutPostErrors];
+export type LogoutError = LogoutErrors[keyof LogoutErrors];
 
-export type LogoutApiAuthLogoutPostResponses = {
+export type LogoutResponses = {
     /**
      * Successful Response
      */
     204: void;
 };
 
-export type LogoutApiAuthLogoutPostResponse = LogoutApiAuthLogoutPostResponses[keyof LogoutApiAuthLogoutPostResponses];
+export type LogoutResponse = LogoutResponses[keyof LogoutResponses];
 
-export type MeApiAuthMeGetData = {
+export type MeData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/auth/me';
 };
 
-export type MeApiAuthMeGetErrors = {
+export type MeErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type MeApiAuthMeGetError = MeApiAuthMeGetErrors[keyof MeApiAuthMeGetErrors];
+export type MeError = MeErrors[keyof MeErrors];
 
-export type MeApiAuthMeGetResponses = {
+export type MeResponses = {
     /**
      * Successful Response
      */
     200: UserPublic;
 };
 
-export type MeApiAuthMeGetResponse = MeApiAuthMeGetResponses[keyof MeApiAuthMeGetResponses];
+export type MeResponse = MeResponses[keyof MeResponses];
 
-export type GithubAuthorizeApiAuthGithubAuthorizeGetData = {
+export type GithubAuthorizeData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/auth/github/authorize';
 };
 
-export type GithubAuthorizeApiAuthGithubAuthorizeGetResponses = {
+export type GithubAuthorizeResponses = {
     /**
      * Successful Response
      */
     200: unknown;
 };
 
-export type GithubCallbackApiAuthGithubCallbackGetData = {
+export type GithubCallbackData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/auth/github/callback';
 };
 
-export type GithubCallbackApiAuthGithubCallbackGetResponses = {
+export type GithubCallbackResponses = {
     /**
      * Successful Response
      */
     200: unknown;
 };
 
-export type GithubInstallApiAuthGithubInstallGetData = {
+export type GithubInstallData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/auth/github/install';
 };
 
-export type GithubInstallApiAuthGithubInstallGetErrors = {
+export type GithubInstallErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GithubInstallApiAuthGithubInstallGetError = GithubInstallApiAuthGithubInstallGetErrors[keyof GithubInstallApiAuthGithubInstallGetErrors];
+export type GithubInstallError = GithubInstallErrors[keyof GithubInstallErrors];
 
-export type GithubInstallApiAuthGithubInstallGetResponses = {
+export type GithubInstallResponses = {
     /**
      * Successful Response
      */
     200: unknown;
 };
 
-export type GithubSetupCallbackApiAuthGithubSetupCallbackGetData = {
+export type GithubSetupCallbackData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/auth/github/setup-callback';
 };
 
-export type GithubSetupCallbackApiAuthGithubSetupCallbackGetErrors = {
+export type GithubSetupCallbackErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GithubSetupCallbackApiAuthGithubSetupCallbackGetError = GithubSetupCallbackApiAuthGithubSetupCallbackGetErrors[keyof GithubSetupCallbackApiAuthGithubSetupCallbackGetErrors];
+export type GithubSetupCallbackError = GithubSetupCallbackErrors[keyof GithubSetupCallbackErrors];
 
-export type GithubSetupCallbackApiAuthGithubSetupCallbackGetResponses = {
+export type GithubSetupCallbackResponses = {
     /**
      * Successful Response
      */
     200: unknown;
 };
 
-export type GetGithubRepositoriesApiAuthGithubRepositoriesGetData = {
+export type GetGithubRepositoriesData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/auth/github/repositories';
 };
 
-export type GetGithubRepositoriesApiAuthGithubRepositoriesGetErrors = {
+export type GetGithubRepositoriesErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetGithubRepositoriesApiAuthGithubRepositoriesGetError = GetGithubRepositoriesApiAuthGithubRepositoriesGetErrors[keyof GetGithubRepositoriesApiAuthGithubRepositoriesGetErrors];
+export type GetGithubRepositoriesError = GetGithubRepositoriesErrors[keyof GetGithubRepositoriesErrors];
 
-export type GetGithubRepositoriesApiAuthGithubRepositoriesGetResponses = {
+export type GetGithubRepositoriesResponses = {
     /**
-     * Response Get Github Repositories Api Auth Github Repositories Get
+     * Response Get Github Repositories
      *
      * Successful Response
      */
@@ -375,75 +375,77 @@ export type GetGithubRepositoriesApiAuthGithubRepositoriesGetResponses = {
     }>;
 };
 
-export type GetGithubRepositoriesApiAuthGithubRepositoriesGetResponse = GetGithubRepositoriesApiAuthGithubRepositoriesGetResponses[keyof GetGithubRepositoriesApiAuthGithubRepositoriesGetResponses];
+export type GetGithubRepositoriesResponse = GetGithubRepositoriesResponses[keyof GetGithubRepositoriesResponses];
 
-export type GetProjectsRouteApiProjectsGetData = {
+export type GetProjectsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/projects/';
 };
 
-export type GetProjectsRouteApiProjectsGetErrors = {
+export type GetProjectsErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetProjectsRouteApiProjectsGetError = GetProjectsRouteApiProjectsGetErrors[keyof GetProjectsRouteApiProjectsGetErrors];
+export type GetProjectsError = GetProjectsErrors[keyof GetProjectsErrors];
 
-export type GetProjectsRouteApiProjectsGetResponses = {
+export type GetProjectsResponses = {
     /**
-     * Response Get Projects Route Api Projects  Get
+     * Response Get Projects
      *
      * Successful Response
      */
     200: Array<ProjectPublic>;
 };
 
-export type GetProjectsRouteApiProjectsGetResponse = GetProjectsRouteApiProjectsGetResponses[keyof GetProjectsRouteApiProjectsGetResponses];
+export type GetProjectsResponse = GetProjectsResponses[keyof GetProjectsResponses];
 
-export type CreateProjectRouteApiProjectsPostData = {
+export type CreateProjectData = {
     body: ProjectCreate;
     path?: never;
     query?: never;
     url: '/api/projects/';
 };
 
-export type CreateProjectRouteApiProjectsPostErrors = {
+export type CreateProjectErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateProjectRouteApiProjectsPostError = CreateProjectRouteApiProjectsPostErrors[keyof CreateProjectRouteApiProjectsPostErrors];
+export type CreateProjectError = CreateProjectErrors[keyof CreateProjectErrors];
 
-export type CreateProjectRouteApiProjectsPostResponses = {
+export type CreateProjectResponses = {
     /**
      * Successful Response
      */
     201: ProjectPublic;
 };
 
-export type CreateProjectRouteApiProjectsPostResponse = CreateProjectRouteApiProjectsPostResponses[keyof CreateProjectRouteApiProjectsPostResponses];
+export type CreateProjectResponse = CreateProjectResponses[keyof CreateProjectResponses];
 
-export type DeleteProjectRouteApiProjectsIdDeleteData = {
+export type DeleteProjectData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/projects/{id}';
 };
 
-export type DeleteProjectRouteApiProjectsIdDeleteResponses = {
+export type DeleteProjectResponses = {
     /**
+     * Response Delete Project
+     *
      * Successful Response
      */
     200: unknown;
 };
 
-export type GetProjectRouteApiProjectsIdGetData = {
+export type GetProjectData = {
     body?: never;
     path: {
         /**
@@ -455,34 +457,34 @@ export type GetProjectRouteApiProjectsIdGetData = {
     url: '/api/projects/{id}';
 };
 
-export type GetProjectRouteApiProjectsIdGetErrors = {
+export type GetProjectErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetProjectRouteApiProjectsIdGetError = GetProjectRouteApiProjectsIdGetErrors[keyof GetProjectRouteApiProjectsIdGetErrors];
+export type GetProjectError = GetProjectErrors[keyof GetProjectErrors];
 
-export type GetProjectRouteApiProjectsIdGetResponses = {
+export type GetProjectResponses = {
     /**
      * Successful Response
      */
     200: ProjectPublic;
 };
 
-export type GetProjectRouteApiProjectsIdGetResponse = GetProjectRouteApiProjectsIdGetResponses[keyof GetProjectRouteApiProjectsIdGetResponses];
+export type GetProjectResponse = GetProjectResponses[keyof GetProjectResponses];
 
-export type PingApiPingGetData = {
+export type PingData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/ping';
 };
 
-export type PingApiPingGetResponses = {
+export type PingResponses = {
     /**
-     * Response Ping Api Ping Get
+     * Response Ping
      *
      * Successful Response
      */
@@ -491,18 +493,18 @@ export type PingApiPingGetResponses = {
     };
 };
 
-export type PingApiPingGetResponse = PingApiPingGetResponses[keyof PingApiPingGetResponses];
+export type PingResponse = PingResponses[keyof PingResponses];
 
-export type RootGetData = {
+export type RootData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/';
 };
 
-export type RootGetResponses = {
+export type RootResponses = {
     /**
-     * Response Root  Get
+     * Response Root
      *
      * Successful Response
      */
@@ -511,4 +513,4 @@ export type RootGetResponses = {
     };
 };
 
-export type RootGetResponse = RootGetResponses[keyof RootGetResponses];
+export type RootResponse = RootResponses[keyof RootResponses];
