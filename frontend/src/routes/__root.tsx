@@ -7,9 +7,11 @@ import {
 import { Loader2 } from "lucide-react";
 import { AppNav } from "@/components/app-nav";
 import { AuthProvider, isPublicPageRoute, useAuth } from "@/lib/auth";
+import { RootErrorComponent } from "@/components/root-error";
 
 export const Route = createRootRoute({
   component: RootComponent,
+  errorComponent: RootErrorComponent,
 });
 
 function AuthShell() {
