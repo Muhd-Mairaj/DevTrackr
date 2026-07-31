@@ -3,16 +3,8 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import {
-  loginApiAuthLoginPost,
-  logoutApiAuthLogoutPost,
-  meApiAuthMeGet,
-  registerApiAuthRegisterPost,
-} from "@/client/sdk.gen";
-import type {
-  LoginApiAuthLoginPostData,
-  RegisterApiAuthRegisterPostData,
-} from "@/client/types.gen";
+import { AuthService } from "@/client/sdk.gen";
+import type { LoginData, RegisterData } from "@/client/types.gen";
 
 export type { UserPublic } from "@/client/types.gen";
 
@@ -25,7 +17,7 @@ export function useMe() {
   return useQuery({
     queryKey: userKeys.me,
     queryFn: async () => {
-      const res = await meApiAuthMeGet();
+      const res = await AuthService.me();
       if (!res.data) throw new Error("No data returned from server");
       return res.data;
     },
@@ -34,25 +26,25 @@ export function useMe() {
   });
 }
 
-type LoginBody = LoginApiAuthLoginPostData["body"];
+type LoginBody = LoginData["body"];
 
 export function useLogin(options?: UseMutationOptions<void, Error, LoginBody>) {
   return useMutation({
     mutationFn: async (body: LoginBody) => {
-      await loginApiAuthLoginPost({ body });
+      await AuthService.login({ body });
     },
     ...options,
   });
 }
 
-type RegisterBody = RegisterApiAuthRegisterPostData["body"];
+type RegisterBody = RegisterData["body"];
 
 export function useRegister(
   options?: UseMutationOptions<void, Error, RegisterBody>,
 ) {
   return useMutation({
     mutationFn: async (body: RegisterBody) => {
-      await registerApiAuthRegisterPost({ body });
+      await AuthService.register({ body });
     },
     ...options,
   });
@@ -61,7 +53,7 @@ export function useRegister(
 export function useLogout(options?: UseMutationOptions<void, Error, void>) {
   return useMutation({
     mutationFn: async () => {
-      await logoutApiAuthLogoutPost();
+      await AuthService.logout();
     },
     ...options,
   });

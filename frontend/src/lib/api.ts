@@ -1,5 +1,5 @@
 import { client } from "@/client/client.gen";
-import { refreshApiAuthRefreshPost } from "@/client/sdk.gen";
+import { AuthService } from "@/client/sdk.gen";
 import { isPublicApiRoute, isPublicPageRoute } from "@/lib/auth";
 
 // Throw Axios errors on HTTP failure instead of returning { data: undefined, error }
@@ -53,7 +53,7 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await refreshApiAuthRefreshPost();
+        await AuthService.refresh();
         processQueue(null);
         return axiosInstance(originalRequest);
       } catch (refreshError) {

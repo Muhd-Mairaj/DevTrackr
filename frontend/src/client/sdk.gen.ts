@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateProjectRouteApiProjectsPostData, CreateProjectRouteApiProjectsPostErrors, CreateProjectRouteApiProjectsPostResponses, DeleteProjectRouteApiProjectsIdDeleteData, DeleteProjectRouteApiProjectsIdDeleteResponses, GetGithubRepositoriesApiAuthGithubRepositoriesGetData, GetGithubRepositoriesApiAuthGithubRepositoriesGetErrors, GetGithubRepositoriesApiAuthGithubRepositoriesGetResponses, GetProjectRouteApiProjectsIdGetData, GetProjectRouteApiProjectsIdGetErrors, GetProjectRouteApiProjectsIdGetResponses, GetProjectsRouteApiProjectsGetData, GetProjectsRouteApiProjectsGetErrors, GetProjectsRouteApiProjectsGetResponses, GithubAuthorizeApiAuthGithubAuthorizeGetData, GithubAuthorizeApiAuthGithubAuthorizeGetResponses, GithubCallbackApiAuthGithubCallbackGetData, GithubCallbackApiAuthGithubCallbackGetResponses, GithubInstallApiAuthGithubInstallGetData, GithubInstallApiAuthGithubInstallGetErrors, GithubInstallApiAuthGithubInstallGetResponses, GithubSetupCallbackApiAuthGithubSetupCallbackGetData, GithubSetupCallbackApiAuthGithubSetupCallbackGetErrors, GithubSetupCallbackApiAuthGithubSetupCallbackGetResponses, LoginApiAuthLoginPostData, LoginApiAuthLoginPostErrors, LoginApiAuthLoginPostResponses, LogoutApiAuthLogoutPostData, LogoutApiAuthLogoutPostErrors, LogoutApiAuthLogoutPostResponses, MeApiAuthMeGetData, MeApiAuthMeGetErrors, MeApiAuthMeGetResponses, PingApiPingGetData, PingApiPingGetResponses, RefreshApiAuthRefreshPostData, RefreshApiAuthRefreshPostErrors, RefreshApiAuthRefreshPostResponses, RegisterApiAuthRegisterPostData, RegisterApiAuthRegisterPostErrors, RegisterApiAuthRegisterPostResponses, RootGetData, RootGetResponses } from './types.gen';
+import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, DeleteProjectData, DeleteProjectResponses, GetGithubRepositoriesData, GetGithubRepositoriesErrors, GetGithubRepositoriesResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -18,174 +18,214 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
     meta?: Record<string, unknown>;
 };
 
-/**
- * Register
- */
-export const registerApiAuthRegisterPost = <ThrowOnError extends boolean = false>(options: Options<RegisterApiAuthRegisterPostData, ThrowOnError>) => (options.client ?? client).post<RegisterApiAuthRegisterPostResponses, RegisterApiAuthRegisterPostErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/auth/register',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
+export class AuthService {
+    /**
+     * Register
+     */
+    public static register<ThrowOnError extends boolean = false>(options: Options<RegisterData, ThrowOnError>) {
+        return (options.client ?? client).post<RegisterResponses, RegisterErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/auth/register',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
     }
-});
 
-/**
- * Login
- */
-export const loginApiAuthLoginPost = <ThrowOnError extends boolean = false>(options: Options<LoginApiAuthLoginPostData, ThrowOnError>) => (options.client ?? client).post<LoginApiAuthLoginPostResponses, LoginApiAuthLoginPostErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/auth/login',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
+    /**
+     * Login
+     */
+    public static login<ThrowOnError extends boolean = false>(options: Options<LoginData, ThrowOnError>) {
+        return (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/auth/login',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
     }
-});
 
-/**
- * Refresh
- */
-export const refreshApiAuthRefreshPost = <ThrowOnError extends boolean = false>(options?: Options<RefreshApiAuthRefreshPostData, ThrowOnError>) => (options?.client ?? client).post<RefreshApiAuthRefreshPostResponses, RefreshApiAuthRefreshPostErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/auth/refresh',
-    ...options
-});
-
-/**
- * Logout
- */
-export const logoutApiAuthLogoutPost = <ThrowOnError extends boolean = false>(options?: Options<LogoutApiAuthLogoutPostData, ThrowOnError>) => (options?.client ?? client).post<LogoutApiAuthLogoutPostResponses, LogoutApiAuthLogoutPostErrors, ThrowOnError>({ url: '/api/auth/logout', ...options });
-
-/**
- * Me
- */
-export const meApiAuthMeGet = <ThrowOnError extends boolean = false>(options?: Options<MeApiAuthMeGetData, ThrowOnError>) => (options?.client ?? client).get<MeApiAuthMeGetResponses, MeApiAuthMeGetErrors, ThrowOnError>({
-    responseType: 'json',
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/auth/me',
-    ...options
-});
-
-/**
- * Github Authorize
- *
- * Redirect the user to GitHub's OAuth consent page for login.
- */
-export const githubAuthorizeApiAuthGithubAuthorizeGet = <ThrowOnError extends boolean = false>(options?: Options<GithubAuthorizeApiAuthGithubAuthorizeGetData, ThrowOnError>) => (options?.client ?? client).get<GithubAuthorizeApiAuthGithubAuthorizeGetResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/auth/github/authorize',
-    ...options
-});
-
-/**
- * Github Callback
- */
-export const githubCallbackApiAuthGithubCallbackGet = <ThrowOnError extends boolean = false>(options?: Options<GithubCallbackApiAuthGithubCallbackGetData, ThrowOnError>) => (options?.client ?? client).get<GithubCallbackApiAuthGithubCallbackGetResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/auth/github/callback',
-    ...options
-});
-
-/**
- * Github Install
- *
- * Start a GitHub App installation (login required).
- *
- * Sets a CSRF ``state`` in the session so ``/setup-callback`` can verify the
- * redirect came from us. See ``docs/github-oauth-and-app-install.md``.
- */
-export const githubInstallApiAuthGithubInstallGet = <ThrowOnError extends boolean = false>(options?: Options<GithubInstallApiAuthGithubInstallGetData, ThrowOnError>) => (options?.client ?? client).get<GithubInstallApiAuthGithubInstallGetResponses, GithubInstallApiAuthGithubInstallGetErrors, ThrowOnError>({
-    responseType: 'json',
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/auth/github/install',
-    ...options
-});
-
-/**
- * Github Setup Callback
- *
- * Handle the GitHub App Setup URL redirect after installation.
- *
- * Links the installation when possible, otherwise stashes it and routes
- * through OAuth. See ``docs/github-oauth-and-app-install.md`` for the full
- * scenario table and security model.
- */
-export const githubSetupCallbackApiAuthGithubSetupCallbackGet = <ThrowOnError extends boolean = false>(options?: Options<GithubSetupCallbackApiAuthGithubSetupCallbackGetData, ThrowOnError>) => (options?.client ?? client).get<GithubSetupCallbackApiAuthGithubSetupCallbackGetResponses, GithubSetupCallbackApiAuthGithubSetupCallbackGetErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/auth/github/setup-callback',
-    ...options
-});
-
-/**
- * Get Github Repositories
- *
- * List repositories accessible to the current user's GitHub integration.
- */
-export const getGithubRepositoriesApiAuthGithubRepositoriesGet = <ThrowOnError extends boolean = false>(options?: Options<GetGithubRepositoriesApiAuthGithubRepositoriesGetData, ThrowOnError>) => (options?.client ?? client).get<GetGithubRepositoriesApiAuthGithubRepositoriesGetResponses, GetGithubRepositoriesApiAuthGithubRepositoriesGetErrors, ThrowOnError>({
-    responseType: 'json',
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/auth/github/repositories',
-    ...options
-});
-
-/**
- * Get Projects Route
- */
-export const getProjectsRouteApiProjectsGet = <ThrowOnError extends boolean = false>(options?: Options<GetProjectsRouteApiProjectsGetData, ThrowOnError>) => (options?.client ?? client).get<GetProjectsRouteApiProjectsGetResponses, GetProjectsRouteApiProjectsGetErrors, ThrowOnError>({
-    responseType: 'json',
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/projects/',
-    ...options
-});
-
-/**
- * Create Project Route
- */
-export const createProjectRouteApiProjectsPost = <ThrowOnError extends boolean = false>(options: Options<CreateProjectRouteApiProjectsPostData, ThrowOnError>) => (options.client ?? client).post<CreateProjectRouteApiProjectsPostResponses, CreateProjectRouteApiProjectsPostErrors, ThrowOnError>({
-    responseType: 'json',
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/projects/',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
+    /**
+     * Refresh
+     */
+    public static refresh<ThrowOnError extends boolean = false>(options?: Options<RefreshData, ThrowOnError>) {
+        return (options?.client ?? client).post<RefreshResponses, RefreshErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/auth/refresh',
+            ...options
+        });
     }
-});
 
-/**
- * Delete Project Route
- */
-export const deleteProjectRouteApiProjectsIdDelete = <ThrowOnError extends boolean = false>(options?: Options<DeleteProjectRouteApiProjectsIdDeleteData, ThrowOnError>) => (options?.client ?? client).delete<DeleteProjectRouteApiProjectsIdDeleteResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/projects/{id}',
-    ...options
-});
+    /**
+     * Logout
+     */
+    public static logout<ThrowOnError extends boolean = false>(options?: Options<LogoutData, ThrowOnError>) {
+        return (options?.client ?? client).post<LogoutResponses, LogoutErrors, ThrowOnError>({ url: '/api/auth/logout', ...options });
+    }
 
-/**
- * Get Project Route
- */
-export const getProjectRouteApiProjectsIdGet = <ThrowOnError extends boolean = false>(options: Options<GetProjectRouteApiProjectsIdGetData, ThrowOnError>) => (options.client ?? client).get<GetProjectRouteApiProjectsIdGetResponses, GetProjectRouteApiProjectsIdGetErrors, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/projects/{id}',
-    ...options
-});
+    /**
+     * Me
+     */
+    public static me<ThrowOnError extends boolean = false>(options?: Options<MeData, ThrowOnError>) {
+        return (options?.client ?? client).get<MeResponses, MeErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/auth/me',
+            ...options
+        });
+    }
 
-/**
- * Ping
- */
-export const pingApiPingGet = <ThrowOnError extends boolean = false>(options?: Options<PingApiPingGetData, ThrowOnError>) => (options?.client ?? client).get<PingApiPingGetResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/ping',
-    ...options
-});
+    /**
+     * Github Authorize
+     *
+     * Redirect the user to GitHub's OAuth consent page for login.
+     */
+    public static githubAuthorize<ThrowOnError extends boolean = false>(options?: Options<GithubAuthorizeData, ThrowOnError>) {
+        return (options?.client ?? client).get<GithubAuthorizeResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/auth/github/authorize',
+            ...options
+        });
+    }
 
-/**
- * Root
- */
-export const rootGet = <ThrowOnError extends boolean = false>(options?: Options<RootGetData, ThrowOnError>) => (options?.client ?? client).get<RootGetResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/',
-    ...options
-});
+    /**
+     * Github Callback
+     */
+    public static githubCallback<ThrowOnError extends boolean = false>(options?: Options<GithubCallbackData, ThrowOnError>) {
+        return (options?.client ?? client).get<GithubCallbackResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/auth/github/callback',
+            ...options
+        });
+    }
+
+    /**
+     * Github Install
+     *
+     * Start a GitHub App installation (login required).
+     *
+     * Sets a CSRF ``state`` in the session so ``/setup-callback`` can verify the
+     * redirect came from us. See ``docs/github-oauth-and-app-install.md``.
+     */
+    public static githubInstall<ThrowOnError extends boolean = false>(options?: Options<GithubInstallData, ThrowOnError>) {
+        return (options?.client ?? client).get<GithubInstallResponses, GithubInstallErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/auth/github/install',
+            ...options
+        });
+    }
+
+    /**
+     * Github Setup Callback
+     *
+     * Handle the GitHub App Setup URL redirect after installation.
+     *
+     * Links the installation when possible, otherwise stashes it and routes
+     * through OAuth. See ``docs/github-oauth-and-app-install.md`` for the full
+     * scenario table and security model.
+     */
+    public static githubSetupCallback<ThrowOnError extends boolean = false>(options?: Options<GithubSetupCallbackData, ThrowOnError>) {
+        return (options?.client ?? client).get<GithubSetupCallbackResponses, GithubSetupCallbackErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/auth/github/setup-callback',
+            ...options
+        });
+    }
+
+    /**
+     * Get Github Repositories
+     *
+     * List repositories accessible to the current user's GitHub integration.
+     */
+    public static getGithubRepositories<ThrowOnError extends boolean = false>(options?: Options<GetGithubRepositoriesData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetGithubRepositoriesResponses, GetGithubRepositoriesErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/auth/github/repositories',
+            ...options
+        });
+    }
+}
+
+export class ProjectsService {
+    /**
+     * Get Projects Route
+     */
+    public static getProjects<ThrowOnError extends boolean = false>(options?: Options<GetProjectsData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetProjectsResponses, GetProjectsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/projects/',
+            ...options
+        });
+    }
+
+    /**
+     * Create Project Route
+     */
+    public static createProject<ThrowOnError extends boolean = false>(options: Options<CreateProjectData, ThrowOnError>) {
+        return (options.client ?? client).post<CreateProjectResponses, CreateProjectErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/projects/',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+
+    /**
+     * Delete Project Route
+     */
+    public static deleteProject<ThrowOnError extends boolean = false>(options?: Options<DeleteProjectData, ThrowOnError>) {
+        return (options?.client ?? client).delete<DeleteProjectResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/projects/{id}',
+            ...options
+        });
+    }
+
+    /**
+     * Get Project Route
+     */
+    public static getProject<ThrowOnError extends boolean = false>(options: Options<GetProjectData, ThrowOnError>) {
+        return (options.client ?? client).get<GetProjectResponses, GetProjectErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/projects/{id}',
+            ...options
+        });
+    }
+}
+
+export class UtilsService {
+    /**
+     * Ping
+     */
+    public static ping<ThrowOnError extends boolean = false>(options?: Options<PingData, ThrowOnError>) {
+        return (options?.client ?? client).get<PingResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/ping',
+            ...options
+        });
+    }
+}
+
+export class DefaultService {
+    /**
+     * Root
+     */
+    public static root<ThrowOnError extends boolean = false>(options?: Options<RootData, ThrowOnError>) {
+        return (options?.client ?? client).get<RootResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/',
+            ...options
+        });
+    }
+}

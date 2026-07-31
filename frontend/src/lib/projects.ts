@@ -4,10 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import {
-  createProjectRouteApiProjectsPost,
-  getProjectsRouteApiProjectsGet,
-} from "@/client";
+import { ProjectsService } from "@/client";
 import type { ProjectCreate, ProjectPublic } from "@/client/types.gen";
 
 export type { ProjectPublic };
@@ -21,7 +18,7 @@ export function useProjects() {
   return useQuery({
     queryKey: projectKeys.all,
     queryFn: async () => {
-      const res = await getProjectsRouteApiProjectsGet();
+      const res = await ProjectsService.getProjects();
       if (!res.data) throw new Error("No data returned from server");
       return res.data;
     },
@@ -35,7 +32,7 @@ export function useCreateProject(
 
   return useMutation({
     mutationFn: async (body: ProjectCreate) => {
-      const res = await createProjectRouteApiProjectsPost({ body });
+      const res = await ProjectsService.createProject({ body });
       if (!res.data) throw new Error("No data returned from server");
       return res.data;
     },

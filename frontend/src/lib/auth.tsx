@@ -7,10 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import type {
-  LoginApiAuthLoginPostData,
-  RegisterApiAuthRegisterPostData,
-} from "@/client/types.gen";
+import type { LoginData, RegisterData } from "@/client/types.gen";
 import {
   type UserPublic,
   useLogin,
@@ -36,8 +33,8 @@ export function isPublicApiRoute(url: string): boolean {
   return PUBLIC_API_ROUTES.some((route) => url.includes(route));
 }
 
-type LoginBody = LoginApiAuthLoginPostData["body"];
-type RegisterBody = RegisterApiAuthRegisterPostData["body"];
+type LoginBody = LoginData["body"];
+type RegisterBody = RegisterData["body"];
 
 interface AuthContextValue {
   // undefined = loading, null = unauthenticated, UserPublic = authenticated
