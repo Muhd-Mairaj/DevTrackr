@@ -22,14 +22,14 @@ export function LoadingSkeleton({
           <div
             // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton list
             key={i}
-            className="flex items-center gap-4 rounded-xl border bg-card p-4"
+            className="flex items-center gap-4 rounded-md border bg-card p-4"
           >
-            <Skeleton className="size-10 shrink-0 rounded-lg" />
+            <Skeleton className="size-10 shrink-0 rounded-md" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-2/5" />
               <Skeleton className="h-3 w-3/5" />
             </div>
-            <Skeleton className="h-6 w-16 rounded-full" />
+            <Skeleton className="h-5 w-16 rounded-[3px]" />
           </div>
         ))}
       </div>
@@ -47,11 +47,11 @@ export function LoadingSkeleton({
         <div
           // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton grid
           key={i}
-          className="flex flex-col gap-3 rounded-xl border bg-card p-5"
+          className="flex flex-col gap-3 rounded-md border bg-card p-5"
         >
           <div className="flex items-start justify-between">
-            <Skeleton className="h-5 w-2/5" />
-            <Skeleton className="h-5 w-14 rounded-full" />
+            <Skeleton className="h-4 w-2/5" />
+            <Skeleton className="h-5 w-14 rounded-[3px]" />
           </div>
           <Skeleton className="h-3 w-4/5" />
           <Skeleton className="h-3 w-3/5" />
@@ -78,19 +78,22 @@ export function QueryError({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-4 rounded-xl border border-destructive/30 bg-destructive/5 px-6 py-14 text-center",
+        "flex items-start gap-3 rounded-md border border-destructive/35 bg-destructive/5 px-4 py-3",
         className,
       )}
     >
-      <div className="flex size-12 items-center justify-center rounded-full bg-destructive/10">
-        <AlertCircle className="size-6 text-destructive" />
-      </div>
-      <div className="space-y-1">
-        <p className="font-medium text-sm">{strings.error.loadFailed}</p>
-        <p className="text-muted-foreground text-xs">{message}</p>
+      <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
+      <div className="flex-1 space-y-1">
+        <p className="text-sm font-semibold">{strings.error.loadFailed}</p>
+        <p className="text-xs text-muted-foreground">{message}</p>
       </div>
       {onRetry && (
-        <Button variant="outline" size="sm" onClick={onRetry} className="gap-2">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onRetry}
+          className="gap-1.5"
+        >
           <RefreshCw className="size-3.5" />
           {strings.common.retry}
         </Button>
@@ -117,17 +120,17 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed px-6 py-16 text-center",
+        "flex flex-col items-center justify-center gap-3 rounded-md border border-dashed border-edge px-6 py-14 text-center",
         className,
       )}
     >
-      <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-        {icon ?? <FolderSearch className="size-6 text-muted-foreground" />}
+      <div className="flex size-10 items-center justify-center rounded-md bg-muted">
+        {icon ?? <FolderSearch className="size-5 text-muted-foreground" />}
       </div>
       <div className="space-y-1">
-        <p className="font-medium text-sm">{title}</p>
+        <p className="text-[13px] font-semibold">{title}</p>
         {description && (
-          <p className="text-muted-foreground text-xs">{description}</p>
+          <p className="text-xs text-muted-foreground">{description}</p>
         )}
       </div>
       {action}

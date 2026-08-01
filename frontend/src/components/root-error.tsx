@@ -8,7 +8,7 @@ export function RootErrorComponent({ error, reset }: ErrorComponentProps) {
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center p-6 text-center">
-      <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-xl border bg-card p-6 shadow-xs">
+      <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-md border bg-card p-6">
         <div className="flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
           <AlertTriangle className="size-6" />
         </div>
@@ -22,7 +22,7 @@ export function RootErrorComponent({ error, reset }: ErrorComponentProps) {
         </div>
         <div className="flex items-center gap-3 pt-2">
           {reset && (
-            <Button variant="outline" size="sm" onClick={() => reset()}>
+            <Button variant="secondary" size="sm" onClick={() => reset()}>
               <RefreshCw className="mr-2 size-4" /> {strings.common.retry}
             </Button>
           )}
