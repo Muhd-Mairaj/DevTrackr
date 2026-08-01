@@ -5,7 +5,11 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { ProjectsService } from "@/client";
-import type { ProjectCreate, ProjectPublic } from "@/client/types.gen";
+import type {
+  ProjectCreate,
+  ProjectPublic,
+  ProjectUpdate,
+} from "@/client/types.gen";
 
 export const projectKeys = {
   all: ["projects"] as const,
@@ -108,6 +112,60 @@ export function useDeleteProject(
         queryClient.setQueryData(projectKeys.all, context.previous);
       }
       onError?.(err, id, context, mutationContext);
+    },
+    ...rest,
+  });
+}
+
+export function useUpdateProject(
+  options?: UseMutationOptions<
+    ProjectPublic,
+    Error,
+    { id: string; body: ProjectUpdate }
+  >,
+) {
+  const queryClient = useQueryClient();
+  const { onMutate, onSuccess, onError, ...rest } = options ?? {};
+
+  return useMutation({
+    mutationFn: async ({ id, body }: { id: string; body: ProjectUpdate }) => {
+      const res = await ProjectsService.updateProject({ path: { id }, body });
+      if (!res.data) throw new Error("No data returned from server");
+      return res.data;
+    },
+    onMutate: async ({ id, body }, mutationContext) => {
+      await queryClient.cancelQueries({ queryKey: projectKeys.all });
+      const previous = queryClient.getQueryData<ProjectPublic[]>(
+        projectKeys.all,
+      );
+
+      queryClient.setQueryData<ProjectPublic[]>(projectKeys.all, (prev = []) =>
+        prev.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                ...body,
+                name: body.name ?? p.name,
+                updated_at: new Date().toISOString(),
+              }
+            : p,
+        ),
+      );
+
+      await onMutate?.({ id, body }, mutationContext);
+      return { previous };
+    },
+    onSuccess: (data, vars, context, mutationContext) => {
+      queryClient.setQueryData<ProjectPublic[]>(projectKeys.all, (prev = []) =>
+        prev.map((p) => (p.id === data.id ? data : p)),
+      );
+      onSuccess?.(data, vars, context, mutationContext);
+    },
+    onError: (err, vars, context, mutationContext) => {
+      if (context?.previous) {
+        queryClient.setQueryData(projectKeys.all, context.previous);
+      }
+      onError?.(err, vars, context, mutationContext);
     },
     ...rest,
   });

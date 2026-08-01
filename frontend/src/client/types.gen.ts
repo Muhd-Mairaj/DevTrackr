@@ -78,6 +78,20 @@ export type ProjectPublic = {
 };
 
 /**
+ * ProjectUpdate
+ */
+export type ProjectUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+};
+
+/**
  * UserCreate
  */
 export type UserCreate = {
@@ -488,6 +502,36 @@ export type GetProjectResponses = {
 };
 
 export type GetProjectResponse = GetProjectResponses[keyof GetProjectResponses];
+
+export type UpdateProjectData = {
+    body: ProjectUpdate;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/projects/{id}';
+};
+
+export type UpdateProjectErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateProjectError = UpdateProjectErrors[keyof UpdateProjectErrors];
+
+export type UpdateProjectResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProjectPublic;
+};
+
+export type UpdateProjectResponse = UpdateProjectResponses[keyof UpdateProjectResponses];
 
 export type PingData = {
     body?: never;
