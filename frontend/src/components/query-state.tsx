@@ -24,12 +24,12 @@ export function LoadingSkeleton({
             key={i}
             className="flex items-center gap-4 rounded-md border bg-card p-4"
           >
-            <Skeleton className="size-10 shrink-0 rounded-md" />
+            <Skeleton className="size-10 shrink-0 rounded-[4px]" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-2/5" />
               <Skeleton className="h-3 w-3/5" />
             </div>
-            <Skeleton className="h-5 w-16 rounded-[3px]" />
+            <Skeleton className="h-5 w-16 rounded-[4px]" />
           </div>
         ))}
       </div>
@@ -51,7 +51,7 @@ export function LoadingSkeleton({
         >
           <div className="flex items-start justify-between">
             <Skeleton className="h-4 w-2/5" />
-            <Skeleton className="h-5 w-14 rounded-[3px]" />
+            <Skeleton className="h-5 w-14 rounded-[4px]" />
           </div>
           <Skeleton className="h-3 w-4/5" />
           <Skeleton className="h-3 w-3/5" />
