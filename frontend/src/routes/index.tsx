@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { FolderPlus } from "lucide-react";
+import { useState } from "react";
+import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { DayStamp } from "@/components/day-stamp";
 import { ProjectCard } from "@/components/project-card";
 import {
@@ -17,13 +19,13 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { data: projects, isLoading, isError, error, refetch } = useProjects();
+  const [createOpen, setCreateOpen] = useState(false);
 
   if (isLoading) {
     return <LoadingSkeleton count={6} variant="grid" />;
   }
 
   if (isError) {
-    console.log("error", error);
     return (
       <QueryError
         message={(error as Error)?.message}
@@ -48,7 +50,11 @@ function HomePage() {
             {strings.projects.subtitle}
           </p>
         </div>
-        <Button id="new-project-btn" className="gap-2 self-start sm:self-auto">
+        <Button
+          id="new-project-btn"
+          className="gap-2 self-start sm:self-auto"
+          onClick={() => setCreateOpen(true)}
+        >
           <FolderPlus className="size-4" />
           {strings.projects.newProject}
         </Button>
@@ -88,7 +94,11 @@ function HomePage() {
           title={strings.projects.emptyTitle}
           description={strings.projects.emptyDescription}
           action={
-            <Button id="empty-new-project-btn" className="gap-2">
+            <Button
+              id="empty-new-project-btn"
+              className="gap-2"
+              onClick={() => setCreateOpen(true)}
+            >
               <FolderPlus className="size-4" />
               {strings.projects.newProject}
             </Button>
@@ -103,6 +113,8 @@ function HomePage() {
           ))}
         </div>
       )}
+
+      <CreateProjectDialog open={createOpen} onOpenChange={setCreateOpen} />
     </div>
   );
 }
