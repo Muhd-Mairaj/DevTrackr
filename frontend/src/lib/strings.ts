@@ -13,6 +13,7 @@ export const strings = {
     retry: "Try again",
     goHome: "Go home",
     entries: "entries",
+    close: "Close",
   },
   nav: {
     projects: "Projects",
