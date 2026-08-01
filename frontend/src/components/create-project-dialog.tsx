@@ -1,17 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { AppDialog } from "@/components/ui/app-dialog";
 import {
   Form,
   FormControl,
@@ -71,82 +62,67 @@ export function CreateProjectDialog({
   const isSubmitting = createProject.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent id="create-project-dialog">
-        <DialogHeader>
-          <DialogTitle>{strings.projects.createTitle}</DialogTitle>
-          <DialogDescription>
-            {strings.projects.createDescription}
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
-          >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{strings.projects.nameLabel}</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="project-name"
-                      placeholder={strings.projects.namePlaceholder}
-                      autoFocus
-                      disabled={isSubmitting}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{strings.projects.descriptionLabel}</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="project-description"
-                      placeholder={strings.projects.descriptionPlaceholder}
-                      disabled={isSubmitting}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {form.formState.errors.root && (
-              <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                {form.formState.errors.root.message}
-              </p>
+    <AppDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={strings.projects.createTitle}
+      description={strings.projects.createDescription}
+      actionLabel={strings.projects.createButton}
+      isPending={isSubmitting}
+      formId="create-project-form"
+      id="create-project-dialog"
+      actionButtonId="create-project-submit-btn"
+    >
+      <Form {...form}>
+        <form
+          id="create-project-form"
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-4"
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{strings.projects.nameLabel}</FormLabel>
+                <FormControl>
+                  <Input
+                    id="project-name"
+                    placeholder={strings.projects.namePlaceholder}
+                    autoFocus
+                    disabled={isSubmitting}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                {strings.common.cancel}
-              </Button>
-              <Button
-                id="create-project-submit-btn"
-                type="submit"
-                disabled={isSubmitting}
-              >
-                {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-                {strings.projects.createButton}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{strings.projects.descriptionLabel}</FormLabel>
+                <FormControl>
+                  <Input
+                    id="project-description"
+                    placeholder={strings.projects.descriptionPlaceholder}
+                    disabled={isSubmitting}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {form.formState.errors.root && (
+            <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              {form.formState.errors.root.message}
+            </p>
+          )}
+        </form>
+      </Form>
+    </AppDialog>
   );
 }
