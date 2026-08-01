@@ -1,4 +1,4 @@
-import { Clock, Trash2 } from "lucide-react";
+import { Clock, Pencil, Trash2 } from "lucide-react";
 import type { ProjectPublic } from "@/client/types.gen";
 import { StatusChip } from "@/components/status-chip";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,14 @@ import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
   project: ProjectPublic;
+  onEdit?: (project: ProjectPublic) => void;
   onDelete?: (project: ProjectPublic) => void;
   className?: string;
 }
 
 export function ProjectCard({
   project,
+  onEdit,
   onDelete,
   className,
 }: ProjectCardProps) {
@@ -41,6 +43,15 @@ export function ProjectCard({
                 ? strings.projects.active
                 : strings.projects.inactive}
             </StatusChip>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onEdit?.(project)}
+              aria-label={strings.projects.updateLabel}
+              className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 max-sm:opacity-100"
+            >
+              <Pencil className="size-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon-sm"

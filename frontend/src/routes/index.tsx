@@ -5,6 +5,7 @@ import type { ProjectPublic } from "@/client/types.gen";
 import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { DayStamp } from "@/components/day-stamp";
 import { DeleteProjectDialog } from "@/components/delete-project-dialog";
+import { EditProjectDialog } from "@/components/edit-project-dialog";
 import { ProjectCard } from "@/components/project-card";
 import {
   EmptyState,
@@ -23,6 +24,7 @@ function HomePage() {
   const { data: projects, isLoading, isError, error, refetch } = useProjects();
   const [createOpen, setCreateOpen] = useState(false);
   const [deleting, setDeleting] = useState<ProjectPublic | null>(null);
+  const [editing, setEditing] = useState<ProjectPublic | null>(null);
 
   if (isLoading) {
     return <LoadingSkeleton count={6} variant="grid" />;
@@ -115,6 +117,7 @@ function HomePage() {
             <ProjectCard
               key={project.id}
               project={project}
+              onEdit={setEditing}
               onDelete={setDeleting}
             />
           ))}
@@ -126,6 +129,12 @@ function HomePage() {
         project={deleting}
         onOpenChange={(open) => {
           if (!open) setDeleting(null);
+        }}
+      />
+      <EditProjectDialog
+        project={editing}
+        onOpenChange={(open) => {
+          if (!open) setEditing(null);
         }}
       />
     </div>

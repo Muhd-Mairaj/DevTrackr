@@ -10,8 +10,9 @@ from app.crud.project import (
     delete_project,
     get_project,
     get_projects_by_user,
+    update_project,
 )
-from app.models.project import ProjectCreate, ProjectPublic
+from app.models.project import ProjectCreate, ProjectPublic, ProjectUpdate
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,23 @@ async def create_project_route(
     session: SessionDep, project_in: ProjectCreate, user: CurrentUser
 ) -> Any:
     return await create_project(session=session, project_in=project_in, user_id=user.id)
+
+
+@router.patch("/{id}", response_model=ProjectPublic)
+async def update_project_route(
+    session: SessionDep,
+    id: uuid.UUID,
+    project_in: ProjectUpdate,
+    user: CurrentUser,
+) -> Any:
+    project = await get_project(session=session, id=id)
+
+    if not project or project.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+        )
+
+    return await update_project(session=session, db_obj=project, project_in=project_in)
 
 
 @router.delete("/{id}", response_model=ProjectPublic)

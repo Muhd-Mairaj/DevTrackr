@@ -65,6 +65,11 @@ export const strings = {
     deleteButton: "Delete project",
     deleteLabel: "Delete project",
     deletedToast: "Project deleted",
+    updateLabel: "Update project",
+    updateTitle: "Update project",
+    updateDescription: "Change the name or notes for this project.",
+    updateButton: "Update project",
+    updatedToast: "Project updated",
   },
   login: {
     brand: "DevTrackr",
