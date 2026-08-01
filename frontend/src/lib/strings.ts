@@ -11,6 +11,7 @@ export const strings = {
     save: "Save changes",
     retry: "Try again",
     goHome: "Go home",
+    entries: "entries",
   },
   nav: {
     projects: "Projects",
