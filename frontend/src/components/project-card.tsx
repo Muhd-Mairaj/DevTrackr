@@ -10,7 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cn, formatDate } from "@/lib/utils";
+import { strings } from "@/lib/strings";
+import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
   project: ProjectPublic;
@@ -44,7 +45,9 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
               variant={project.is_active ? "default" : "secondary"}
               className="text-xs"
             >
-              {project.is_active ? "Active" : "Inactive"}
+              {project.is_active
+                ? strings.projects.active
+                : strings.projects.inactive}
             </Badge>
             <Button
               variant="ghost"
@@ -62,7 +65,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         <CardDescription className="line-clamp-2 text-sm leading-relaxed">
           {project.description ?? (
             <span className="italic text-muted-foreground/60">
-              No description
+              {strings.projects.noDescription}
             </span>
           )}
         </CardDescription>
@@ -71,7 +74,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       <CardFooter className="border-t pt-3 pb-3">
         <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
           <Clock className="size-3" />
-          <span>Updated {formatDate(project.updated_at)}</span>
+          <span>{strings.projects.updatedAt(project.updated_at)}</span>
         </div>
       </CardFooter>
     </Card>

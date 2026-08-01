@@ -1,6 +1,7 @@
 import { AlertCircle, FolderSearch, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { strings } from "@/lib/strings";
 import { cn } from "@/lib/utils";
 
 interface LoadingSkeletonProps {
@@ -70,7 +71,7 @@ interface QueryErrorProps {
 }
 
 export function QueryError({
-  message = "Something went wrong. Please try again.",
+  message = strings.error.defaultMessage,
   onRetry,
   className,
 }: QueryErrorProps) {
@@ -85,13 +86,13 @@ export function QueryError({
         <AlertCircle className="size-6 text-destructive" />
       </div>
       <div className="space-y-1">
-        <p className="font-medium text-sm">Failed to load</p>
+        <p className="font-medium text-sm">{strings.error.loadFailed}</p>
         <p className="text-muted-foreground text-xs">{message}</p>
       </div>
       {onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry} className="gap-2">
           <RefreshCw className="size-3.5" />
-          Try again
+          {strings.common.retry}
         </Button>
       )}
     </div>
@@ -108,7 +109,7 @@ interface EmptyStateProps {
 
 export function EmptyState({
   icon,
-  title = "Nothing here yet",
+  title = strings.empty.defaultTitle,
   description,
   action,
   className,

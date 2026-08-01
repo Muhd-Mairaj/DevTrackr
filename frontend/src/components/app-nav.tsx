@@ -1,7 +1,9 @@
 import { useNavigate } from "@tanstack/react-router";
-import { GitBranch, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { LogoMark } from "@/components/logo-mark";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { strings } from "@/lib/strings";
 
 export function AppNav() {
   const { user, logout } = useAuth();
@@ -13,20 +15,18 @@ export function AppNav() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 border-b bg-card">
+      <div className="mx-auto flex h-12 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <GitBranch className="size-4" />
-          </div>
-          <span className="font-semibold text-sm tracking-tight">
-            DevTrackr
+          <LogoMark />
+          <span className="text-sm font-semibold tracking-tight">
+            {strings.login.brand}
           </span>
         </div>
 
         <div className="flex items-center gap-3">
           {user && (
-            <span className="hidden text-muted-foreground text-xs sm:block">
+            <span className="hidden font-mono text-xs text-muted-foreground sm:block">
               {user.email}
             </span>
           )}
@@ -38,7 +38,7 @@ export function AppNav() {
             onClick={handleLogout}
           >
             <LogOut className="size-3.5" />
-            <span className="hidden sm:inline">Sign out</span>
+            <span className="hidden sm:inline">{strings.common.signOut}</span>
           </Button>
         </div>
       </div>

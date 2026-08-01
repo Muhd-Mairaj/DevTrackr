@@ -8,6 +8,7 @@ import {
 } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
 import { useProjects } from "@/lib/projects";
+import { strings } from "@/lib/strings";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -35,25 +36,27 @@ function HomePage() {
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-semibold text-2xl tracking-tight">Projects</h1>
+          <h1 className="font-semibold text-2xl tracking-tight">
+            {strings.projects.title}
+          </h1>
           <p className="mt-1 text-muted-foreground text-sm">
-            All your tracked development projects in one place.
+            {strings.projects.subtitle}
           </p>
         </div>
         <Button id="new-project-btn" className="gap-2 self-start sm:self-auto">
           <FolderPlus className="size-4" />
-          New project
+          {strings.projects.newProject}
         </Button>
       </div>
 
       {projects?.length === 0 && (
         <EmptyState
-          title="No projects yet"
-          description="Create your first project to start tracking time and commits."
+          title={strings.projects.emptyTitle}
+          description={strings.projects.emptyDescription}
           action={
             <Button id="empty-new-project-btn" className="gap-2">
               <FolderPlus className="size-4" />
-              New project
+              {strings.projects.newProject}
             </Button>
           }
         />

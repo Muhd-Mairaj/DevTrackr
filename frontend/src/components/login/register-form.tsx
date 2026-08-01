@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { useAuth } from "@/lib/auth";
+import { strings } from "@/lib/strings";
 import { Divider } from "../divider";
 import { Button } from "../ui/button";
 import {
@@ -22,9 +23,9 @@ export function RegisterForm() {
   const navigate = useNavigate();
 
   const registerSchema = z.object({
-    email: z.email("Enter a valid email address"),
-    username: z.string().min(2, "Username must be at least 2 characters"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    email: z.email(strings.login.emailInvalid),
+    username: z.string().min(2, strings.login.usernameMin),
+    password: z.string().min(8, strings.login.passwordMin),
   });
 
   type RegisterValues = z.infer<typeof registerSchema>;
@@ -52,19 +53,19 @@ export function RegisterForm() {
         className="flex flex-col gap-4"
       >
         <GitHubButton disabled={isSubmitting} />
-        <Divider label="or" />
+        <Divider label={strings.login.or} />
 
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{strings.login.email}</FormLabel>
               <FormControl>
                 <Input
                   id="register-email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={strings.login.emailPlaceholder}
                   autoComplete="email"
                   disabled={isSubmitting}
                   {...field}
@@ -80,12 +81,12 @@ export function RegisterForm() {
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>{strings.login.username}</FormLabel>
               <FormControl>
                 <Input
                   id="register-username"
                   type="text"
-                  placeholder="johndoe"
+                  placeholder={strings.login.usernamePlaceholder}
                   autoComplete="username"
                   disabled={isSubmitting}
                   {...field}
@@ -101,12 +102,12 @@ export function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{strings.login.password}</FormLabel>
               <FormControl>
                 <Input
                   id="register-password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={strings.login.passwordPlaceholder}
                   autoComplete="new-password"
                   disabled={isSubmitting}
                   {...field}
@@ -130,7 +131,7 @@ export function RegisterForm() {
           disabled={isSubmitting}
         >
           {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
-          Create account
+          {strings.login.createAccount}
         </Button>
       </form>
     </Form>
