@@ -59,6 +59,12 @@ export const strings = {
     descriptionPlaceholder: "Optional notes about this project",
     createButton: "Create project",
     createdToast: "Project created",
+    deleteTitle: "Delete project",
+    deleteDescription:
+      "This project and its tracked entries will be removed. This cannot be undone.",
+    deleteButton: "Delete project",
+    deleteLabel: "Delete project",
+    deletedToast: "Project deleted",
   },
   login: {
     brand: "DevTrackr",

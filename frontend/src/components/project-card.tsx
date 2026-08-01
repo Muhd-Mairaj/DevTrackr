@@ -1,6 +1,7 @@
-import { Clock } from "lucide-react";
+import { Clock, Trash2 } from "lucide-react";
 import type { ProjectPublic } from "@/client/types.gen";
 import { StatusChip } from "@/components/status-chip";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,10 +14,15 @@ import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
   project: ProjectPublic;
+  onDelete?: (project: ProjectPublic) => void;
   className?: string;
 }
 
-export function ProjectCard({ project, className }: ProjectCardProps) {
+export function ProjectCard({
+  project,
+  onDelete,
+  className,
+}: ProjectCardProps) {
   return (
     <Card
       className={cn(
@@ -29,11 +35,22 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
           <CardTitle className="truncate text-sm leading-tight">
             {project.name}
           </CardTitle>
-          <StatusChip tone={project.is_active ? "success" : "neutral"}>
-            {project.is_active
-              ? strings.projects.active
-              : strings.projects.inactive}
-          </StatusChip>
+          <div className="flex items-center gap-1">
+            <StatusChip tone={project.is_active ? "success" : "neutral"}>
+              {project.is_active
+                ? strings.projects.active
+                : strings.projects.inactive}
+            </StatusChip>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onDelete?.(project)}
+              aria-label={strings.projects.deleteLabel}
+              className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 max-sm:opacity-100"
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
