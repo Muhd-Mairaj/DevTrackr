@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { FolderPlus } from "lucide-react";
 import { useState } from "react";
+import type { ProjectPublic } from "@/client/types.gen";
 import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { DayStamp } from "@/components/day-stamp";
+import { DeleteProjectDialog } from "@/components/delete-project-dialog";
 import { ProjectCard } from "@/components/project-card";
 import {
   EmptyState,
@@ -20,6 +22,7 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { data: projects, isLoading, isError, error, refetch } = useProjects();
   const [createOpen, setCreateOpen] = useState(false);
+  const [deleting, setDeleting] = useState<ProjectPublic | null>(null);
 
   if (isLoading) {
     return <LoadingSkeleton count={6} variant="grid" />;
@@ -109,12 +112,22 @@ function HomePage() {
       {projects && projects.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onDelete={setDeleting}
+            />
           ))}
         </div>
       )}
 
       <CreateProjectDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <DeleteProjectDialog
+        project={deleting}
+        onOpenChange={(open) => {
+          if (!open) setDeleting(null);
+        }}
+      />
     </div>
   );
 }
