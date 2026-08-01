@@ -3,6 +3,7 @@ import { GitBranch } from "lucide-react";
 import { LoginForm } from "@/components/login/login-form";
 import { RegisterForm } from "@/components/login/register-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { strings } from "@/lib/strings";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -17,9 +18,11 @@ function LoginPage() {
             <GitBranch className="size-6" />
           </div>
           <div>
-            <h1 className="font-semibold text-xl tracking-tight">DevTrackr</h1>
+            <h1 className="font-semibold text-xl tracking-tight">
+              {strings.login.title}
+            </h1>
             <p className="mt-0.5 text-muted-foreground text-sm">
-              Track time, commits, and progress.
+              {strings.login.tagline}
             </p>
           </div>
         </div>
@@ -28,14 +31,14 @@ function LoginPage() {
           <Tabs defaultValue="login">
             <TabsList className="mb-5 w-full">
               <TabsTrigger id="login-tab" value="login" className="flex-1">
-                Sign in
+                {strings.login.signInTab}
               </TabsTrigger>
               <TabsTrigger
                 id="register-tab"
                 value="register"
                 className="flex-1"
               >
-                Create account
+                {strings.login.createAccountTab}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="login">

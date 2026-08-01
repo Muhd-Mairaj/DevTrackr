@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { useAuth } from "@/lib/auth";
+import { strings } from "@/lib/strings";
 import { Divider } from "../divider";
 import { Button } from "../ui/button";
 import {
@@ -22,8 +23,8 @@ export function LoginForm() {
   const navigate = useNavigate();
 
   const loginSchema = z.object({
-    email: z.string().email("Enter a valid email address"),
-    password: z.string().min(1, "Password is required"),
+    email: z.string().email(strings.login.emailInvalid),
+    password: z.string().min(1, strings.login.passwordRequired),
   });
 
   type LoginValues = z.infer<typeof loginSchema>;
@@ -51,19 +52,19 @@ export function LoginForm() {
         className="flex flex-col gap-4"
       >
         <GitHubButton disabled={isSubmitting} />
-        <Divider label="or" />
+        <Divider label={strings.login.or} />
 
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{strings.login.email}</FormLabel>
               <FormControl>
                 <Input
                   id="login-email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={strings.login.emailPlaceholder}
                   autoComplete="email"
                   disabled={isSubmitting}
                   {...field}
@@ -79,12 +80,12 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{strings.login.password}</FormLabel>
               <FormControl>
                 <Input
                   id="login-password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={strings.login.passwordPlaceholder}
                   autoComplete="current-password"
                   disabled={isSubmitting}
                   {...field}
@@ -108,7 +109,7 @@ export function LoginForm() {
           disabled={isSubmitting}
         >
           {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
-          Sign in
+          {strings.login.signIn}
         </Button>
       </form>
     </Form>

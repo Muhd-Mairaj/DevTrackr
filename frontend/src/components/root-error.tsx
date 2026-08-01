@@ -1,6 +1,7 @@
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { strings } from "@/lib/strings";
 
 export function RootErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error?.message);
@@ -13,20 +14,20 @@ export function RootErrorComponent({ error, reset }: ErrorComponentProps) {
         </div>
         <div className="space-y-2">
           <h2 className="font-semibold text-xl tracking-tight">
-            Something went wrong
+            {strings.error.rootTitle}
           </h2>
           <p className="text-muted-foreground text-sm">
-            An unexpected error occurred.
+            {strings.error.rootDescription}
           </p>
         </div>
         <div className="flex items-center gap-3 pt-2">
           {reset && (
             <Button variant="outline" size="sm" onClick={() => reset()}>
-              <RefreshCw className="mr-2 size-4" /> Try again
+              <RefreshCw className="mr-2 size-4" /> {strings.common.retry}
             </Button>
           )}
           <Button size="sm" onClick={() => window.location.assign("/")}>
-            Go Home
+            {strings.common.goHome}
           </Button>
         </div>
       </div>
