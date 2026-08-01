@@ -1,14 +1,5 @@
-import { Loader2 } from "lucide-react";
 import type { ProjectPublic } from "@/client/types.gen";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { AppDialog } from "@/components/ui/app-dialog";
 import { useDeleteProject } from "@/lib/projects";
 import { strings } from "@/lib/strings";
 import { useToast } from "@/lib/toast";
@@ -38,37 +29,17 @@ export function DeleteProjectDialog({
   };
 
   return (
-    <Dialog open={project !== null} onOpenChange={onOpenChange}>
-      <DialogContent id="delete-project-dialog">
-        <DialogHeader>
-          <DialogTitle>{strings.projects.deleteTitle}</DialogTitle>
-          <DialogDescription>
-            {strings.projects.deleteDescription}
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => onOpenChange(false)}
-            disabled={deleteProject.isPending}
-          >
-            {strings.common.cancel}
-          </Button>
-          <Button
-            id="delete-project-confirm-btn"
-            type="button"
-            variant="destructive"
-            onClick={confirm}
-            disabled={deleteProject.isPending}
-          >
-            {deleteProject.isPending && (
-              <Loader2 className="size-4 animate-spin" />
-            )}
-            {strings.projects.deleteButton}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <AppDialog
+      open={project !== null}
+      onOpenChange={onOpenChange}
+      title={strings.projects.deleteTitle}
+      description={strings.projects.deleteDescription}
+      actionLabel={strings.projects.deleteButton}
+      actionVariant="destructive"
+      onAction={confirm}
+      isPending={deleteProject.isPending}
+      id="delete-project-dialog"
+      actionButtonId="delete-project-confirm-btn"
+    />
   );
 }
