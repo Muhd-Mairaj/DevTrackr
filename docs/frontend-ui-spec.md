@@ -204,7 +204,25 @@ Track 6px, `ink` 8% tint background, fill in `primary`, mono label to the right 
 
 ### 4.12 Dialog
 
-Card surface, `radius-lg`, shadow. Title in 600, body in muted 12px stating the consequence, actions right-aligned: secondary "Cancel" + the action button (destructive for destructive actions). Overlay: ink at 26%.
+**Sizing:** Content-sized, never full-viewport. Default max-width `max-w-md` (448px); form dialogs with multiple fields may use `max-w-lg` (512px). On viewports narrower than 448px, `max-w-[calc(100%-2rem)]` keeps a 2rem edge guard so the dialog never touches the screen edges.
+
+**Surface:** `card` background, `radius-lg` (12px), `border-border` hairline, shadow. Overlay is `foreground` at 25% (`bg-foreground/25`). Content area padded 24px (`p-6`). Close button at top-right, 16px from each edge.
+
+**Structure — canonical pattern:** Every DevTrackr dialog uses the shared `AppDialog` component (`frontend/src/components/ui/app-dialog.tsx`). Consumer components never assemble their own dialog chrome from the Radix primitives directly. `AppDialog` provides:
+
+1. Title (`text-base font-semibold tracking-tight`) — what this dialog does
+2. Description (`text-xs leading-relaxed text-muted-foreground`) — the consequence, stated plainly
+3. Free body content — form fields or nothing (confirm dialogs have no body)
+4. Footer — right-aligned, secondary "Cancel" on the left and the action button on the right
+
+**Variants:**
+
+- **Confirm dialog:** Title + description only (no body). The action button calls `onAction` on click. Used for destructive confirms like "Delete project" — the action button uses the `destructive` variant.
+- **Form dialog:** Title + description + form fields in the body. The form element carries an `id`, passed as `formId` to `AppDialog`, so the footer's action button submits the form via `type="submit"`.
+
+**Footer buttons:** Cancel is always `variant="secondary"`. The action button is `variant="primary"` by default, `variant="destructive"` for destructive actions. While pending, the action button shows a `Loader2` spinner and both buttons are disabled. Button labels are sentence case and describe the action: "Create project", "Delete project", "Save changes".
+
+**Do not:** hardcode dialog chrome in consumer components, use a dialog without an `AppDialog` wrapper, set a fixed width or height on a dialog, or omit the description even for confirm dialogs (it carries the consequence).
 
 ### 4.13 Day-stamp header and nav
 
@@ -369,7 +387,7 @@ Guardrails for the real logo:
 |---|---|
 | Color, radius, font tokens | `frontend/src/index.css` (`:root` and `.dark`) |
 | Fonts | `@fontsource/schibsted-grotesk`, `@fontsource/ibm-plex-mono` in `package.json` + imports in `index.css` |
-| Base components | `frontend/src/components/ui/*` (shadcn: button, card, badge, input, form, tabs, ...) |
+| Base components | `frontend/src/components/ui/*` (button, card, badge, input, form, tabs, dialog, app-dialog, ...) |
 | App components | `frontend/src/components/*` (`app-nav`, `project-card`, ...) |
 | Strings | `frontend/src/lib/strings.ts` |
 | Logo mark | `frontend/src/components/logo-mark.tsx` |
