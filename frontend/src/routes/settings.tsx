@@ -38,7 +38,17 @@ function loadColumns(): Column[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Column[];
-      if (parsed.length > 0) return parsed;
+      const valid =
+        Array.isArray(parsed) &&
+        parsed.length > 0 &&
+        parsed.every(
+          (c) =>
+            typeof c === "object" &&
+            c &&
+            typeof c.id === "string" &&
+            typeof c.name === "string",
+        );
+      if (valid) return parsed;
     }
   } catch {
     // corrupted storage falls back to defaults
