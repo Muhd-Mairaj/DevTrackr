@@ -1,3 +1,5 @@
+import { strings } from "@/lib/strings";
+
 /**
  * Provisional DevTrackr mark: a primary rounded square with ruled lines
  * and a stamp dot. Replace with the real logo when designed; keep the
@@ -10,7 +12,7 @@ export function LogoMark({ size = 24 }: { size?: number }) {
       height={size}
       viewBox="0 0 26 26"
       role="img"
-      aria-label="DevTrackr"
+      aria-label={strings.common.brand}
     >
       <rect width="26" height="26" rx="6" fill="var(--primary)" />
       <path

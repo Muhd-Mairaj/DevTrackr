@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/utils";
  */
 export const strings = {
   common: {
+    brand: "DevTrackr",
     signOut: "Sign out",
     cancel: "Cancel",
     save: "Save changes",
@@ -58,6 +59,7 @@ export const strings = {
     signIn: "Sign in",
     createAccount: "Create account",
     continueWithGithub: "Continue with GitHub",
+    githubLogo: "GitHub logo",
     or: "or",
     email: "Email",
     emailPlaceholder: "you@example.com",
@@ -69,6 +71,12 @@ export const strings = {
     usernameMin: "Username must be at least 2 characters",
     usernamePlaceholder: "johndoe",
     passwordPlaceholder: "********",
+  },
+  counter: {
+    title: "Counter Page",
+    currentCount: (count: number) => `Current Count: ${count}`,
+    decrement: "Decrement",
+    increment: "Increment",
   },
   error: {
     loadFailed: "Failed to load",
