@@ -77,8 +77,8 @@ function ToastView({
       type="button"
       onClick={onDismiss}
       className={cn(
-        "flex items-center gap-2 rounded-md border border-edge bg-card px-3 py-2 text-sm text-foreground shadow-md",
-        "animate-in slide-in-from-top-2 fade-in motion-reduce:animate-none",
+        "pointer-events-auto flex items-center gap-2 rounded-md border border-edge bg-card px-3 py-2 text-sm text-foreground shadow-md",
+        "animate-in slide-in-from-top-2 fade-in duration-200 motion-reduce:animate-none",
       )}
     >
       <Icon
