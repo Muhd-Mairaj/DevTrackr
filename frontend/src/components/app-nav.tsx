@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { LogoMark } from "@/components/logo-mark";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,15 @@ export function AppNav() {
           <span className="text-sm font-semibold tracking-tight">
             {strings.login.brand}
           </span>
+          <nav className="ml-3 flex items-center gap-1">
+            <Link
+              to="/"
+              activeProps={{ className: "bg-accent text-foreground" }}
+              className="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground hover:text-foreground"
+            >
+              {strings.nav.projects}
+            </Link>
+          </nav>
         </div>
 
         <div className="flex items-center gap-3">
