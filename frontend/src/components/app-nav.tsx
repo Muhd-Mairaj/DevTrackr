@@ -30,6 +30,13 @@ export function AppNav() {
             >
               {strings.nav.projects}
             </Link>
+            <Link
+              to="/settings"
+              activeProps={{ className: "bg-accent text-foreground" }}
+              className="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground hover:text-foreground"
+            >
+              {strings.nav.settings}
+            </Link>
           </nav>
         </div>
 
