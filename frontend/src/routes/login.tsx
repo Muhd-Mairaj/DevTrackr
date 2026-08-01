@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { GitBranch } from "lucide-react";
 import { LoginForm } from "@/components/login/login-form";
 import { RegisterForm } from "@/components/login/register-form";
+import { LogoMark } from "@/components/logo-mark";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { strings } from "@/lib/strings";
 
@@ -13,21 +13,19 @@ function LoginPage() {
   return (
     <div className="flex min-h-svh items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <div className="flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-            <GitBranch className="size-6" />
-          </div>
+        <div className="mb-6 flex flex-col items-center gap-3 text-center">
+          <LogoMark size={40} />
           <div>
-            <h1 className="font-semibold text-xl tracking-tight">
+            <h1 className="text-xl font-semibold tracking-tight">
               {strings.login.title}
             </h1>
-            <p className="mt-0.5 text-muted-foreground text-sm">
+            <p className="mt-0.5 text-sm text-muted-foreground">
               {strings.login.tagline}
             </p>
           </div>
         </div>
 
-        <div className="rounded-2xl border bg-card p-6 shadow-sm">
+        <div className="rounded-md border bg-card p-6">
           <Tabs defaultValue="login">
             <TabsList className="mb-5 w-full">
               <TabsTrigger id="login-tab" value="login" className="flex-1">
