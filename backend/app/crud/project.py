@@ -22,6 +22,14 @@ async def get_project(*, session: AsyncSession, id: uuid.UUID) -> Project | None
     return await session.get(Project, id)
 
 
+async def get_project_for_user(
+    *, session: AsyncSession, id: uuid.UUID, user_id: uuid.UUID
+) -> Project | None:
+    statement = select(Project).where(Project.id == id, Project.user_id == user_id)
+    result = await session.exec(statement)
+    return result.one_or_none()
+
+
 async def get_projects_by_user(
     *, session: AsyncSession, user_id: uuid.UUID, skip: int = 0, limit: int = 100
 ) -> Sequence[Project]:
