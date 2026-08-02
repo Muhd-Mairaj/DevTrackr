@@ -81,6 +81,10 @@ export function useCreateProject(
       queryClient.setQueryData<ProjectPublic[]>(projectKeys.all, (prev = []) =>
         prev.map((p) => (p.id === context?.optimisticId ? data : p)),
       );
+      // A list refetch that lands between onMutate and onSuccess replaces the
+      // cache, so id-matching alone can strand the optimistic card; reconcile
+      // with server truth.
+      queryClient.invalidateQueries({ queryKey: projectKeys.all });
       onSuccess?.(data, vars, context, mutationContext);
     },
     onError: (err, vars, context, mutationContext) => {
@@ -120,6 +124,9 @@ export function useDeleteProject(
     },
     onSuccess: (data, id, context, mutationContext) => {
       queryClient.removeQueries({ queryKey: projectKeys.detail(id) });
+      // A refetch that landed before the delete committed can repopulate the
+      // list with the deleted project; reconcile with server truth.
+      queryClient.invalidateQueries({ queryKey: projectKeys.all });
       onSuccess?.(data, id, context, mutationContext);
     },
     onError: (err, id, context, mutationContext) => {

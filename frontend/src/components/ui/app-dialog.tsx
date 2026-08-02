@@ -19,7 +19,7 @@ interface AppDialogProps {
   children?: ReactNode;
   cancelLabel?: string;
   actionLabel: string;
-  actionVariant?: "primary" | "destructive";
+  actionVariant?: "default" | "destructive";
   onAction?: () => void;
   actionDisabled?: boolean;
   isPending?: boolean;
@@ -36,7 +36,7 @@ export function AppDialog({
   children,
   cancelLabel = strings.common.cancel,
   actionLabel,
-  actionVariant = "primary",
+  actionVariant = "default",
   onAction,
   actionDisabled = false,
   isPending = false,
@@ -66,7 +66,7 @@ export function AppDialog({
             type={formId ? "submit" : "button"}
             form={formId}
             onClick={formId ? undefined : onAction}
-            variant={actionVariant === "destructive" ? "destructive" : "default"}
+            variant={actionVariant}
             disabled={actionDisabled || isPending}
           >
             {isPending && <Loader2 className="size-4 animate-spin" />}

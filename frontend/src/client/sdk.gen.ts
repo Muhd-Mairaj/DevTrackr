@@ -199,6 +199,7 @@ export class ProjectsService {
     public static getProject<ThrowOnError extends boolean = false>(options: Options<GetProjectData, ThrowOnError>) {
         return (options.client ?? client).get<GetProjectResponses, GetProjectErrors, ThrowOnError>({
             responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/projects/{id}',
             ...options
         });
