@@ -27,6 +27,21 @@ export function useProjects() {
   });
 }
 
+export function useProject(id: string | null) {
+  return useQuery({
+    queryKey: projectKeys.detail(id ?? ""),
+    queryFn: async () => {
+      if (!id) throw new Error("No project id");
+      const res = await ProjectsService.getProject({ path: { id } });
+      if (!res.data) throw new Error("No data returned from server");
+      return res.data;
+    },
+    enabled: id !== null,
+    // Fresh data reference per fetch so the details toast refires on same-card re-click
+    structuralSharing: false,
+  });
+}
+
 export function useCreateProject(
   options?: UseMutationOptions<ProjectPublic, Error, ProjectCreate>,
 ) {
