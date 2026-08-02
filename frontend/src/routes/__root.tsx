@@ -5,9 +5,10 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 import { AppNav } from "@/components/app-nav";
-import { AuthProvider, isPublicPageRoute, useAuth } from "@/lib/auth";
 import { RootErrorComponent } from "@/components/root-error";
+import { AuthProvider, isPublicPageRoute, useAuth } from "@/lib/auth";
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -20,6 +21,15 @@ function AuthShell() {
   const navigate = useNavigate();
   const isPublic = isPublicPageRoute(location.pathname);
 
+  // Redirect based on auth state.
+  useEffect(() => {
+    if (user === null && !isPublic) {
+      navigate({ to: "/login", replace: true });
+    } else if (user !== null && isPublic) {
+      navigate({ to: "/", replace: true });
+    }
+  }, [user, isPublic, navigate]);
+
   // undefined = session still resolving
   if (user === undefined) {
     return (
@@ -30,8 +40,7 @@ function AuthShell() {
   }
 
   if (user === null && !isPublic) {
-    // navigate() cannot be called during render, so defer to next tick
-    setTimeout(() => navigate({ to: "/login", replace: true }), 0);
+    // redirect to /login is pending in the effect above
     return (
       <div className="flex min-h-svh items-center justify-center">
         <Loader2 className="size-6 animate-spin text-muted-foreground" />
@@ -40,8 +49,12 @@ function AuthShell() {
   }
 
   if (user !== null && isPublic) {
-    setTimeout(() => navigate({ to: "/", replace: true }), 0);
-    return null;
+    // redirect to / is pending in the effect above
+    return (
+      <div className="flex min-h-svh items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
   }
 
   if (isPublic) {
