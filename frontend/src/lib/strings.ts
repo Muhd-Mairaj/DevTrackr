@@ -1,3 +1,4 @@
+import type { ProjectPublic } from "@/client/types.gen";
 import { formatDate } from "@/lib/utils";
 
 /**
@@ -70,6 +71,9 @@ export const strings = {
     updateDescription: "Change the name or notes for this project.",
     updateButton: "Update project",
     updatedToast: "Project updated",
+    detailToast: (project: ProjectPublic) =>
+      `${project.name} · ${project.is_active ? strings.projects.active : strings.projects.inactive} · Created ${formatDate(project.created_at)}`,
+    detailErrorToast: "Couldn't load project details. Try again.",
   },
   login: {
     brand: "DevTrackr",

@@ -1,6 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { FolderPlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ProjectPublic } from "@/client/types.gen";
 import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { DayStamp } from "@/components/day-stamp";
@@ -13,8 +14,9 @@ import {
   QueryError,
 } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
-import { useProjects } from "@/lib/projects";
+import { projectKeys, useProject, useProjects } from "@/lib/projects";
 import { strings } from "@/lib/strings";
+import { useToast } from "@/lib/toast";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -25,6 +27,27 @@ function HomePage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleting, setDeleting] = useState<ProjectPublic | null>(null);
   const [editing, setEditing] = useState<ProjectPublic | null>(null);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const projectDetails = useProject(selectedId);
+
+  const handleViewProject = (project: ProjectPublic) => {
+    queryClient.invalidateQueries({ queryKey: projectKeys.detail(project.id) });
+    setSelectedId(project.id);
+  };
+
+  useEffect(() => {
+    if (projectDetails.data) {
+      toast("success", strings.projects.detailToast(projectDetails.data));
+    }
+  }, [projectDetails.data, toast]);
+
+  useEffect(() => {
+    if (projectDetails.error) {
+      toast("error", strings.projects.detailErrorToast);
+    }
+  }, [projectDetails.error, toast]);
 
   if (isLoading) {
     return <LoadingSkeleton count={6} variant="grid" />;
@@ -117,6 +140,7 @@ function HomePage() {
             <ProjectCard
               key={project.id}
               project={project}
+              onClick={handleViewProject}
               onEdit={setEditing}
               onDelete={setDeleting}
             />
@@ -128,7 +152,10 @@ function HomePage() {
       <DeleteProjectDialog
         project={deleting}
         onOpenChange={(open) => {
-          if (!open) setDeleting(null);
+          if (!open) {
+            if (deleting?.id === selectedId) setSelectedId(null);
+            setDeleting(null);
+          }
         }}
       />
       <EditProjectDialog

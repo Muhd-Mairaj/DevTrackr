@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
   project: ProjectPublic;
+  onClick?: (project: ProjectPublic) => void;
   onEdit?: (project: ProjectPublic) => void;
   onDelete?: (project: ProjectPublic) => void;
   className?: string;
@@ -21,14 +22,35 @@ interface ProjectCardProps {
 
 export function ProjectCard({
   project,
+  onClick,
   onEdit,
   onDelete,
   className,
 }: ProjectCardProps) {
+  const isClickable = onClick !== undefined;
   return (
     <Card
+      role={isClickable ? "button" : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onClick={isClickable ? () => onClick?.(project) : undefined}
+      onKeyDown={
+        isClickable
+          ? (e) => {
+              if (
+                e.target === e.currentTarget &&
+                !e.repeat &&
+                (e.key === "Enter" || e.key === " ")
+              ) {
+                e.preventDefault();
+                onClick?.(project);
+              }
+            }
+          : undefined
+      }
       className={cn(
         "group flex flex-col overflow-hidden transition-shadow duration-200 hover:shadow-md",
+        isClickable &&
+          "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
         className,
       )}
     >
@@ -46,7 +68,10 @@ export function ProjectCard({
             <Button
               variant="ghost"
               size="icon-sm"
-              onClick={() => onEdit?.(project)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.(project);
+              }}
               aria-label={strings.projects.updateLabel}
               className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 max-sm:opacity-100"
             >
@@ -55,7 +80,10 @@ export function ProjectCard({
             <Button
               variant="ghost"
               size="icon-sm"
-              onClick={() => onDelete?.(project)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(project);
+              }}
               aria-label={strings.projects.deleteLabel}
               className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 max-sm:opacity-100"
             >
