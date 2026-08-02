@@ -73,7 +73,6 @@ export function ProjectCard({
                 onEdit?.(project);
               }}
               aria-label={strings.projects.updateLabel}
-              className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 max-sm:opacity-100"
             >
               <Pencil className="size-4" />
             </Button>
@@ -85,7 +84,6 @@ export function ProjectCard({
                 onDelete?.(project);
               }}
               aria-label={strings.projects.deleteLabel}
-              className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 max-sm:opacity-100"
             >
               <Trash2 className="size-4" />
             </Button>

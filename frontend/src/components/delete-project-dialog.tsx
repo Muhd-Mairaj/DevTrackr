@@ -18,20 +18,20 @@ export function DeleteProjectDialog({
 
   const confirm = async () => {
     if (!project) return;
-    try {
-      await deleteProject.mutateAsync(project.id);
-      onOpenChange(false);
-      toast("success", strings.projects.deletedToast);
-    } catch (err) {
-      onOpenChange(false);
-      toast("error", (err as Error).message);
-    }
+    await deleteProject.mutateAsync(project.id);
+    onOpenChange(false);
+    toast("success", strings.projects.deletedToast);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) deleteProject.reset();
+    onOpenChange(open);
   };
 
   return (
     <AppDialog
       open={project !== null}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       title={strings.projects.deleteTitle}
       description={strings.projects.deleteDescription}
       actionLabel={strings.projects.deleteButton}
@@ -40,6 +40,12 @@ export function DeleteProjectDialog({
       isPending={deleteProject.isPending}
       id="delete-project-dialog"
       actionButtonId="delete-project-confirm-btn"
-    />
+    >
+      {deleteProject.isError && (
+        <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          {(deleteProject.error as Error)?.message}
+        </p>
+      )}
+    </AppDialog>
   );
 }

@@ -22,6 +22,13 @@ interface ToastContextValue {
   toast: (tone: ToastTone, message: string) => void;
 }
 
+// At most 2 success toasts are shown at once; the oldest success is evicted
+// to make room. Error toasts are never evicted: they carry failure feedback
+// that must not be silently dropped.
+const MAX_SUCCESS_TOASTS = 2;
+const SUCCESS_DURATION_MS = 3000;
+const ERROR_DURATION_MS = 6000;
+
 const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function useToast(): ToastContextValue {
@@ -41,8 +48,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const toast = useCallback(
     (tone: ToastTone, message: string) => {
       const id = nextId.current++;
-      setToasts((prev) => [...prev.slice(-2), { id, tone, message }]);
-      window.setTimeout(() => dismiss(id), 3000);
+      setToasts((prev) => [
+        ...prev.filter((t) => t.tone === "success").slice(-MAX_SUCCESS_TOASTS),
+        ...prev.filter((t) => t.tone === "error"),
+        { id, tone, message },
+      ]);
+      window.setTimeout(
+        () => dismiss(id),
+        tone === "error" ? ERROR_DURATION_MS : SUCCESS_DURATION_MS,
+      );
     },
     [dismiss],
   );

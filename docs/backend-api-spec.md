@@ -16,19 +16,19 @@ If a backend decision is not covered here, follow the closest existing pattern i
 
 - FastAPI (async), SQLModel on async SQLAlchemy, Postgres, Alembic for migrations.
 - Layout:
-  - `app/api/routes/` — one module per resource (auth, github, project, utils)
-  - `app/api/deps.py` — all shared dependency aliases
-  - `app/api/main.py` — router registration
-  - `app/crud/` — one data-access module per model
-  - `app/models/` — SQLModel tables plus create/update/public schemas
-  - `app/core/` — config, security helpers
+  - `app/api/routes/`: one module per resource (auth, github, project, utils)
+  - `app/api/deps.py`: shared dependency aliases (cross-cutting: auth, session, JWT)
+  - `app/api/main.py`: router registration
+  - `app/crud/`: one data-access module per model
+  - `app/models/`: SQLModel tables plus create/update/public schemas
+  - `app/core/`: config, security helpers
 - Tools: ruff (E, W, F, B, C4, UP, I, ARG001), mypy `--strict`, pytest.
 
 ---
 
 ## 2. Dependencies (`app/api/deps.py`)
 
-All shared dependencies are defined once as `Annotated` aliases in `deps.py`:
+Cross-cutting dependencies (`CurrentUser`, `SessionDep`, `GithubJWT`) are defined once as `Annotated` aliases in `deps.py`. Per-resource ownership dependencies (`get_owned_<resource>`, `Owned<Resource>`) live in the route module alongside the routes that use them:
 
 | Alias | Meaning |
 |---|---|
@@ -39,7 +39,7 @@ All shared dependencies are defined once as `Annotated` aliases in `deps.py`:
 | `Owned<Resource>` | Resource verified to belong to the current user (section 4) |
 
 - Authentication reads the access-token cookie first, then falls back to the OAuth2 bearer header.
-- Routes never decode tokens, never build `Depends(get_db)`, and never define dependency aliases inline. They compose the aliases from `deps.py`.
+- Routes never decode tokens and never build `Depends(get_db)`. They compose `CurrentUser` and `SessionDep` from `deps.py`. Ownership dependencies (`get_owned_<resource>`, `Owned<Resource>`) are defined in the route module they protect.
 - A route without `CurrentUser` is unauthenticated by definition. Every route that reads or writes user-scoped data declares `user: CurrentUser` (or takes an `Owned<Resource>` alias that embeds it).
 
 ---
@@ -53,7 +53,7 @@ All shared dependencies are defined once as `Annotated` aliases in `deps.py`:
 
 ---
 
-## 4. Object ownership (BOLA pattern) — required for every `/{id}` route
+## 4. Object ownership (BOLA pattern): required for every `/{id}` route
 
 This is the core convention. Every route that takes a user-owned resource id follows exactly this shape. No exceptions, no inline checks.
 
@@ -64,7 +64,7 @@ BOLA (OWASP API1:2023, the top API risk) happens when an endpoint fetches a reso
 ### 4.2 The two layers
 
 1. **CRUD layer.** Fetch functions scope the query by user: `get_<resource>_for_user(*, session, id, user_id)` runs `select(Resource).where(Resource.id == id, Resource.user_id == user_id)`. The database cannot return a foreign row, so a leak is impossible even if a caller forgets the check.
-2. **Dependency layer.** `get_owned_<resource>` in `deps.py` depends on `SessionDep`, `CurrentUser`, and the path `id`, calls the scoped fetch, raises 404 on `None`, and returns the ORM object. Exposed as an `Owned<Resource>` `Annotated` alias.
+2. **Dependency layer.** `get_owned_<resource>` in the route module depends on `SessionDep`, `CurrentUser`, and the path `id`, calls the scoped fetch, raises 404 on `None`, and returns the ORM object. Exposed as an `Owned<Resource>` `Annotated` alias so every verb composes the same check.
 
 ### 4.3 Canonical template
 
@@ -81,7 +81,7 @@ async def get_project_for_user(
     return result.one_or_none()
 ```
 
-Dependency (`app/api/deps.py`):
+Dependency (in the route module, e.g. `app/api/routes/project.py`):
 
 ```python
 async def get_owned_project(
@@ -156,11 +156,12 @@ async def delete_project_route(session: SessionDep, project: OwnedProject) -> An
 ## 7. Testing
 
 - pytest; tests live in `backend/tests`.
-- Every `/{id}` route gets the BOLA cases (the OWASP-recommended tests):
+- Every `/{id}` route needs the BOLA cases (the OWASP-recommended tests):
   - Foreign user's token with another user's resource id: GET, PATCH, DELETE all return 404.
   - No token: GET, PATCH, DELETE all return 401.
   - Owner: GET returns 200 with the resource; mutations return 200 and take effect.
   - A second mutation on the now-deleted id returns 404.
+  (These tests are required before merging any new `/{id}` route; the existing project routes need them retroactively.)
 
 ---
 
@@ -171,7 +172,7 @@ async def delete_project_route(session: SessionDep, project: OwnedProject) -> An
 - Declare `user: CurrentUser` on every route that touches user data.
 - Use the `Owned<Resource>` dependency for every `/{id}` route; fetch through the scoped CRUD function (`get_<resource>_for_user`).
 - Return 404 for missing and foreign objects; 401 for missing or invalid auth; 403 only for inactive users.
-- Define shared dependencies in `deps.py` as `Annotated` aliases; use keyword-only arguments in CRUD.
+- Define cross-cutting dependencies (`CurrentUser`, `SessionDep`, `GithubJWT`) in `deps.py` as `Annotated` aliases. Define per-resource ownership dependencies (`Owned<Resource>`) in the route module.
 - Scope list queries by `user_id` in the database query.
 - Match the existing route, deps, and CRUD modules before building new ones.
 
@@ -179,6 +180,6 @@ async def delete_project_route(session: SessionDep, project: OwnedProject) -> An
 
 - No raw `session.get(Model, id)` or unscoped fetch in a route.
 - No inline ownership checks in route bodies; this is what caused the `GET /projects/{id}` hole.
-- No dependency aliases defined inline in a route module; they belong in `deps.py`.
+- No inline ownership checks in route bodies; use the `Owned<Resource>` dependency pattern.
 - No 403 to signal "you do not own this object"; use 404.
 - No route that reads user data without `CurrentUser`.

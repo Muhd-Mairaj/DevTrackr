@@ -220,7 +220,7 @@ Track 6px, `ink` 8% tint background, fill in `primary`, mono label to the right 
 - **Confirm dialog:** Title + description only (no body). The action button calls `onAction` on click. Used for destructive confirms like "Delete project" — the action button uses the `destructive` variant.
 - **Form dialog:** Title + description + form fields in the body. The form element carries an `id`, passed as `formId` to `AppDialog`, so the footer's action button submits the form via `type="submit"`.
 
-**Footer buttons:** Cancel is always `variant="secondary"`. The action button is `variant="primary"` by default, `variant="destructive"` for destructive actions. While pending, the action button shows a `Loader2` spinner and both buttons are disabled. Button labels are sentence case and describe the action: "Create project", "Delete project", "Save changes".
+**Footer buttons:** Cancel is always `variant="secondary"`. The action button is `variant="default"` by default (the primary-styled button), `variant="destructive"` for destructive actions. While pending, the action button shows a `Loader2` spinner and both buttons are disabled. Button labels are sentence case and describe the action: "Create project", "Delete project", "Save changes".
 
 **Do not:** hardcode dialog chrome in consumer components, use a dialog without an `AppDialog` wrapper, set a fixed width or height on a dialog, or omit the description even for confirm dialogs (it carries the consequence).
 
