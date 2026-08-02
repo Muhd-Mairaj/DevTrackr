@@ -18,10 +18,6 @@ async def create_project(
     return db_obj
 
 
-async def get_project(*, session: AsyncSession, id: uuid.UUID) -> Project | None:
-    return await session.get(Project, id)
-
-
 async def get_project_for_user(
     *, session: AsyncSession, id: uuid.UUID, user_id: uuid.UUID
 ) -> Project | None:

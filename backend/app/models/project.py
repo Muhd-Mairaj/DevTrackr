@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from pydantic import model_validator
 from sqlmodel import Field, Relationship, SQLModel
 
 from .base import BaseModel
@@ -20,8 +21,16 @@ class ProjectCreate(ProjectBase):
 
 
 class ProjectUpdate(SQLModel):
-    name: str | None = Field(default=None)
+    name: str | None = Field(default=None, min_length=1)
     description: str | None = Field(default=None)
+
+    @model_validator(mode="after")
+    def reject_null_name(self) -> "ProjectUpdate":
+        # PATCH semantics: an absent name means "no change", but an explicit
+        # null would violate the NOT NULL column and surface as a raw 500.
+        if "name" in self.model_fields_set and self.name is None:
+            raise ValueError("name cannot be null")
+        return self
 
 
 class Project(ProjectBase, BaseModel, table=True):
