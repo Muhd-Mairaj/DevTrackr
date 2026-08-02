@@ -69,16 +69,15 @@ async def setup_test_db(engine: AsyncEngine) -> AsyncGenerator[None]:
 
 @pytest.fixture
 async def db(engine: AsyncEngine) -> AsyncGenerator[AsyncSession]:
-    # Use a nested transaction (savepoint) to support test-level commits
-    # while guaranteeing isolation via rollback.
     async with engine.connect() as connection:
         transaction = await connection.begin()
         async with AsyncSession(connection, expire_on_commit=False) as session:
-            await connection.begin_nested()  # savepoint
+            savepoint = await session.begin_nested()  # savepoint
             try:
                 yield session
             finally:
-                await connection.rollback()  # always safe
+                if savepoint.is_active:
+                    await savepoint.rollback()
         await transaction.rollback()
 
 
