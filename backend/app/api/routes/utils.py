@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-router = APIRouter()
+router = APIRouter(prefix="/utils", tags=["utils"])
 
 
 @router.get("/ping", status_code=status.HTTP_200_OK)
