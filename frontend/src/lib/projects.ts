@@ -60,7 +60,7 @@ export function useCreateProject(
         projectKeys.all,
       );
 
-      const optimistic: ProjectPublic = {
+      const optimistic = {
         id: crypto.randomUUID(),
         name: body.name,
         description: body.description ?? null,
@@ -68,7 +68,8 @@ export function useCreateProject(
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         user_id: "",
-      };
+        repositories: [],
+      } as ProjectPublic;
       queryClient.setQueryData<ProjectPublic[]>(
         projectKeys.all,
         (prev = []) => [...prev, optimistic],
