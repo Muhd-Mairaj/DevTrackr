@@ -83,6 +83,7 @@ export const strings = {
     repoSelectorDescription: "Link GitHub repositories to this project",
     repoSearchPlaceholder: "Search repositories...",
     noReposFound: "No repositories found",
+    repoOpenLink: (name: string) => `Open ${name} on GitHub`,
     reposCount: (n: number) => `${n} repo${n === 1 ? "" : "s"}`,
   },
   login: {
