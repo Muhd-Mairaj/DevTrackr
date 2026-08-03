@@ -55,8 +55,11 @@ async def update_project_route(
     session: SessionDep,
     project_in: ProjectUpdate,
     project: OwnedProject,
+    user: CurrentUser,
 ) -> Any:
-    return await update_project(session=session, db_obj=project, project_in=project_in)
+    return await update_project(
+        session=session, db_obj=project, project_in=project_in, user_id=user.id
+    )
 
 
 @router.delete("/{id}", response_model=ProjectPublic)
