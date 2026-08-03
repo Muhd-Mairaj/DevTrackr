@@ -18,7 +18,7 @@ export function RepositorySelector({
   onChange,
   disabled = false,
 }: RepositorySelectorProps) {
-  const { data: repos, isLoading, isError } = useGithubRepositories();
+  const { data: repos, isLoading, isError, error } = useGithubRepositories();
   const [search, setSearch] = useState("");
 
   if (isLoading) {
@@ -33,12 +33,17 @@ export function RepositorySelector({
   }
 
   if (isError) {
+    const isNotConnected =
+      (error as { response?: { status?: number } } | null)?.response?.status ===
+      404;
     return (
       <div className="space-y-2">
         <Label>{strings.integrations.repoSelectorLabel}</Label>
         <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-muted-foreground">
           <AlertCircle className="size-3.5 shrink-0 text-destructive" />
-          {strings.integrations.githubNoConnection}
+          {isNotConnected
+            ? strings.integrations.githubNoConnection
+            : strings.integrations.githubError}
         </div>
       </div>
     );
@@ -139,7 +144,7 @@ function RepoRow({
         target="_blank"
         rel="noopener noreferrer"
         className="shrink-0 text-muted-foreground hover:text-foreground"
-        aria-label={`Open ${repo.full_name} on GitHub`}
+        aria-label={strings.integrations.repoOpenLink(repo.full_name)}
       >
         <ExternalLink className="size-3" />
       </a>
