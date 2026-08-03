@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { IntegrationsService } from "@/client";
-import type { GithubRepo } from "@/types/github";
+import { RepositoriesService } from "@/client";
+import type { RepositoryPublic } from "@/client/types.gen";
 
 export const integrationKeys = {
   githubRepos: ["integrations", "github", "repositories"] as const,
@@ -9,10 +9,10 @@ export const integrationKeys = {
 export function useGithubRepositories() {
   return useQuery({
     queryKey: integrationKeys.githubRepos,
-    queryFn: async (): Promise<GithubRepo[]> => {
-      const res = await IntegrationsService.getGithubRepositories();
+    queryFn: async (): Promise<RepositoryPublic[]> => {
+      const res = await RepositoriesService.getRepositories();
       if (!res.data) throw new Error("No data returned from server");
-      return res.data as GithubRepo[];
+      return res.data;
     },
     staleTime: 5 * 60 * 1000,
   });

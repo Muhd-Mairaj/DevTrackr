@@ -34,6 +34,57 @@ async def get_repository_for_user(
     return result.one_or_none()
 
 
+async def upsert_repository(
+    *,
+    session: AsyncSession,
+    user_id: uuid.UUID,
+    github_id: int,
+    full_name: str,
+    repo_name: str,
+    url: str | None = None,
+    description: str | None = None,
+) -> Repository:
+    # Install-time sync entry point: one call per repo from the GitHub API
+    # response. Creates the row on first sync, refreshes metadata (and
+    # reactivates a soft-deleted row) on later syncs.
+    statement = select(Repository).where(
+        Repository.github_id == github_id, Repository.user_id == user_id
+    )
+    db_obj = (await session.exec(statement)).one_or_none()
+    if db_obj is None:
+        db_obj = Repository(
+            user_id=user_id,
+            github_id=github_id,
+            full_name=full_name,
+            repo_name=repo_name,
+            url=url,
+            description=description,
+        )
+        session.add(db_obj)
+    else:
+        db_obj.full_name = full_name
+        db_obj.repo_name = repo_name
+        db_obj.url = url
+        db_obj.description = description
+        db_obj.is_active = True
+    await session.commit()
+    await session.refresh(db_obj)
+    return db_obj
+
+
+async def get_repositories_by_user(
+    *, session: AsyncSession, user_id: uuid.UUID, skip: int = 0, limit: int = 100
+) -> Sequence[Repository]:
+    statement = (
+        select(Repository)
+        .where(Repository.user_id == user_id)
+        .offset(skip)
+        .limit(limit)
+    )
+    result = await session.exec(statement)
+    return result.all()
+
+
 async def get_repositories_by_github_ids(
     *, session: AsyncSession, github_ids: Sequence[int], user_id: uuid.UUID
 ) -> Sequence[Repository]:

@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, DeleteProjectData, DeleteProjectErrors, DeleteProjectResponses, GetGithubRepositoriesData, GetGithubRepositoriesErrors, GetGithubRepositoriesResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses, UpdateProjectData, UpdateProjectErrors, UpdateProjectResponses } from './types.gen';
+import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, DeleteProjectData, DeleteProjectErrors, DeleteProjectResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GetRepositoriesData, GetRepositoriesErrors, GetRepositoriesResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses, UpdateProjectData, UpdateProjectErrors, UpdateProjectResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -138,20 +138,6 @@ export class IntegrationsService {
             ...options
         });
     }
-    
-    /**
-     * Get Github Repositories
-     *
-     * List repositories accessible to the current user's GitHub integration.
-     */
-    public static getGithubRepositories<ThrowOnError extends boolean = false>(options?: Options<GetGithubRepositoriesData, ThrowOnError>) {
-        return (options?.client ?? client).get<GetGithubRepositoriesResponses, GetGithubRepositoriesErrors, ThrowOnError>({
-            responseType: 'json',
-            security: [{ scheme: 'bearer', type: 'http' }],
-            url: '/api/integrations/github/repositories',
-            ...options
-        });
-    }
 }
 
 export class ProjectsService {
@@ -220,6 +206,20 @@ export class ProjectsService {
                 'Content-Type': 'application/json',
                 ...options.headers
             }
+        });
+    }
+}
+
+export class RepositoriesService {
+    /**
+     * Get Repositories Route
+     */
+    public static getRepositories<ThrowOnError extends boolean = false>(options?: Options<GetRepositoriesData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetRepositoriesResponses, GetRepositoriesErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/repositories/',
+            ...options
         });
     }
 }
