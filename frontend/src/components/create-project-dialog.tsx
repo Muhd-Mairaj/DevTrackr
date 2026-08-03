@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import type { ProjectCreate } from "@/client";
 import { RepositorySelector } from "@/components/repository-selector";
 import { AppDialog } from "@/components/ui/app-dialog";
 import {
@@ -21,7 +20,10 @@ import { useToast } from "@/lib/toast";
 const createSchema = z.object({
   name: z.string().min(1, strings.projects.nameRequired),
   description: z.string().optional(),
-  repositoryIds: z.array(z.number()).default([]),
+  // No .default(): a default would make z.input optional while z.output is
+  // required, which breaks useForm's Resolver<F, any, F> type. defaultValues
+  // in useForm already provides the empty array.
+  repositoryIds: z.array(z.number()),
 });
 
 type CreateValues = z.infer<typeof createSchema>;
@@ -51,12 +53,11 @@ export function CreateProjectDialog({
 
   const onSubmit = async (values: CreateValues) => {
     try {
-      // TODO: remove cast after SDK regeneration adds repository_ids to ProjectCreate
       await createProject.mutateAsync({
         name: values.name,
         description: values.description || null,
         repository_ids: values.repositoryIds,
-      } as ProjectCreate);
+      });
       onOpenChange(false);
       toast("success", strings.projects.createdToast);
     } catch (err) {

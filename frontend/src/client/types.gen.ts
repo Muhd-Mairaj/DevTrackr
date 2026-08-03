@@ -37,6 +37,10 @@ export type ProjectCreate = {
      * Description
      */
     description?: string | null;
+    /**
+     * Repository Ids
+     */
+    repository_ids?: Array<number> | null;
 };
 
 /**
@@ -75,6 +79,10 @@ export type ProjectPublic = {
      * User Id
      */
     user_id: string;
+    /**
+     * Repositories
+     */
+    repositories?: Array<RepositoryPublic>;
 };
 
 /**
@@ -89,6 +97,44 @@ export type ProjectUpdate = {
      * Description
      */
     description?: string | null;
+    /**
+     * Repository Ids
+     */
+    repository_ids?: Array<number> | null;
+};
+
+/**
+ * RepositoryPublic
+ */
+export type RepositoryPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * User Id
+     */
+    user_id: string;
+    /**
+     * Github Id
+     */
+    github_id: number;
+    /**
+     * Full Name
+     */
+    full_name: string;
+    /**
+     * Repo Name
+     */
+    repo_name: string;
+    /**
+     * Url
+     */
+    url: string | null;
+    /**
+     * Description
+     */
+    description: string | null;
 };
 
 /**

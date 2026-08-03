@@ -10,9 +10,9 @@ from app.models.repository import Repository, RepositoryCreate, RepositoryUpdate
 
 
 async def create_repository(
-    *, session: AsyncSession, repo_in: RepositoryCreate
+    *, session: AsyncSession, repo_in: RepositoryCreate, user_id: uuid.UUID
 ) -> Repository:
-    db_obj = Repository.model_validate(repo_in)
+    db_obj = Repository.model_validate(repo_in, update={"user_id": user_id})
     session.add(db_obj)
     await session.commit()
     await session.refresh(db_obj)
@@ -23,30 +23,42 @@ async def get_repository(*, session: AsyncSession, id: uuid.UUID) -> Repository 
     return await session.get(Repository, id)
 
 
+async def get_repository_for_user(
+    *, session: AsyncSession, id: uuid.UUID, user_id: uuid.UUID
+) -> Repository | None:
+    # a repo that is not owned by the current user must not resolve.
+    statement = select(Repository).where(
+        Repository.id == id, Repository.user_id == user_id
+    )
+    result = await session.exec(statement)
+    return result.one_or_none()
+
+
 async def get_repositories_by_github_ids(
-    *, session: AsyncSession, github_ids: Sequence[int]
+    *, session: AsyncSession, github_ids: Sequence[int], user_id: uuid.UUID
 ) -> Sequence[Repository]:
     if not github_ids:
         return []
     github_id_col = cast(Any, Repository.github_id)
-    statement = select(Repository).where(github_id_col.in_(github_ids))
+    statement = select(Repository).where(
+        github_id_col.in_(github_ids), Repository.user_id == user_id
+    )
     result = await session.exec(statement)
     return result.all()
 
 
 async def get_repositories_by_project(
-    *, session: AsyncSession, project_id: uuid.UUID
+    *, session: AsyncSession, project_id: uuid.UUID, user_id: uuid.UUID
 ) -> Sequence[Repository]:
-    # Correlated EXISTS: only repos linked to THIS project. Without the
-    # Repository.id comparison the subquery is uncorrelated and matches every
-    # repo whenever the project has any link at all.
+    # Only repos linked to THIS project and linked to this user
     statement = select(Repository).where(
         select(ProjectRepository.repository_id)
         .where(
             ProjectRepository.repository_id == Repository.id,
             ProjectRepository.project_id == project_id,
         )
-        .exists()
+        .exists(),
+        Repository.user_id == user_id,
     )
     result = await session.exec(statement)
     return result.all()

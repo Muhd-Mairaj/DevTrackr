@@ -21,15 +21,13 @@ import { useToast } from "@/lib/toast";
 const updateSchema = z.object({
   name: z.string().min(1, strings.projects.nameRequired),
   description: z.string().optional(),
-  repositoryIds: z.array(z.number()).default([]),
+  // No .default(): a default would make z.input optional while z.output is
+  // required, which breaks useForm's Resolver<F, any, F> type. defaultValues
+  // in useForm already provides the empty array.
+  repositoryIds: z.array(z.number()),
 });
 
 type UpdateValues = z.infer<typeof updateSchema>;
-
-// TODO: remove after SDK regeneration includes repositories on ProjectPublic
-type ProjectWithRepos = ProjectPublic & {
-  repositories?: Array<{ github_id: number }>;
-};
 
 interface EditProjectDialogProps {
   project: ProjectPublic | null;
@@ -53,9 +51,7 @@ export function EditProjectDialog({
       form.reset({
         name: project.name,
         description: project.description ?? "",
-        repositoryIds: ((project as ProjectWithRepos).repositories ?? []).map(
-          (r) => r.github_id,
-        ),
+        repositoryIds: (project.repositories ?? []).map((r) => r.github_id),
       });
     }
   }, [project, form]);

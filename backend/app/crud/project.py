@@ -14,8 +14,12 @@ async def create_project(
 ) -> Project:
     db_obj = Project.model_validate(project_in, update={"user_id": user_id})
     if project_in.repository_ids:
+        # Only repos the user actually synced resolve, so a github_id
+        # from outside the user's installation links nothing.
         repos = await get_repositories_by_github_ids(
-            session=session, github_ids=project_in.repository_ids
+            session=session,
+            github_ids=project_in.repository_ids,
+            user_id=user_id,
         )
         # Link every repo that already exists; missing ones are skipped (the
         # link routes upsert Repository rows before referencing them).
@@ -59,6 +63,7 @@ async def update_project(
     session: AsyncSession,
     db_obj: Project,
     project_in: ProjectUpdate | dict[str, Any],
+    user_id: uuid.UUID,
 ) -> Project:
     if isinstance(project_in, dict):
         update_data = dict(project_in)
@@ -69,8 +74,9 @@ async def update_project(
     # An absent field (or null) leaves links unchanged; [] clears them.
     repository_ids = update_data.pop("repository_ids", None)
     if repository_ids is not None:
+        # Scoped to the owner
         repos = await get_repositories_by_github_ids(
-            session=session, github_ids=repository_ids
+            session=session, github_ids=repository_ids, user_id=user_id
         )
         db_obj.repositories = list(repos)
 
