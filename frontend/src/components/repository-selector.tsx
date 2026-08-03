@@ -1,11 +1,11 @@
 import { AlertCircle, ExternalLink, Search } from "lucide-react";
 import { useState } from "react";
+import type { RepositoryPublic } from "@/client/types.gen";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGithubRepositories } from "@/lib/integrations";
 import { strings } from "@/lib/strings";
-import type { GithubRepo } from "@/types/github";
 
 interface RepositorySelectorProps {
   selected: number[];
@@ -52,7 +52,7 @@ export function RepositorySelector({
   const filtered = (repos ?? []).filter(
     (r) =>
       r.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      r.name.toLowerCase().includes(search.toLowerCase()),
+      r.repo_name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const toggle = (githubId: number) => {
@@ -93,10 +93,10 @@ export function RepositorySelector({
           <ul className="divide-y">
             {filtered.map((repo) => (
               <RepoRow
-                key={repo.id}
+                key={repo.github_id}
                 repo={repo}
-                checked={selected.includes(repo.id)}
-                onToggle={() => toggle(repo.id)}
+                checked={selected.includes(repo.github_id)}
+                onToggle={() => toggle(repo.github_id)}
                 disabled={disabled}
               />
             ))}
@@ -113,7 +113,7 @@ function RepoRow({
   onToggle,
   disabled,
 }: {
-  repo: GithubRepo;
+  repo: RepositoryPublic;
   checked: boolean;
   onToggle: () => void;
   disabled: boolean;
@@ -122,14 +122,14 @@ function RepoRow({
     <li className="flex items-center gap-2 px-3 py-2">
       <input
         type="checkbox"
-        id={`repo-${repo.id}`}
+        id={`repo-${repo.github_id}`}
         checked={checked}
         onChange={onToggle}
         disabled={disabled}
         className="size-3.5 shrink-0 accent-primary"
       />
       <label
-        htmlFor={`repo-${repo.id}`}
+        htmlFor={`repo-${repo.github_id}`}
         className="min-w-0 flex-1 cursor-pointer text-xs"
       >
         <span className="block truncate font-medium">{repo.full_name}</span>
@@ -139,15 +139,17 @@ function RepoRow({
           </span>
         )}
       </label>
-      <a
-        href={repo.html_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="shrink-0 text-muted-foreground hover:text-foreground"
-        aria-label={strings.integrations.repoOpenLink(repo.full_name)}
-      >
-        <ExternalLink className="size-3" />
-      </a>
+      {repo.url && (
+        <a
+          href={repo.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0 text-muted-foreground hover:text-foreground"
+          aria-label={strings.integrations.repoOpenLink(repo.full_name)}
+        >
+          <ExternalLink className="size-3" />
+        </a>
+      )}
     </li>
   );
 }

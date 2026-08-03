@@ -60,7 +60,6 @@ export function useCreateProject(
         projectKeys.all,
       );
 
-      // TODO: remove cast after SDK regeneration adds repositories to ProjectPublic
       const optimistic = {
         id: crypto.randomUUID(),
         name: body.name,
@@ -70,7 +69,7 @@ export function useCreateProject(
         updated_at: new Date().toISOString(),
         user_id: "",
         repositories: [],
-      } as ProjectPublic;
+      };
       queryClient.setQueryData<ProjectPublic[]>(
         projectKeys.all,
         (prev = []) => [...prev, optimistic],

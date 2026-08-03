@@ -408,35 +408,6 @@ export type GithubSetupCallbackResponses = {
     200: unknown;
 };
 
-export type GetGithubRepositoriesData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/integrations/github/repositories';
-};
-
-export type GetGithubRepositoriesErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type GetGithubRepositoriesError = GetGithubRepositoriesErrors[keyof GetGithubRepositoriesErrors];
-
-export type GetGithubRepositoriesResponses = {
-    /**
-     * Response Get Github Repositories
-     *
-     * Successful Response
-     */
-    200: Array<{
-        [key: string]: unknown;
-    }>;
-};
-
-export type GetGithubRepositoriesResponse = GetGithubRepositoriesResponses[keyof GetGithubRepositoriesResponses];
-
 export type GetProjectsData = {
     body?: never;
     path?: never;
@@ -578,6 +549,33 @@ export type UpdateProjectResponses = {
 };
 
 export type UpdateProjectResponse = UpdateProjectResponses[keyof UpdateProjectResponses];
+
+export type GetRepositoriesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/repositories/';
+};
+
+export type GetRepositoriesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetRepositoriesError = GetRepositoriesErrors[keyof GetRepositoriesErrors];
+
+export type GetRepositoriesResponses = {
+    /**
+     * Response Get Repositories
+     *
+     * Successful Response
+     */
+    200: Array<RepositoryPublic>;
+};
+
+export type GetRepositoriesResponse = GetRepositoriesResponses[keyof GetRepositoriesResponses];
 
 export type PingData = {
     body?: never;

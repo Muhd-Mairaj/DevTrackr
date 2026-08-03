@@ -12,18 +12,6 @@ import {
 import { strings } from "@/lib/strings";
 import { cn } from "@/lib/utils";
 
-// TODO: remove after SDK regeneration includes repositories on ProjectPublic
-type ProjectWithRepos = ProjectPublic & {
-  repositories?: Array<{
-    id: string;
-    github_id: number;
-    full_name: string;
-    repo_name: string;
-    url: string | null;
-    description: string | null;
-  }>;
-};
-
 interface ProjectCardProps {
   project: ProjectPublic;
   onClick?: (project: ProjectPublic) => void;
@@ -39,7 +27,7 @@ export function ProjectCard({
   onDelete,
   className,
 }: ProjectCardProps) {
-  const repos = (project as ProjectWithRepos).repositories ?? [];
+  const repos = project.repositories ?? [];
   const isClickable = onClick !== undefined;
   return (
     <Card
