@@ -19,10 +19,6 @@ async def create_repository(
     return db_obj
 
 
-async def get_repository(*, session: AsyncSession, id: uuid.UUID) -> Repository | None:
-    return await session.get(Repository, id)
-
-
 async def get_repository_for_user(
     *, session: AsyncSession, id: uuid.UUID, user_id: uuid.UUID
 ) -> Repository | None:
@@ -73,13 +69,12 @@ async def upsert_repository(
 
 
 async def get_repositories_by_user(
-    *, session: AsyncSession, user_id: uuid.UUID, skip: int = 0, limit: int = 100
+    *, session: AsyncSession, user_id: uuid.UUID
 ) -> Sequence[Repository]:
     statement = (
         select(Repository)
         .where(Repository.user_id == user_id)
-        .offset(skip)
-        .limit(limit)
+        .order_by(Repository.full_name)
     )
     result = await session.exec(statement)
     return result.all()
