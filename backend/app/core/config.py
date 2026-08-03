@@ -72,5 +72,18 @@ class Settings(BaseSettings):
             path=self.POSTGRES_DB,
         )
 
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def TEST_DATABASE_URL(self) -> PostgresDsn:
+        """Build the test DB URL by appending '_test' to the main database name."""
+        return PostgresDsn.build(
+            scheme="postgresql+psycopg",
+            username=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host=self.POSTGRES_HOST,
+            port=self.POSTGRES_PORT,
+            path=f"{self.POSTGRES_DB}_test",
+        )
+
 
 settings = Settings()

@@ -1,7 +1,7 @@
 # Use Pytest for Backend Testing Framework
 
 **Date:** 2026-04-08
-**Status:** Proposed
+**Status:** Accepted
 
 ## Context
 DevTrackr's backend, built with FastAPI and SQLAlchemy, involves complex asynchronous operations, database interactions with PostgreSQL, and integrations with external APIs such as GitHub. To ensure reliability and facilitate rapid development, we need a robust testing framework that:
