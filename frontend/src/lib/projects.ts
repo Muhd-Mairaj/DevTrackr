@@ -60,6 +60,7 @@ export function useCreateProject(
         projectKeys.all,
       );
 
+      // TODO: remove cast after SDK regeneration adds repositories to ProjectPublic
       const optimistic = {
         id: crypto.randomUUID(),
         name: body.name,
