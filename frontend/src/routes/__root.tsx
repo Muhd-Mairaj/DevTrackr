@@ -21,11 +21,14 @@ function AuthShell() {
   const navigate = useNavigate();
   const isPublic = isPublicPageRoute(location.pathname);
 
-  // Redirect based on auth state.
+  // Redirect based on auth state. user === undefined (session still resolving)
+  // must not trigger either branch: navigate({ to: "/" }) during the probe
+  // flips the pathname away from /login, so the 401 interceptor's
+  // redirectToLogin() sees a non-public path and full-reloads in a loop.
   useEffect(() => {
     if (user === null && !isPublic) {
       navigate({ to: "/login", replace: true });
-    } else if (user !== null && isPublic) {
+    } else if (user && isPublic) {
       navigate({ to: "/", replace: true });
     }
   }, [user, isPublic, navigate]);
