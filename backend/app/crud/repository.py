@@ -44,9 +44,9 @@ async def upsert_repository(
     url: str | None = None,
     description: str | None = None,
 ) -> Repository:
-    # Install-time sync entry point: one call per repo from the GitHub API
-    # response. Creates the row on first sync, refreshes metadata (and
-    # reactivates a soft-deleted row) on later syncs.
+    # Install-time sync: one call per repo from the GitHub API response.
+    # Creates the row on first sync; refreshes metadata and reactivates a
+    # soft-deleted row on later syncs.
     statement = select(Repository).where(
         Repository.github_id == github_id, Repository.user_id == user_id
     )

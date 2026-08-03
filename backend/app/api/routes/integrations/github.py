@@ -119,25 +119,3 @@ async def github_setup_callback(
 
     redirect_url = f"{settings.FRONTEND_HOST}?github_app={outcome or 'success'}"
     return RedirectResponse(redirect_url, status_code=302)
-
-
-# @router.get("/repositories")
-# async def get_github_repositories(
-#     current_user: CurrentUser,
-#     session: AsyncSession = Depends(get_db),
-# ) -> list[dict[str, Any]]:
-#     """List repositories accessible to the current user's GitHub integration."""
-#     integration = await get_integration_by_provider(
-#         session=session, user_id=current_user.id, provider="github"
-#     )
-
-#     if not integration:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="GitHub integration not found for this user",
-#         )
-
-#     # Fetch GitHub repositories using the stored token
-#     resp = await oauth.github.get("user/repos", token=integration.to_token())
-#     resp.raise_for_status()
-#     return cast(list[dict[str, Any]], resp.json())
