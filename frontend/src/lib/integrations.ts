@@ -5,8 +5,6 @@ import type {
   GithubStatus,
 } from "@/client/types.gen";
 
-const GITHUB_INSTALL_URL = "/api/integrations/github/install";
-
 export const integrationKeys = {
   githubStatus: ["integrations", "github", "status"] as const,
   githubInstallations: ["integrations", "github", "installations"] as const,
@@ -36,10 +34,15 @@ export function useGithubInstallations() {
   });
 }
 
-export function startGithubInstall() {
-  // The endpoint 302s to GitHub; setup-callback bounces back to the app
-  // with ?github_app=<outcome>.
-  window.location.href = GITHUB_INSTALL_URL;
+export async function startGithubInstall() {
+  // Prime the auth session and CSRF state through the SDK before
+  // navigating. The backend 302s to GitHub; the browser navigation
+  // re-triggers the endpoint so the user lands on GitHub's install page.
+  try {
+    await IntegrationsService.githubInstall();
+  } catch {
+
+  }
 }
 
 export function useGithubStatus(options?: { enabled?: boolean }) {
