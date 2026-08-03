@@ -2,6 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import type { ProjectCreate } from "@/client";
+import { RepositorySelector } from "@/components/repository-selector";
 import { AppDialog } from "@/components/ui/app-dialog";
 import {
   Form,
@@ -19,6 +21,7 @@ import { useToast } from "@/lib/toast";
 const createSchema = z.object({
   name: z.string().min(1, strings.projects.nameRequired),
   description: z.string().optional(),
+  repositoryIds: z.array(z.number()).default([]),
 });
 
 type CreateValues = z.infer<typeof createSchema>;
@@ -37,12 +40,12 @@ export function CreateProjectDialog({
 
   const form = useForm<CreateValues>({
     resolver: zodResolver(createSchema),
-    defaultValues: { name: "", description: "" },
+    defaultValues: { name: "", description: "", repositoryIds: [] },
   });
 
   useEffect(() => {
     if (open) {
-      form.reset({ name: "", description: "" });
+      form.reset({ name: "", description: "", repositoryIds: [] });
     }
   }, [open, form]);
 
@@ -51,7 +54,8 @@ export function CreateProjectDialog({
       await createProject.mutateAsync({
         name: values.name,
         description: values.description || null,
-      });
+        repository_ids: values.repositoryIds,
+      } as ProjectCreate);
       onOpenChange(false);
       toast("success", strings.projects.createdToast);
     } catch (err) {
@@ -110,6 +114,22 @@ export function CreateProjectDialog({
                     placeholder={strings.projects.descriptionPlaceholder}
                     disabled={isSubmitting}
                     {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="repositoryIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <RepositorySelector
+                    selected={field.value}
+                    onChange={field.onChange}
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />

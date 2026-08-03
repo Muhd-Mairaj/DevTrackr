@@ -2,7 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import type { ProjectPublic } from "@/client/types.gen";
+import type { ProjectPublic, ProjectUpdate } from "@/client/types.gen";
+import { RepositorySelector } from "@/components/repository-selector";
 import { AppDialog } from "@/components/ui/app-dialog";
 import {
   Form,
@@ -20,9 +21,14 @@ import { useToast } from "@/lib/toast";
 const updateSchema = z.object({
   name: z.string().min(1, strings.projects.nameRequired),
   description: z.string().optional(),
+  repositoryIds: z.array(z.number()).default([]),
 });
 
 type UpdateValues = z.infer<typeof updateSchema>;
+
+type ProjectWithRepos = ProjectPublic & {
+  repositories?: Array<{ github_id: number }>;
+};
 
 interface EditProjectDialogProps {
   project: ProjectPublic | null;
@@ -38,7 +44,7 @@ export function EditProjectDialog({
 
   const form = useForm<UpdateValues>({
     resolver: zodResolver(updateSchema),
-    defaultValues: { name: "", description: "" },
+    defaultValues: { name: "", description: "", repositoryIds: [] },
   });
 
   useEffect(() => {
@@ -46,6 +52,9 @@ export function EditProjectDialog({
       form.reset({
         name: project.name,
         description: project.description ?? "",
+        repositoryIds: ((project as ProjectWithRepos).repositories ?? []).map(
+          (r) => r.github_id,
+        ),
       });
     }
   }, [project, form]);
@@ -58,7 +67,8 @@ export function EditProjectDialog({
         body: {
           name: values.name,
           description: values.description || null,
-        },
+          repository_ids: values.repositoryIds,
+        } as ProjectUpdate,
       });
       onOpenChange(false);
       toast("success", strings.projects.updatedToast);
@@ -118,6 +128,22 @@ export function EditProjectDialog({
                     placeholder={strings.projects.descriptionPlaceholder}
                     disabled={isSubmitting}
                     {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="repositoryIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <RepositorySelector
+                    selected={field.value}
+                    onChange={field.onChange}
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />
