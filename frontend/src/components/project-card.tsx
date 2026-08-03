@@ -12,6 +12,18 @@ import {
 import { strings } from "@/lib/strings";
 import { cn } from "@/lib/utils";
 
+// TODO: remove after SDK regeneration includes repositories on ProjectPublic
+type ProjectWithRepos = ProjectPublic & {
+  repositories?: Array<{
+    id: string;
+    github_id: number;
+    full_name: string;
+    repo_name: string;
+    url: string | null;
+    description: string | null;
+  }>;
+};
+
 interface ProjectCardProps {
   project: ProjectPublic;
   onClick?: (project: ProjectPublic) => void;
@@ -27,6 +39,7 @@ export function ProjectCard({
   onDelete,
   className,
 }: ProjectCardProps) {
+  const repos = (project as ProjectWithRepos).repositories ?? [];
   const isClickable = onClick !== undefined;
   return (
     <Card
@@ -91,7 +104,7 @@ export function ProjectCard({
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 pb-3">
+      <CardContent className="flex-1 pb-3 space-y-2">
         <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
           {project.description ?? (
             <span className="italic text-muted-foreground/60">
@@ -99,6 +112,25 @@ export function ProjectCard({
             </span>
           )}
         </p>
+        {repos.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1">
+            {repos.map((repo) => (
+              <a
+                key={repo.id}
+                href={repo.url ?? `https://github.com/${repo.full_name}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 rounded-full border bg-muted/50 px-2 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground no-underline"
+              >
+                {repo.full_name}
+              </a>
+            ))}
+            <span className="ml-1 text-[11px] text-muted-foreground">
+              {strings.integrations.reposCount(repos.length)}
+            </span>
+          </div>
+        )}
       </CardContent>
 
       <CardFooter className="border-t pt-3 pb-3">
