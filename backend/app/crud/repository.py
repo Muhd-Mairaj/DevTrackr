@@ -1,17 +1,18 @@
 import uuid
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, cast
 
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.models.project_repository import ProjectRepository
 from app.models.repository import Repository, RepositoryCreate, RepositoryUpdate
 
 
 async def create_repository(
-    *, session: AsyncSession, repo_in: RepositoryCreate, project_id: uuid.UUID
+    *, session: AsyncSession, repo_in: RepositoryCreate
 ) -> Repository:
-    db_obj = Repository.model_validate(repo_in, update={"project_id": project_id})
+    db_obj = Repository.model_validate(repo_in)
     session.add(db_obj)
     await session.commit()
     await session.refresh(db_obj)
@@ -22,10 +23,31 @@ async def get_repository(*, session: AsyncSession, id: uuid.UUID) -> Repository 
     return await session.get(Repository, id)
 
 
+async def get_repositories_by_github_ids(
+    *, session: AsyncSession, github_ids: Sequence[int]
+) -> Sequence[Repository]:
+    if not github_ids:
+        return []
+    github_id_col = cast(Any, Repository.github_id)
+    statement = select(Repository).where(github_id_col.in_(github_ids))
+    result = await session.exec(statement)
+    return result.all()
+
+
 async def get_repositories_by_project(
     *, session: AsyncSession, project_id: uuid.UUID
 ) -> Sequence[Repository]:
-    statement = select(Repository).where(Repository.project_id == project_id)
+    # Correlated EXISTS: only repos linked to THIS project. Without the
+    # Repository.id comparison the subquery is uncorrelated and matches every
+    # repo whenever the project has any link at all.
+    statement = select(Repository).where(
+        select(ProjectRepository.repository_id)
+        .where(
+            ProjectRepository.repository_id == Repository.id,
+            ProjectRepository.project_id == project_id,
+        )
+        .exists()
+    )
     result = await session.exec(statement)
     return result.all()
 
