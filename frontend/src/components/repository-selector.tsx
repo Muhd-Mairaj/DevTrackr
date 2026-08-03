@@ -23,7 +23,7 @@ export function RepositorySelector({
 
   if (isLoading) {
     return (
-      <div className="space-y-2">
+      <div className="min-w-0 space-y-2">
         <Label>{strings.integrations.repoSelectorLabel}</Label>
         <Skeleton className="h-9 w-full" />
         <Skeleton className="h-9 w-full" />
@@ -37,7 +37,7 @@ export function RepositorySelector({
       (error as { response?: { status?: number } } | null)?.response?.status ===
       404;
     return (
-      <div className="space-y-2">
+      <div className="min-w-0 space-y-2">
         <Label>{strings.integrations.repoSelectorLabel}</Label>
         <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-muted-foreground">
           <AlertCircle className="size-3.5 shrink-0 text-destructive" />
@@ -65,7 +65,7 @@ export function RepositorySelector({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       <div>
         <Label>{strings.integrations.repoSelectorLabel}</Label>
         <p className="text-xs text-muted-foreground">
