@@ -16,49 +16,6 @@ export type AuthResponse = {
 };
 
 /**
- * GithubInstallationPublic
- *
- * Installation details for the settings page.
- *
- * The manage URL is derived on the client from account_type, account_login
- * and installation_id (user and org installs have different paths).
- */
-export type GithubInstallationPublic = {
-    /**
-     * Installation Id
-     */
-    installation_id: string;
-    /**
-     * Account Login
-     */
-    account_login: string;
-    /**
-     * Account Type
-     */
-    account_type: string;
-    /**
-     * Suspended At
-     */
-    suspended_at: string | null;
-};
-
-/**
- * GithubStatus
- *
- * Setup state of the user's GitHub integration and app installation.
- */
-export type GithubStatus = {
-    /**
-     * Account Linked
-     */
-    account_linked: boolean;
-    /**
-     * App Installed
-     */
-    app_installed: boolean;
-};
-
-/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -80,10 +37,6 @@ export type ProjectCreate = {
      * Description
      */
     description?: string | null;
-    /**
-     * Repository Ids
-     */
-    repository_ids?: Array<number> | null;
 };
 
 /**
@@ -122,10 +75,6 @@ export type ProjectPublic = {
      * User Id
      */
     user_id: string;
-    /**
-     * Repositories
-     */
-    repositories?: Array<RepositoryPublic>;
 };
 
 /**
@@ -140,44 +89,6 @@ export type ProjectUpdate = {
      * Description
      */
     description?: string | null;
-    /**
-     * Repository Ids
-     */
-    repository_ids?: Array<number> | null;
-};
-
-/**
- * RepositoryPublic
- */
-export type RepositoryPublic = {
-    /**
-     * Id
-     */
-    id: string;
-    /**
-     * User Id
-     */
-    user_id: string;
-    /**
-     * Github Id
-     */
-    github_id: number;
-    /**
-     * Full Name
-     */
-    full_name: string;
-    /**
-     * Repo Name
-     */
-    repo_name: string;
-    /**
-     * Url
-     */
-    url: string | null;
-    /**
-     * Description
-     */
-    description: string | null;
 };
 
 /**
@@ -405,58 +316,6 @@ export type GithubCallbackResponses = {
     200: unknown;
 };
 
-export type GithubStatusData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/integrations/github/status';
-};
-
-export type GithubStatusErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type GithubStatusError = GithubStatusErrors[keyof GithubStatusErrors];
-
-export type GithubStatusResponses = {
-    /**
-     * Successful Response
-     */
-    200: GithubStatus;
-};
-
-export type GithubStatusResponse = GithubStatusResponses[keyof GithubStatusResponses];
-
-export type GithubInstallationsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/integrations/github/installations';
-};
-
-export type GithubInstallationsErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type GithubInstallationsError = GithubInstallationsErrors[keyof GithubInstallationsErrors];
-
-export type GithubInstallationsResponses = {
-    /**
-     * Response Github Installations
-     *
-     * Successful Response
-     */
-    200: Array<GithubInstallationPublic>;
-};
-
-export type GithubInstallationsResponse = GithubInstallationsResponses[keyof GithubInstallationsResponses];
-
 export type GithubInstallData = {
     body?: never;
     path?: never;
@@ -502,6 +361,35 @@ export type GithubSetupCallbackResponses = {
      */
     200: unknown;
 };
+
+export type GetGithubRepositoriesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/integrations/github/repositories';
+};
+
+export type GetGithubRepositoriesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetGithubRepositoriesError = GetGithubRepositoriesErrors[keyof GetGithubRepositoriesErrors];
+
+export type GetGithubRepositoriesResponses = {
+    /**
+     * Response Get Github Repositories
+     *
+     * Successful Response
+     */
+    200: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+export type GetGithubRepositoriesResponse = GetGithubRepositoriesResponses[keyof GetGithubRepositoriesResponses];
 
 export type GetProjectsData = {
     body?: never;
@@ -645,38 +533,11 @@ export type UpdateProjectResponses = {
 
 export type UpdateProjectResponse = UpdateProjectResponses[keyof UpdateProjectResponses];
 
-export type GetRepositoriesData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/repositories/';
-};
-
-export type GetRepositoriesErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type GetRepositoriesError = GetRepositoriesErrors[keyof GetRepositoriesErrors];
-
-export type GetRepositoriesResponses = {
-    /**
-     * Response Get Repositories
-     *
-     * Successful Response
-     */
-    200: Array<RepositoryPublic>;
-};
-
-export type GetRepositoriesResponse = GetRepositoriesResponses[keyof GetRepositoriesResponses];
-
 export type PingData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/ping';
+    url: '/api/utils/ping';
 };
 
 export type PingResponses = {

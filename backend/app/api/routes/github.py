@@ -1,16 +1,15 @@
-"""GitHub OAuth login and App installation routes.
+"""GitHub OAuth login routes.
 
-Two flows: OAuth login (``/authorize`` -> ``/callback``) and App installation
-(``/install`` -> ``/setup-callback``). The flows, the ``state`` CSRF model, and
-the ``GET /user/installations`` IDOR check are documented in
-``docs/github-oauth-and-app-install.md``.
+Handles the OAuth login flow (``/authorize`` -> ``/callback``). App installation
+and integration data endpoints live in ``routes/integrations/github.py``. The
+flows, the ``state`` CSRF model, and the ``GET /user/installations`` IDOR check
+are documented in ``docs/github-oauth-and-app-install.md``.
 """
 
 import logging
-import secrets
 import uuid
 from datetime import datetime
-from typing import Any, cast
+from typing import cast
 
 from authlib.integrations.starlette_client import OAuth, OAuthError
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -18,7 +17,6 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.api.deps import CurrentUser, OptionalCurrentUser
 from app.core.config import settings
 from app.core.security import create_access_token, set_auth_cookies
 from app.crud.auth import create_session
@@ -28,7 +26,6 @@ from app.crud.github_installation import (
 )
 from app.crud.integration import (
     create_integration,
-    get_integration_by_provider,
     update_integration,
 )
 from app.crud.user import create_oauth_user, get_user_by_email
@@ -184,105 +181,6 @@ async def github_callback(
     return response
 
 
-@router.get("/install")
-async def github_install(
-    request: Request, current_user: CurrentUser
-) -> RedirectResponse:
-    """Start a GitHub App installation (login required).
-
-    Sets a CSRF ``state`` in the session so ``/setup-callback`` can verify the
-    redirect came from us. See ``docs/github-oauth-and-app-install.md``.
-    """
-    state = secrets.token_urlsafe(32)
-    request.session["gh_install_state"] = state
-    install_url = (
-        f"https://github.com/apps/{settings.GITHUB_APP_SLUG}/installations/new"
-        f"?state={state}"
-    )
-    logger.info(
-        "User %s starting GitHub App install (state=%s...)", current_user.id, state[:8]
-    )
-    return RedirectResponse(install_url, status_code=302)
-
-
-@router.get("/setup-callback")
-async def github_setup_callback(
-    request: Request,
-    user: OptionalCurrentUser,
-    session: AsyncSession = Depends(get_db),
-) -> RedirectResponse:
-    """Handle the GitHub App Setup URL redirect after installation.
-
-    Links the installation when possible, otherwise stashes it and routes
-    through OAuth. See ``docs/github-oauth-and-app-install.md`` for the full
-    scenario table and security model.
-    """
-    installation_id = request.query_params.get("installation_id")
-    if not installation_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Missing installation_id in setup callback",
-        )
-
-    # Validate state to prevent CSRF attacks
-    callback_state = request.query_params.get("state")
-    expected_state = request.session.pop("gh_install_state", None)
-    if expected_state is not None:
-        if callback_state != expected_state:
-            logger.warning(
-                "Setup callback state mismatch (possible CSRF) for installation_id=%s",
-                installation_id,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid state for GitHub App installation",
-            )
-    else:
-        # No state set -> direct GitHub install or admin-approval flow.
-        logger.info(
-            "Setup callback without prior state for installation_id=%s", installation_id
-        )
-
-    # Stash the installation_id for OAuth redirect.
-    request.session["pending_gh_installation"] = installation_id
-
-    oauth_login_url = (
-        f"{settings.FRONTEND_HOST}{settings.API_STR}/auth/github/authorize"
-    )
-
-    if user is None:
-        logger.info(
-            "Not logged in for installation_id=%s; redirecting to OAuth",
-            installation_id,
-        )
-        return RedirectResponse(oauth_login_url, status_code=302)
-
-    # Logged in but no GitHub token yet -> get one via OAuth, then link.
-    integration = await get_integration_by_provider(
-        session=session, user_id=user.id, provider="github"
-    )
-    if not integration:
-        logger.info(
-            "User %s has no GitHub integration; redirecting to OAuth for "
-            "installation_id=%s",
-            user.id,
-            installation_id,
-        )
-        return RedirectResponse(oauth_login_url, status_code=302)
-
-    # Have a GitHub token -> link now and clear the pending stash.
-    outcome = await _link_installation(
-        session=session,
-        token=integration.to_token(),
-        installation_id=installation_id,
-        user_id=user.id,
-    )
-    request.session.pop("pending_gh_installation", None)
-
-    redirect_url = f"{settings.FRONTEND_HOST}?github_app={outcome or 'success'}"
-    return RedirectResponse(redirect_url, status_code=302)
-
-
 async def _link_installation(
     *,
     session: AsyncSession,
@@ -353,25 +251,3 @@ async def _link_installation(
         user_id,
     )
     return None
-
-
-@router.get("/repositories")
-async def get_github_repositories(
-    current_user: CurrentUser,
-    session: AsyncSession = Depends(get_db),
-) -> list[dict[str, Any]]:
-    """List repositories accessible to the current user's GitHub integration."""
-    integration = await get_integration_by_provider(
-        session=session, user_id=current_user.id, provider="github"
-    )
-
-    if not integration:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="GitHub integration not found for this user",
-        )
-
-    # Fetch GitHub repositories using the stored token
-    resp = await oauth.github.get("user/repos", token=integration.to_token())
-    resp.raise_for_status()
-    return cast(list[dict[str, Any]], resp.json())
