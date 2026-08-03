@@ -77,6 +77,7 @@ export const strings = {
   },
   integrations: {
     githubNoConnection: "Connect GitHub to select repositories",
+    githubNoInstall: "Install the GitHub app to sync repositories",
     githubLoading: "Loading repositories...",
     githubError: "Could not load repositories",
     repoSelectorLabel: "Repositories",

@@ -33,9 +33,10 @@ export function RepositorySelector({
   }
 
   if (isError) {
-    const isNotConnected =
-      (error as { response?: { status?: number } } | null)?.response?.status ===
-      404;
+    const status = (error as { response?: { status?: number } } | null)
+      ?.response?.status;
+    const isNotConnected = status === 404;
+    const isNotInstalled = status === 428;
     return (
       <div className="min-w-0 space-y-2">
         <Label>{strings.integrations.repoSelectorLabel}</Label>
@@ -43,7 +44,9 @@ export function RepositorySelector({
           <AlertCircle className="size-3.5 shrink-0 text-destructive" />
           {isNotConnected
             ? strings.integrations.githubNoConnection
-            : strings.integrations.githubError}
+            : isNotInstalled
+              ? strings.integrations.githubNoInstall
+              : strings.integrations.githubError}
         </div>
       </div>
     );
