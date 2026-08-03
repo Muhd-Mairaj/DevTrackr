@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { pingApiUtilsPingGet } from "@/client";
+import { UtilsService } from "@/client";
 
 type PingResponse = {
   status?: string;
@@ -11,7 +11,7 @@ export function PingStatus() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    pingApiUtilsPingGet()
+    UtilsService.ping()
       .then((res: { data?: PingResponse }) => {
         if (res.data) {
           setData(res.data);
