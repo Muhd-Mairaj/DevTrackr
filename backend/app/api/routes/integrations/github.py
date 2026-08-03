@@ -6,6 +6,7 @@ separate from the OAuth login flow in ``routes/github.py``.
 
 import logging
 import secrets
+from collections.abc import Sequence
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
@@ -18,6 +19,7 @@ from app.core.config import settings
 from app.crud.github_installation import get_installations_by_user
 from app.crud.integration import get_integration_by_provider
 from app.db.session import get_db
+from app.models.github_installation import GitHubInstallation, GithubInstallationPublic
 from app.models.integration import GithubStatus
 
 logger = logging.getLogger(__name__)
@@ -40,6 +42,14 @@ async def github_status(session: SessionDep, user: CurrentUser) -> GithubStatus:
         account_linked=integration is not None,
         app_installed=bool(installations),
     )
+
+
+@router.get("/installations", response_model=list[GithubInstallationPublic])
+async def github_installations(
+    session: SessionDep, user: CurrentUser
+) -> Sequence[GitHubInstallation]:
+    """List the user's GitHub App installations for the settings page."""
+    return await get_installations_by_user(session=session, user_id=user.id)
 
 
 @router.get(

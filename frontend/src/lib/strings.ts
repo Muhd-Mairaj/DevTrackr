@@ -36,6 +36,12 @@ export const strings = {
     columnSource: "SOURCE",
     columnDescription: "DESCRIPTION",
     columnCustom: "CUSTOM",
+    githubTitle: "GitHub",
+    githubAccountTypeUser: "User account",
+    githubAccountTypeOrg: "Organization",
+    githubSuspended: "Suspended",
+    githubManageLink: "Manage on GitHub",
+    githubManageHint: "Manage repo access and uninstall the app on GitHub.",
   },
   projects: {
     title: "Projects",

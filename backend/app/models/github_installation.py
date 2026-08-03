@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Column, DateTime, Field, Relationship
+from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 
 from .base import BaseModel
 
@@ -36,3 +36,16 @@ class GitHubInstallation(BaseModel, table=True):
         index=True,
     )
     user: Optional["User"] = Relationship(back_populates="github_installations")
+
+
+class GithubInstallationPublic(SQLModel):
+    """Installation details for the settings page.
+
+    The manage URL is derived on the client from account_type, account_login
+    and installation_id (user and org installs have different paths).
+    """
+
+    installation_id: str
+    account_login: str
+    account_type: str
+    suspended_at: datetime | None
