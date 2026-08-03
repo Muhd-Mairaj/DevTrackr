@@ -75,6 +75,16 @@ export const strings = {
       `${project.name} · ${project.is_active ? strings.projects.active : strings.projects.inactive} · Created ${formatDate(project.created_at)}`,
     detailErrorToast: "Couldn't load project details. Try again.",
   },
+  integrations: {
+    githubNoConnection: "Connect GitHub to select repositories",
+    githubLoading: "Loading repositories...",
+    githubError: "Could not load repositories",
+    repoSelectorLabel: "Repositories",
+    repoSelectorDescription: "Link GitHub repositories to this project",
+    repoSearchPlaceholder: "Search repositories...",
+    noReposFound: "No repositories found",
+    reposCount: (n: number) => `${n} repo${n === 1 ? "" : "s"}`,
+  },
   login: {
     brand: "DevTrackr",
     title: "DevTrackr",
