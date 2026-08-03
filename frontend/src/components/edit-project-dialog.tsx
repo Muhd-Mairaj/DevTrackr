@@ -26,6 +26,7 @@ const updateSchema = z.object({
 
 type UpdateValues = z.infer<typeof updateSchema>;
 
+// TODO: remove after SDK regeneration includes repositories on ProjectPublic
 type ProjectWithRepos = ProjectPublic & {
   repositories?: Array<{ github_id: number }>;
 };
@@ -62,6 +63,7 @@ export function EditProjectDialog({
   const onSubmit = async (values: UpdateValues) => {
     if (!project) return;
     try {
+      // TODO: remove cast after SDK regeneration adds repository_ids to ProjectUpdate
       await updateProject.mutateAsync({
         id: project.id,
         body: {

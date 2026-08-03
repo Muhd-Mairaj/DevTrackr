@@ -51,6 +51,7 @@ export function CreateProjectDialog({
 
   const onSubmit = async (values: CreateValues) => {
     try {
+      // TODO: remove cast after SDK regeneration adds repository_ids to ProjectCreate
       await createProject.mutateAsync({
         name: values.name,
         description: values.description || null,
