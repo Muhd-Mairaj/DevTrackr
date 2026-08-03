@@ -1,0 +1,134 @@
+// DevTrackr Database Schema
+// Auto-generated on 2026-07-30 12:38 UTC
+// Source: backend/app/models
+// Paste at https://dbdiagram.io
+
+Project DevTrackr {
+  database_type: 'PostgreSQL'
+  Note: 'DevTrackr application database schema'
+}
+
+Table users {
+  id                        uuid            [pk, default: `gen_random_uuid()`]
+  is_active                 boolean         [default: `true`, not null]
+  created_at                timestamptz     [not null]
+  updated_at                timestamptz     [not null]
+  deleted_at                timestamptz
+  email                     varchar         [not null, unique]
+  username                  varchar         [not null]
+  hashed_password           varchar
+}
+
+Table github_installation {
+  id                        uuid            [pk, default: `gen_random_uuid()`]
+  is_active                 boolean         [default: `true`, not null]
+  created_at                timestamptz     [not null]
+  updated_at                timestamptz     [not null]
+  deleted_at                timestamptz
+  installation_id           varchar         [not null, unique]
+  account_login             varchar         [not null]
+  account_id                varchar         [not null]
+  account_type              varchar         [not null]
+  suspended_at              timestamptz
+  user_id                   uuid
+}
+
+Table integration {
+  id                        uuid            [pk, default: `gen_random_uuid()`]
+  is_active                 boolean         [default: `true`, not null]
+  created_at                timestamptz     [not null]
+  updated_at                timestamptz     [not null]
+  deleted_at                timestamptz
+  provider                  varchar         [not null]
+  account_id                varchar         [not null]
+  account_email             varchar         [not null]
+  access_token              bytea           [not null]
+  refresh_token             bytea
+  token_expiry              timestamptz
+  user_id                   uuid            [not null]
+}
+
+Table project {
+  id                        uuid            [pk, default: `gen_random_uuid()`]
+  is_active                 boolean         [default: `true`, not null]
+  created_at                timestamptz     [not null]
+  updated_at                timestamptz     [not null]
+  deleted_at                timestamptz
+  name                      varchar         [not null]
+  description               varchar
+  user_id                   uuid            [not null]
+}
+
+Table user_session_tokens {
+  id                        uuid            [pk, default: `gen_random_uuid()`]
+  is_active                 boolean         [default: `true`, not null]
+  created_at                timestamptz     [not null]
+  updated_at                timestamptz     [not null]
+  deleted_at                timestamptz
+  token_hash                varchar         [not null]
+  expires_at                timestamptz     [not null]
+  is_revoked                boolean         [default: `false`, not null]
+  device_fingerprint        varchar
+  device_name               varchar
+  device_type               varchar
+  user_id                   uuid            [not null]
+}
+
+Table logbook {
+  id                        uuid            [pk, default: `gen_random_uuid()`]
+  is_active                 boolean         [default: `true`, not null]
+  created_at                timestamptz     [not null]
+  updated_at                timestamptz     [not null]
+  deleted_at                timestamptz
+  title                     varchar         [not null]
+  content                   varchar         [not null]
+  ai_summary                varchar
+  project_id                uuid            [not null]
+}
+
+Table repository {
+  id                        uuid            [pk, default: `gen_random_uuid()`]
+  is_active                 boolean         [default: `true`, not null]
+  created_at                timestamptz     [not null]
+  updated_at                timestamptz     [not null]
+  deleted_at                timestamptz
+  repo_name                 varchar         [not null]
+  url                       varchar
+  project_id                uuid            [not null]
+}
+
+Table time_entry {
+  id                        uuid            [pk, default: `gen_random_uuid()`]
+  is_active                 boolean         [default: `true`, not null]
+  created_at                timestamptz     [not null]
+  updated_at                timestamptz     [not null]
+  deleted_at                timestamptz
+  description               varchar
+  start_time                timestamptz     [not null]
+  end_time                  timestamptz
+  duration_seconds          integer
+  project_id                uuid            [not null]
+}
+
+Table commit {
+  id                        uuid            [pk, default: `gen_random_uuid()`]
+  is_active                 boolean         [default: `true`, not null]
+  created_at                timestamptz     [not null]
+  updated_at                timestamptz     [not null]
+  deleted_at                timestamptz
+  sha                       varchar         [not null]
+  message                   varchar         [not null]
+  committed_at              timestamptz     [not null]
+  url                       varchar
+  repository_id             uuid            [not null]
+}
+
+// ── Relationships ──────────────────────────────
+Ref: github_installation.user_id > users.id
+Ref: integration.user_id > users.id
+Ref: project.user_id > users.id
+Ref: user_session_tokens.user_id > users.id
+Ref: logbook.project_id > project.id
+Ref: repository.project_id > project.id
+Ref: time_entry.project_id > project.id
+Ref: commit.repository_id > repository.id
