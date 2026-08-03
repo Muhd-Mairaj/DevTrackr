@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "code-comments": {
+      "source": "petekp/claude-code-setup",
+      "sourceType": "github",
+      "skillPath": "skills/code-comments/SKILL.md",
+      "computedHash": "f2119c255923c9e2673104e352b7be69ab54fde338b1364c3e2db4ac3fc037a3"
+    }
+  }
+}
