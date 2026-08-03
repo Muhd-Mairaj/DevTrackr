@@ -11,15 +11,30 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.api.deps import CurrentUser, OptionalCurrentUser
+from app.api.deps import CurrentUser, OptionalCurrentUser, SessionDep
 from app.api.routes.github import _link_installation
 from app.core.config import settings
+from app.crud.github_installation import get_installations_by_user
 from app.crud.integration import get_integration_by_provider
 from app.db.session import get_db
+from app.models.integration import GithubStatus
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/integrations/github", tags=["integrations"])
+
+
+@router.get("/status", response_model=GithubStatus)
+async def github_status(session: SessionDep, user: CurrentUser) -> GithubStatus:
+    """Report the user's GitHub setup state for the frontend prompts."""
+    integration = await get_integration_by_provider(
+        session=session, user_id=user.id, provider="github"
+    )
+    installations = await get_installations_by_user(session=session, user_id=user.id)
+    return GithubStatus(
+        account_linked=integration is not None,
+        app_installed=bool(installations),
+    )
 
 
 @router.get("/install")

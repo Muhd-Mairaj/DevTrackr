@@ -1,10 +1,13 @@
 import { AlertCircle, ExternalLink, Search } from "lucide-react";
 import { useState } from "react";
 import type { RepositoryPublic } from "@/client/types.gen";
+import { GithubMark } from "@/components/github-mark";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGithubRepositories } from "@/lib/integrations";
+import { startGithubInstall } from "@/lib/integrations";
+import { useRepositories } from "@/lib/repositories";
 import { strings } from "@/lib/strings";
 
 interface RepositorySelectorProps {
@@ -18,8 +21,11 @@ export function RepositorySelector({
   onChange,
   disabled = false,
 }: RepositorySelectorProps) {
-  const { data: repos, isLoading, isError, error } = useGithubRepositories();
+  const { data: repos, isLoading, isError, error } = useRepositories();
   const [search, setSearch] = useState("");
+  const reposErrorStatus = isError
+    ? (error as { response?: { status?: number } } | null)?.response?.status
+    : undefined;
 
   if (isLoading) {
     return (
@@ -33,20 +39,39 @@ export function RepositorySelector({
   }
 
   if (isError) {
-    const status = (error as { response?: { status?: number } } | null)
-      ?.response?.status;
-    const isNotConnected = status === 404;
-    const isNotInstalled = status === 428;
+    // 428 covers both missing requisites (account not linked, app not
+    // installed): the install flow routes through OAuth when the account is
+    // missing, so one prompt and one CTA cover both. A state to act on, not
+    // an error, so no destructive styling.
+    const isSetupRequired = reposErrorStatus === 428;
+    if (isSetupRequired) {
+      return (
+        <div className="min-w-0 space-y-2">
+          <Label>{strings.integrations.repoSelectorLabel}</Label>
+          <div className="flex flex-col items-start gap-2.5 rounded-md border bg-card px-3 py-3">
+            <p className="text-xs text-muted-foreground">
+              {strings.integrations.githubSetupPrompt}
+            </p>
+            <Button
+              id="install-github-picker-btn"
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={startGithubInstall}
+            >
+              <GithubMark />
+              {strings.integrations.githubInstallButton}
+            </Button>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="min-w-0 space-y-2">
         <Label>{strings.integrations.repoSelectorLabel}</Label>
         <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-muted-foreground">
           <AlertCircle className="size-3.5 shrink-0 text-destructive" />
-          {isNotConnected
-            ? strings.integrations.githubNoConnection
-            : isNotInstalled
-              ? strings.integrations.githubNoInstall
-              : strings.integrations.githubError}
+          {strings.integrations.githubError}
         </div>
       </div>
     );

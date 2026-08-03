@@ -16,6 +16,22 @@ export type AuthResponse = {
 };
 
 /**
+ * GithubStatus
+ *
+ * Setup state of the user's GitHub integration and app installation.
+ */
+export type GithubStatus = {
+    /**
+     * Account Linked
+     */
+    account_linked: boolean;
+    /**
+     * App Installed
+     */
+    app_installed: boolean;
+};
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -361,6 +377,31 @@ export type GithubCallbackResponses = {
      */
     200: unknown;
 };
+
+export type GithubStatusData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/integrations/github/status';
+};
+
+export type GithubStatusErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GithubStatusError = GithubStatusErrors[keyof GithubStatusErrors];
+
+export type GithubStatusResponses = {
+    /**
+     * Successful Response
+     */
+    200: GithubStatus;
+};
+
+export type GithubStatusResponse = GithubStatusResponses[keyof GithubStatusResponses];
 
 export type GithubInstallData = {
     body?: never;

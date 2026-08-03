@@ -76,8 +76,10 @@ export const strings = {
     detailErrorToast: "Couldn't load project details. Try again.",
   },
   integrations: {
-    githubNoConnection: "Connect GitHub to select repositories",
-    githubNoInstall: "Install the GitHub app to sync repositories",
+    githubSetupPrompt: "Set up GitHub to sync repositories",
+    githubInstallButton: "Install GitHub App",
+    githubInstalledToast: "GitHub app installed, repositories synced",
+    githubInstallErrorToast: "GitHub app setup didn't complete",
     githubLoading: "Loading repositories...",
     githubError: "Could not load repositories",
     repoSelectorLabel: "Repositories",

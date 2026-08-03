@@ -1,19 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
-import { RepositoriesService } from "@/client";
-import type { RepositoryPublic } from "@/client/types.gen";
+import { IntegrationsService } from "@/client";
+import type { GithubStatus } from "@/client/types.gen";
+
+const GITHUB_INSTALL_URL = "/api/integrations/github/install";
 
 export const integrationKeys = {
-  githubRepos: ["integrations", "github", "repositories"] as const,
+  githubStatus: ["integrations", "github", "status"] as const,
 };
 
-export function useGithubRepositories() {
+export function startGithubInstall() {
+  // The endpoint 302s to GitHub; setup-callback bounces back to the app
+  // with ?github_app=<outcome>.
+  window.location.href = GITHUB_INSTALL_URL;
+}
+
+export function useGithubStatus(options?: { enabled?: boolean }) {
   return useQuery({
-    queryKey: integrationKeys.githubRepos,
-    queryFn: async (): Promise<RepositoryPublic[]> => {
-      const res = await RepositoriesService.getRepositories();
+    queryKey: integrationKeys.githubStatus,
+    queryFn: async (): Promise<GithubStatus> => {
+      const res = await IntegrationsService.githubStatus();
       if (!res.data) throw new Error("No data returned from server");
       return res.data;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 60 * 1000,
+    enabled: options?.enabled,
   });
 }
