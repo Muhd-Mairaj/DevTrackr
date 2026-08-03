@@ -137,7 +137,7 @@ async def get_github_integration(session: SessionDep, user: CurrentUser) -> Inte
     )
     if not integration:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_428_PRECONDITION_REQUIRED,
             detail="GitHub integration not found for this user",
         )
     return integration
@@ -150,8 +150,8 @@ async def get_github_synced(
     integration: GithubIntegration, session: SessionDep
 ) -> Integration:
     # The app installation is what triggers the repo sync, so an account
-    # without one yields nothing. Runs after GithubIntegration so account-less
-    # users still get the 404 ("connect account") signal, never this one.
+    # without one yields nothing. Both missing requisites fail with 428;
+    # running after GithubIntegration decides which detail message surfaces.
     installations = await get_installations_by_user(
         session=session, user_id=integration.user_id
     )

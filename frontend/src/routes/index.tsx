@@ -15,6 +15,7 @@ import {
 } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
 import { projectKeys, useProject, useProjects } from "@/lib/projects";
+import { repositoryKeys } from "@/lib/repositories";
 import { strings } from "@/lib/strings";
 import { useToast } from "@/lib/toast";
 
@@ -48,6 +49,22 @@ function HomePage() {
       toast("error", strings.projects.detailErrorToast);
     }
   }, [projectDetails.error, toast]);
+
+  // Landing back from the GitHub App install flow carries ?github_app=<outcome>
+  // on the URL; refresh the synced repos, drop the param, and report.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const outcome = params.get("github_app");
+    if (outcome === null) return;
+    queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
+    window.history.replaceState({}, "", window.location.pathname);
+    toast(
+      outcome === "success" ? "success" : "error",
+      outcome === "success"
+        ? strings.integrations.githubInstalledToast
+        : strings.integrations.githubInstallErrorToast,
+    );
+  }, [queryClient, toast]);
 
   if (isLoading) {
     return <LoadingSkeleton count={6} variant="grid" />;
