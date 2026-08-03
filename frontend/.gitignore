@@ -13,9 +13,6 @@ dist
 dist-ssr
 *.local
 
-# Generated client
-src/client
-
 # Environment variables
 .env
 .env.local

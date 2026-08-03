@@ -1,6 +1,7 @@
 name: DevTrackr CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [dev, prod]
   pull_request:
