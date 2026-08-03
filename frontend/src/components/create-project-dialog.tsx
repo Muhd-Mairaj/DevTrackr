@@ -82,7 +82,7 @@ export function CreateProjectDialog({
         <form
           id="create-project-form"
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4"
+          className="flex min-w-0 flex-col gap-4"
         >
           <FormField
             control={form.control}
