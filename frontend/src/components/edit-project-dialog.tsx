@@ -59,14 +59,19 @@ export function EditProjectDialog({
   const onSubmit = async (values: UpdateValues) => {
     if (!project) return;
     try {
-      // TODO: remove cast after SDK regeneration adds repository_ids to ProjectUpdate
+      const body: ProjectUpdate = {
+        name: values.name,
+        description: values.description || null,
+      };
+      // Only include repository_ids when the project's repos were loaded,
+      // otherwise the backend's full-set-replace would clear all links.
+      // An absent field leaves links unchanged.
+      if (project.repositories !== undefined) {
+        body.repository_ids = values.repositoryIds;
+      }
       await updateProject.mutateAsync({
         id: project.id,
-        body: {
-          name: values.name,
-          description: values.description || null,
-          repository_ids: values.repositoryIds,
-        } as ProjectUpdate,
+        body,
       });
       onOpenChange(false);
       toast("success", strings.projects.updatedToast);
