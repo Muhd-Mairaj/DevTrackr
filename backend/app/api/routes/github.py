@@ -28,6 +28,7 @@ from app.crud.integration import (
     create_integration,
     update_integration,
 )
+from app.crud.repository import upsert_repository
 from app.crud.user import create_oauth_user, get_user_by_email
 from app.db.session import get_db
 from app.models.integration import (
@@ -181,6 +182,50 @@ async def github_callback(
     return response
 
 
+def _next_link(link_header: str | None) -> str | None:
+    """Return the next-page URL from a GitHub Link header, if any."""
+    if not link_header:
+        return None
+    for part in link_header.split(","):
+        url, _, rel = part.partition(";")
+        if 'rel="next"' in rel:
+            return url.strip().strip("<>")
+    return None
+
+
+async def _sync_github_repositories(
+    *,
+    session: AsyncSession,
+    token: OAuth2Token,
+    user_id: uuid.UUID,
+) -> None:
+    """Upsert the user's GitHub repos into ``Repository`` rows.
+
+    Runs after an installation link so the repo selector can serve synced
+    rows from the DB. Best-effort and never raises: a sync failure is logged
+    and the installation link still completes. Fetches every page of
+    ``/user/repos`` (the same scope the old passthrough used).
+    """
+    try:
+        next_url: str | None = "user/repos?per_page=100"
+        while next_url:
+            resp = await oauth.github.get(next_url, token=token)
+            resp.raise_for_status()
+            for repo in resp.json():
+                await upsert_repository(
+                    session=session,
+                    user_id=user_id,
+                    github_id=repo["id"],
+                    full_name=repo["full_name"],
+                    repo_name=repo["name"],
+                    url=repo.get("html_url"),
+                    description=repo.get("description"),
+                )
+            next_url = _next_link(resp.headers.get("Link"))
+    except Exception:
+        logger.exception("GitHub repo sync failed for user_id=%s", user_id)
+
+
 async def _link_installation(
     *,
     session: AsyncSession,
@@ -244,6 +289,10 @@ async def _link_installation(
         suspended_at=datetime.fromisoformat(suspended_raw) if suspended_raw else None,
         user_id=user_id,
     )
+    # Populate Repository rows so the selector serves synced repos from the DB.
+    # Runs after a successful link on every install path (setup-callback and
+    # the pending-install OAuth callback).
+    await _sync_github_repositories(session=session, token=token, user_id=user_id)
     logger.info(
         "Linked installation_id=%s (account=%s) to user_id=%s",
         installation_id,
