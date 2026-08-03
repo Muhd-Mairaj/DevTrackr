@@ -33,7 +33,7 @@ export class AuthService {
             }
         });
     }
-    
+
     /**
      * Login
      */
@@ -48,7 +48,7 @@ export class AuthService {
             }
         });
     }
-    
+
     /**
      * Refresh
      */
@@ -59,14 +59,14 @@ export class AuthService {
             ...options
         });
     }
-    
+
     /**
      * Logout
      */
     public static logout<ThrowOnError extends boolean = false>(options?: Options<LogoutData, ThrowOnError>) {
         return (options?.client ?? client).post<LogoutResponses, LogoutErrors, ThrowOnError>({ url: '/api/auth/logout', ...options });
     }
-    
+
     /**
      * Me
      */
@@ -78,7 +78,7 @@ export class AuthService {
             ...options
         });
     }
-    
+
     /**
      * Github Authorize
      *
@@ -91,7 +91,7 @@ export class AuthService {
             ...options
         });
     }
-    
+
     /**
      * Github Callback
      */
@@ -135,7 +135,7 @@ export class IntegrationsService {
             ...options
         });
     }
-    
+
     /**
      * Github Setup Callback
      *
@@ -166,7 +166,7 @@ export class ProjectsService {
             ...options
         });
     }
-    
+
     /**
      * Create Project Route
      */
@@ -182,7 +182,7 @@ export class ProjectsService {
             }
         });
     }
-    
+
     /**
      * Delete Project Route
      */
@@ -194,7 +194,7 @@ export class ProjectsService {
             ...options
         });
     }
-    
+
     /**
      * Get Project Route
      */
@@ -206,7 +206,7 @@ export class ProjectsService {
             ...options
         });
     }
-    
+
     /**
      * Update Project Route
      */
