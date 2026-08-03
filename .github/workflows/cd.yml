@@ -3,6 +3,7 @@ name: DevTrackr CD
 on:
   workflow_dispatch:
   workflow_run:
+    # Triggers CD only after the entire DevTrackr CI workflow (Frontend CI, Backend CI, Backend Tests, Docker Build) completes successfully
     workflows: ["DevTrackr CI"]
     types: [completed]
     branches: [dev, prod]

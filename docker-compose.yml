@@ -65,7 +65,7 @@ services:
           "CMD",
           "python",
           "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/ping'); exit(0)",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/utils/ping'); exit(0)",
         ]
       interval: 10s
       retries: 5

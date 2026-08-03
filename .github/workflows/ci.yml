@@ -71,10 +71,78 @@ jobs:
       - name: Type Check (mypy)
         run: uv run mypy .
 
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18.1-trixie
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
+          POSTGRES_DB: devtrackr_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.9.27"
+          enable-cache: true
+          cache-dependency-glob: "backend/uv.lock"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install PostgreSQL Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Create Test Database
+        run: |
+          PGPASSWORD=${{ secrets.TEST_POSTGRES_PASSWORD }} psql -h localhost -U admin -d postgres -c "CREATE DATABASE devtrackr_db_test;"
+
+      - name: Install Dependencies
+        run: |
+          cd backend
+          uv sync --frozen
+
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          uv run pytest -v --tb=short
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
+          POSTGRES_DB: devtrackr_db
+          SECRET_KEY: changeme
+          ENCRYPTION_KEY: ${{ secrets.TEST_ENCRYPTION_KEY }}
+          ENVIRONMENT: development
+          PROJECT_NAME: DevTrackr
+          GITHUB_CLIENT_ID: dummy_client_id
+          GITHUB_CLIENT_SECRET: dummy_client_secret
+          GITHUB_PRIVATE_KEY_PATH: /tmp/dummy.pem
+          GITHUB_APP_SLUG: devtrackr-test
+
   docker-checks:
     name: Docker Compose Build
     runs-on: ubuntu-latest
-    needs: [frontend-checks, backend-checks]
+    needs: [frontend-checks, backend-checks, backend-tests]
 
     steps:
       - name: Checkout repository
