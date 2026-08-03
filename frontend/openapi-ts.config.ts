@@ -13,6 +13,9 @@ export default defineConfig({
       name: "@hey-api/typescript",
       enums: "javascript",
     },
-    "@hey-api/sdk",
+    {
+      name: "@hey-api/sdk",
+      operations: { strategy: "byTags", containerName: "{{name}}Service" },
+    },
   ],
 });

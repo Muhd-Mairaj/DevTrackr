@@ -18,8 +18,12 @@ async def create_project(
     return db_obj
 
 
-async def get_project(*, session: AsyncSession, id: uuid.UUID) -> Project | None:
-    return await session.get(Project, id)
+async def get_project_for_user(
+    *, session: AsyncSession, id: uuid.UUID, user_id: uuid.UUID
+) -> Project | None:
+    statement = select(Project).where(Project.id == id, Project.user_id == user_id)
+    result = await session.exec(statement)
+    return result.one_or_none()
 
 
 async def get_projects_by_user(
@@ -62,9 +66,6 @@ async def update_project(
     return db_obj
 
 
-async def delete_project(*, session: AsyncSession, id: uuid.UUID) -> Project | None:
-    db_obj = await session.get(Project, id)
-    if db_obj:
-        await session.delete(db_obj)
-        await session.commit()
-    return db_obj
+async def delete_project(*, session: AsyncSession, db_obj: Project) -> None:
+    await session.delete(db_obj)
+    await session.commit()
