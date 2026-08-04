@@ -14,6 +14,7 @@ import {
   QueryError,
 } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
+import { integrationKeys } from "@/lib/integrations";
 import { projectKeys, useProject, useProjects } from "@/lib/projects";
 import { repositoryKeys } from "@/lib/repositories";
 import { strings } from "@/lib/strings";
@@ -57,6 +58,7 @@ function HomePage() {
     const outcome = params.get("github_app");
     if (outcome === null) return;
     queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
+    queryClient.invalidateQueries({ queryKey: integrationKeys.githubStatus });
     window.history.replaceState({}, "", window.location.pathname);
     toast(
       outcome === "success" ? "success" : "error",
