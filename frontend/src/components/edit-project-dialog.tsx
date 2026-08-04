@@ -2,7 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import type { ProjectPublic } from "@/client/types.gen";
+import type { ProjectPublic, ProjectUpdate } from "@/client/types.gen";
+import { RepositorySelector } from "@/components/repository-selector";
 import { AppDialog } from "@/components/ui/app-dialog";
 import {
   Form,
@@ -20,6 +21,10 @@ import { useToast } from "@/lib/toast";
 const updateSchema = z.object({
   name: z.string().min(1, strings.projects.nameRequired),
   description: z.string().optional(),
+  // No .default(): a default would make z.input optional while z.output is
+  // required, which breaks useForm's Resolver<F, any, F> type. defaultValues
+  // in useForm already provides the empty array.
+  repositoryIds: z.array(z.number()),
 });
 
 type UpdateValues = z.infer<typeof updateSchema>;
@@ -38,7 +43,7 @@ export function EditProjectDialog({
 
   const form = useForm<UpdateValues>({
     resolver: zodResolver(updateSchema),
-    defaultValues: { name: "", description: "" },
+    defaultValues: { name: "", description: "", repositoryIds: [] },
   });
 
   useEffect(() => {
@@ -46,6 +51,7 @@ export function EditProjectDialog({
       form.reset({
         name: project.name,
         description: project.description ?? "",
+        repositoryIds: (project.repositories ?? []).map((r) => r.github_id),
       });
     }
   }, [project, form]);
@@ -53,12 +59,19 @@ export function EditProjectDialog({
   const onSubmit = async (values: UpdateValues) => {
     if (!project) return;
     try {
+      const body: ProjectUpdate = {
+        name: values.name,
+        description: values.description || null,
+      };
+      // Only include repository_ids when the project's repos were loaded,
+      // otherwise the backend's full-set-replace would clear all links.
+      // An absent field leaves links unchanged.
+      if (project.repositories !== undefined) {
+        body.repository_ids = values.repositoryIds;
+      }
       await updateProject.mutateAsync({
         id: project.id,
-        body: {
-          name: values.name,
-          description: values.description || null,
-        },
+        body,
       });
       onOpenChange(false);
       toast("success", strings.projects.updatedToast);
@@ -85,7 +98,7 @@ export function EditProjectDialog({
         <form
           id="edit-project-form"
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4"
+          className="flex min-w-0 flex-col gap-4"
         >
           <FormField
             control={form.control}
@@ -118,6 +131,22 @@ export function EditProjectDialog({
                     placeholder={strings.projects.descriptionPlaceholder}
                     disabled={isSubmitting}
                     {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="repositoryIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <RepositorySelector
+                    selected={field.value}
+                    onChange={field.onChange}
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />

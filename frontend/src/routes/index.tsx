@@ -14,7 +14,9 @@ import {
   QueryError,
 } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
+import { integrationKeys } from "@/lib/integrations";
 import { projectKeys, useProject, useProjects } from "@/lib/projects";
+import { repositoryKeys } from "@/lib/repositories";
 import { strings } from "@/lib/strings";
 import { useToast } from "@/lib/toast";
 
@@ -48,6 +50,48 @@ function HomePage() {
       toast("error", strings.projects.detailErrorToast);
     }
   }, [projectDetails.error, toast]);
+
+  // Landing back from the GitHub App install flow carries ?github_app=<outcome>
+  // on the URL; refresh the synced repos, drop the param, and report.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const outcome = params.get("github_app");
+    if (outcome === null) return;
+    queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
+    queryClient.invalidateQueries({ queryKey: integrationKeys.githubStatus });
+    window.history.replaceState({}, "", window.location.pathname);
+
+    const outcomeMessages: Record<
+      string,
+      { variant: "success" | "error"; message: string }
+    > = {
+      success: {
+        variant: "success",
+        message: strings.integrations.githubInstalledToast,
+      },
+      sync_partial: {
+        variant: "success",
+        message: strings.integrations.githubInstallSyncPartialToast,
+      },
+      sync_error: {
+        variant: "error",
+        message: strings.integrations.githubInstallSyncErrorToast,
+      },
+      unauthorized: {
+        variant: "error",
+        message: strings.integrations.githubInstallUnauthorizedToast,
+      },
+      conflict: {
+        variant: "error",
+        message: strings.integrations.githubInstallConflictToast,
+      },
+    };
+    const msg = outcomeMessages[outcome] ?? {
+      variant: "error" as const,
+      message: strings.integrations.githubInstallErrorToast,
+    };
+    toast(msg.variant, msg.message);
+  }, [queryClient, toast]);
 
   if (isLoading) {
     return <LoadingSkeleton count={6} variant="grid" />;

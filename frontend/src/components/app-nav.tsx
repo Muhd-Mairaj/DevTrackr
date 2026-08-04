@@ -1,13 +1,16 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
+import { GithubMark } from "@/components/github-mark";
 import { LogoMark } from "@/components/logo-mark";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { startGithubInstall, useGithubStatus } from "@/lib/integrations";
 import { strings } from "@/lib/strings";
 
 export function AppNav() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { data: githubStatus, isError } = useGithubStatus();
 
   const handleLogout = async () => {
     await logout();
@@ -46,6 +49,20 @@ export function AppNav() {
               {user.email}
             </span>
           )}
+          {isError ||
+            (githubStatus &&
+              !(githubStatus.account_linked && githubStatus.app_installed) && (
+                <Button
+                  id="install-github-nav-btn"
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 text-muted-foreground hover:text-foreground"
+                  onClick={startGithubInstall}
+                >
+                  <GithubMark />
+                  {strings.integrations.githubInstallButton}
+                </Button>
+              ))}
           <Button
             id="logout-btn"
             variant="ghost"

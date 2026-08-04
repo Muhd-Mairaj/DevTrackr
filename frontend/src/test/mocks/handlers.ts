@@ -1,7 +1,7 @@
 import { HttpResponse, http } from "msw";
 
 export const handlers = [
-  http.get("*/api/ping", () => {
+  http.get("*/api/utils/ping", () => {
     return HttpResponse.json({ status: "ok", message: "pong" });
   }),
 ];

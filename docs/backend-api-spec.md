@@ -139,6 +139,7 @@ async def delete_project_route(session: SessionDep, project: OwnedProject) -> An
 - Routes declare `response_model` and return the object or `-> Any`, matching `project.py`.
 - Create routes return 201 (`status_code=201`).
 - Errors are `HTTPException` with a plain detail string ("Project not found" style). No ownership logic in route bodies (section 4).
+- Every error status a route can raise is declared via `error_responses(...)` from `app/api/responses.py`, so the generated client types the body as `ErrorDetail` instead of `unknown`.
 - The OpenAPI client (`frontend/src/client`) is regenerated from the backend's `openapi.json`; signature changes to schemas require a client regen.
 
 ---
