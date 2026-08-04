@@ -33,10 +33,10 @@ class TokenPayload(SQLModel):
     jti: str | None = None
 
 
-# Column-level onupdate only fires when an UPDATE is emitted for the row;
-# relationship-only changes (e.g. a project's repositories) never touch the
-# parent row, so stamp updated_at from the mapper event instead. propagate
-# attaches this to every table model that inherits BaseModel.
+# The column-level onupdate parameter only fires for column mutations, so
+# relationship-only changes (e.g. assigning project.repositories) leave
+# updated_at stale.  A mapper before_update event catches those cases.
+# See https://docs.sqlalchemy.org/en/20/orm/events.html#sqlalchemy.orm.MapperEvents.before_update
 @sa_event.listens_for(BaseModel, "before_update", propagate=True)
 def _touch_updated_at(_mapper: Any, _connection: Any, target: Any) -> None:
     target.updated_at = datetime.now(UTC)

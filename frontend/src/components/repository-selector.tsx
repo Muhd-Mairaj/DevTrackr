@@ -1,4 +1,4 @@
-import { AlertCircle, ExternalLink, Search } from "lucide-react";
+import { AlertCircle, ExternalLink, RefreshCw, Search } from "lucide-react";
 import { useState } from "react";
 import type { RepositoryPublic } from "@/client/types.gen";
 import { GithubMark } from "@/components/github-mark";
@@ -21,7 +21,7 @@ export function RepositorySelector({
   onChange,
   disabled = false,
 }: RepositorySelectorProps) {
-  const { data: repos, isLoading, isError, error } = useRepositories();
+  const { data: repos, isLoading, isError, error, refetch } = useRepositories();
   const [search, setSearch] = useState("");
   const reposErrorStatus = isError
     ? (error as { response?: { status?: number } } | null)?.response?.status
@@ -72,6 +72,15 @@ export function RepositorySelector({
         <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-muted-foreground">
           <AlertCircle className="size-3.5 shrink-0 text-destructive" />
           {strings.integrations.githubError}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto h-7 gap-1 px-2 text-xs"
+            onClick={() => refetch()}
+          >
+            <RefreshCw className="size-3" />
+            Retry
+          </Button>
         </div>
       </div>
     );
