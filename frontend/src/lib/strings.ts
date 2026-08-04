@@ -80,6 +80,14 @@ export const strings = {
     githubInstallButton: "Install GitHub App",
     githubInstalledToast: "GitHub app installed, repositories synced",
     githubInstallErrorToast: "GitHub app setup didn't complete",
+    githubInstallSyncErrorToast:
+      "GitHub app installed, but repository sync didn't complete. Repositories will appear on next sync.",
+    githubInstallSyncPartialToast:
+      "GitHub app installed, but some repositories couldn't be synced. They will appear on next sync.",
+    githubInstallUnauthorizedToast:
+      "This GitHub App installation doesn't belong to your account.",
+    githubInstallConflictToast:
+      "This GitHub App installation is already linked to another account.",
     githubLoading: "Loading repositories...",
     githubError: "Could not load repositories",
     repoSelectorLabel: "Repositories",

@@ -60,12 +60,34 @@ function HomePage() {
     queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
     queryClient.invalidateQueries({ queryKey: integrationKeys.githubStatus });
     window.history.replaceState({}, "", window.location.pathname);
-    toast(
-      outcome === "success" ? "success" : "error",
-      outcome === "success"
-        ? strings.integrations.githubInstalledToast
-        : strings.integrations.githubInstallErrorToast,
-    );
+
+    const outcomeMessages: Record<string, { variant: "success" | "error"; message: string }> = {
+      success: {
+        variant: "success",
+        message: strings.integrations.githubInstalledToast,
+      },
+      sync_partial: {
+        variant: "success",
+        message: strings.integrations.githubInstallSyncPartialToast,
+      },
+      sync_error: {
+        variant: "error",
+        message: strings.integrations.githubInstallSyncErrorToast,
+      },
+      unauthorized: {
+        variant: "error",
+        message: strings.integrations.githubInstallUnauthorizedToast,
+      },
+      conflict: {
+        variant: "error",
+        message: strings.integrations.githubInstallConflictToast,
+      },
+    };
+    const msg = outcomeMessages[outcome] ?? {
+      variant: "error" as const,
+      message: strings.integrations.githubInstallErrorToast,
+    };
+    toast(msg.variant, msg.message);
   }, [queryClient, toast]);
 
   if (isLoading) {
