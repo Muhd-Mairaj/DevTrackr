@@ -61,7 +61,10 @@ function HomePage() {
     queryClient.invalidateQueries({ queryKey: integrationKeys.githubStatus });
     window.history.replaceState({}, "", window.location.pathname);
 
-    const outcomeMessages: Record<string, { variant: "success" | "error"; message: string }> = {
+    const outcomeMessages: Record<
+      string,
+      { variant: "success" | "error"; message: string }
+    > = {
       success: {
         variant: "success",
         message: strings.integrations.githubInstalledToast,
