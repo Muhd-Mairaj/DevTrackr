@@ -39,10 +39,12 @@ async def upsert_repository(
     repo_name: str,
     url: str | None = None,
     description: str | None = None,
+    commit: bool = True,
 ) -> Repository:
     # Install-time sync: one call per repo from the GitHub API response.
     # Creates the row on first sync; refreshes metadata and reactivates a
-    # soft-deleted row on later syncs.
+    # soft-deleted row on later syncs.  When commit=False the caller is
+    # responsible for committing (used to batch a page of repos).
     statement = select(Repository).where(
         Repository.github_id == github_id, Repository.user_id == user_id
     )
@@ -63,8 +65,11 @@ async def upsert_repository(
         db_obj.url = url
         db_obj.description = description
         db_obj.is_active = True
-    await session.commit()
-    await session.refresh(db_obj)
+    if commit:
+        await session.commit()
+        await session.refresh(db_obj)
+    else:
+        await session.flush()
     return db_obj
 
 

@@ -10,7 +10,7 @@ import { strings } from "@/lib/strings";
 export function AppNav() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { data: githubStatus } = useGithubStatus();
+  const { data: githubStatus, isError } = useGithubStatus();
 
   const handleLogout = async () => {
     await logout();
@@ -49,19 +49,20 @@ export function AppNav() {
               {user.email}
             </span>
           )}
-          {githubStatus &&
-            !(githubStatus.account_linked && githubStatus.app_installed) && (
-              <Button
-                id="install-github-nav-btn"
-                variant="ghost"
-                size="sm"
-                className="gap-1.5 text-muted-foreground hover:text-foreground"
-                onClick={startGithubInstall}
-              >
-                <GithubMark />
-                {strings.integrations.githubInstallButton}
-              </Button>
-            )}
+          {isError ||
+            (githubStatus &&
+              !(githubStatus.account_linked && githubStatus.app_installed) && (
+                <Button
+                  id="install-github-nav-btn"
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 text-muted-foreground hover:text-foreground"
+                  onClick={startGithubInstall}
+                >
+                  <GithubMark />
+                  {strings.integrations.githubInstallButton}
+                </Button>
+              ))}
           <Button
             id="logout-btn"
             variant="ghost"
