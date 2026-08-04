@@ -6,8 +6,11 @@ from pydantic import model_validator
 from sqlmodel import Field, Relationship, SQLModel
 
 from .base import BaseModel
+from .project_repository import ProjectRepository
+from .repository import RepositoryPublic
 
 if TYPE_CHECKING:
+    from .repository import Repository
     from .user import User
 
 
@@ -17,12 +20,13 @@ class ProjectBase(SQLModel):
 
 
 class ProjectCreate(ProjectBase):
-    pass
+    repository_ids: list[int] | None = None
 
 
 class ProjectUpdate(SQLModel):
     name: str | None = Field(default=None, min_length=1)
     description: str | None = Field(default=None)
+    repository_ids: list[int] | None = None
 
     @model_validator(mode="after")
     def reject_null_name(self) -> "ProjectUpdate":
@@ -40,6 +44,14 @@ class Project(ProjectBase, BaseModel, table=True):
 
     user: "User" = Relationship()
 
+    repositories: list["Repository"] = Relationship(
+        back_populates="projects",
+        link_model=ProjectRepository,
+        # Eager-load so ProjectPublic serialization never lazy-loads (async
+        # sessions raise on lazy relationship access after commit).
+        sa_relationship_kwargs={"lazy": "selectin"},
+    )
+
 
 class ProjectPublic(ProjectBase):
     id: uuid.UUID
@@ -48,3 +60,4 @@ class ProjectPublic(ProjectBase):
     updated_at: datetime
     deleted_at: datetime | None = None
     user_id: uuid.UUID
+    repositories: list[RepositoryPublic] = Field(default_factory=list)

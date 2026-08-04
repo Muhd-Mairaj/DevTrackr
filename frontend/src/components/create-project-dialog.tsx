@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { RepositorySelector } from "@/components/repository-selector";
 import { AppDialog } from "@/components/ui/app-dialog";
 import {
   Form,
@@ -19,6 +20,10 @@ import { useToast } from "@/lib/toast";
 const createSchema = z.object({
   name: z.string().min(1, strings.projects.nameRequired),
   description: z.string().optional(),
+  // No .default(): a default would make z.input optional while z.output is
+  // required, which breaks useForm's Resolver<F, any, F> type. defaultValues
+  // in useForm already provides the empty array.
+  repositoryIds: z.array(z.number()),
 });
 
 type CreateValues = z.infer<typeof createSchema>;
@@ -37,12 +42,12 @@ export function CreateProjectDialog({
 
   const form = useForm<CreateValues>({
     resolver: zodResolver(createSchema),
-    defaultValues: { name: "", description: "" },
+    defaultValues: { name: "", description: "", repositoryIds: [] },
   });
 
   useEffect(() => {
     if (open) {
-      form.reset({ name: "", description: "" });
+      form.reset({ name: "", description: "", repositoryIds: [] });
     }
   }, [open, form]);
 
@@ -51,6 +56,7 @@ export function CreateProjectDialog({
       await createProject.mutateAsync({
         name: values.name,
         description: values.description || null,
+        repository_ids: values.repositoryIds,
       });
       onOpenChange(false);
       toast("success", strings.projects.createdToast);
@@ -77,7 +83,7 @@ export function CreateProjectDialog({
         <form
           id="create-project-form"
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4"
+          className="flex min-w-0 flex-col gap-4"
         >
           <FormField
             control={form.control}
@@ -110,6 +116,22 @@ export function CreateProjectDialog({
                     placeholder={strings.projects.descriptionPlaceholder}
                     disabled={isSubmitting}
                     {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="repositoryIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <RepositorySelector
+                    selected={field.value}
+                    onChange={field.onChange}
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />

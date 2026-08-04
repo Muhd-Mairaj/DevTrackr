@@ -12,8 +12,11 @@ from app.core.security import (
     ACCESS_TOKEN_COOKIE_NAME,
     decode_token,
 )
+from app.crud.github_installation import get_installations_by_user
+from app.crud.integration import get_integration_by_provider
 from app.db.session import get_db
 from app.models.base import TokenPayload
+from app.models.integration import Integration
 from app.models.user import User
 
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -125,3 +128,39 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 OptionalCurrentUser = Annotated[User | None, Depends(get_current_user_optional)]
 GithubJWT = Annotated[str, Depends(get_github_jwt_token)]
 SessionDep = Annotated[AsyncSession, Depends(get_db)]
+
+
+async def get_github_integration(session: SessionDep, user: CurrentUser) -> Integration:
+    # Gates on the user's linked GitHub account (OAuth integration).
+    integration = await get_integration_by_provider(
+        session=session, user_id=user.id, provider="github"
+    )
+    if not integration:
+        raise HTTPException(
+            status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+            detail="GitHub integration not found for this user",
+        )
+    return integration
+
+
+GithubIntegration = Annotated[Integration, Depends(get_github_integration)]
+
+
+async def get_github_synced(
+    integration: GithubIntegration, session: SessionDep
+) -> Integration:
+    # The app installation is what triggers the repo sync, so an account
+    # without one yields nothing. Both missing requisites fail with 428;
+    # running after GithubIntegration decides which detail message surfaces.
+    installations = await get_installations_by_user(
+        session=session, user_id=integration.user_id
+    )
+    if not installations:
+        raise HTTPException(
+            status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+            detail="GitHub app not installed",
+        )
+    return integration
+
+
+GithubSynced = Annotated[Integration, Depends(get_github_synced)]

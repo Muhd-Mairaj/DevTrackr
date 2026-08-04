@@ -1,3 +1,4 @@
+import logging
 import uuid
 from collections.abc import Sequence
 from typing import Any
@@ -5,16 +6,37 @@ from typing import Any
 from sqlmodel import func, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.crud.repository import get_repositories_by_github_ids
 from app.models.project import Project, ProjectCreate, ProjectUpdate
+
+logger = logging.getLogger(__name__)
 
 
 async def create_project(
     *, session: AsyncSession, project_in: ProjectCreate, user_id: uuid.UUID
 ) -> Project:
     db_obj = Project.model_validate(project_in, update={"user_id": user_id})
+    if project_in.repository_ids:
+        # Only repos the user actually synced resolve, so a github_id
+        # from outside the user's installation links nothing.
+        repos = await get_repositories_by_github_ids(
+            session=session,
+            github_ids=project_in.repository_ids,
+            user_id=user_id,
+        )
+        resolved_ids = {r.github_id for r in repos}
+        missing = set(project_in.repository_ids) - resolved_ids
+        if missing:
+            logger.warning(
+                "create_project: %s repository_ids did not resolve for user %s: %s",
+                len(missing),
+                user_id,
+                missing,
+            )
+        db_obj.repositories = list(repos)
     session.add(db_obj)
     await session.commit()
-    await session.refresh(db_obj)
+    await session.refresh(db_obj, attribute_names=["repositories"])
     return db_obj
 
 
@@ -51,18 +73,38 @@ async def update_project(
     session: AsyncSession,
     db_obj: Project,
     project_in: ProjectUpdate | dict[str, Any],
+    user_id: uuid.UUID,
 ) -> Project:
     if isinstance(project_in, dict):
-        update_data = project_in
+        update_data = dict(project_in)
     else:
         update_data = project_in.model_dump(exclude_unset=True)
+
+    # Full-set replace: the payload's list becomes the project's repo set.
+    # An absent field (or null) leaves links unchanged; [] clears them.
+    repository_ids = update_data.pop("repository_ids", None)
+    if repository_ids is not None:
+        # Scoped to the owner
+        repos = await get_repositories_by_github_ids(
+            session=session, github_ids=repository_ids, user_id=user_id
+        )
+        resolved_ids = {r.github_id for r in repos}
+        missing = set(repository_ids) - resolved_ids
+        if missing:
+            logger.warning(
+                "update_project: %s repository_ids did not resolve for user %s: %s",
+                len(missing),
+                user_id,
+                missing,
+            )
+        db_obj.repositories = list(repos)
 
     for field, value in update_data.items():
         setattr(db_obj, field, value)
 
     session.add(db_obj)
     await session.commit()
-    await session.refresh(db_obj)
+    await session.refresh(db_obj, attribute_names=["repositories"])
     return db_obj
 
 

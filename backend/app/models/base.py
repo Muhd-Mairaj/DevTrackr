@@ -1,6 +1,8 @@
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
+from sqlalchemy import event as sa_event
 from sqlmodel import DateTime, Field, SQLModel
 
 
@@ -16,7 +18,6 @@ class BaseModel(SQLModel):
         default_factory=lambda: datetime.now(UTC),
         sa_type=DateTime(timezone=True),  # type: ignore[call-overload]
         nullable=False,
-        sa_column_kwargs={"onupdate": lambda: datetime.now(UTC)},
     )
     deleted_at: datetime | None = Field(
         default=None,
@@ -30,3 +31,12 @@ class TokenPayload(SQLModel):
     exp: int | None = None
     type: str | None = None
     jti: str | None = None
+
+
+# The column-level onupdate parameter only fires for column mutations, so
+# relationship-only changes (e.g. assigning project.repositories) leave
+# updated_at stale.  A mapper before_update event catches those cases.
+# See https://docs.sqlalchemy.org/en/20/orm/events.html#sqlalchemy.orm.MapperEvents.before_update
+@sa_event.listens_for(BaseModel, "before_update", propagate=True)
+def _touch_updated_at(_mapper: Any, _connection: Any, target: Any) -> None:
+    target.updated_at = datetime.now(UTC)

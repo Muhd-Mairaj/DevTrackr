@@ -5,6 +5,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.deps import CurrentUser, SessionDep
+from app.api.responses import error_responses
 from app.crud.project import (
     create_project,
     delete_project,
@@ -33,33 +34,57 @@ async def get_owned_project(
 OwnedProject = Annotated[Project, Depends(get_owned_project)]
 
 
-@router.get("/", response_model=list[ProjectPublic])
+@router.get(
+    "/",
+    response_model=list[ProjectPublic],
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED),
+)
 async def get_projects_route(session: SessionDep, user: CurrentUser) -> Any:
     return await get_projects_by_user(session=session, user_id=user.id)
 
 
-@router.get("/{id}", response_model=ProjectPublic)
+@router.get(
+    "/{id}",
+    response_model=ProjectPublic,
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED, status.HTTP_404_NOT_FOUND),
+)
 async def get_project_route(project: OwnedProject) -> Any:
     return project
 
 
-@router.post("/", response_model=ProjectPublic, status_code=201)
+@router.post(
+    "/",
+    response_model=ProjectPublic,
+    status_code=201,
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED),
+)
 async def create_project_route(
     session: SessionDep, project_in: ProjectCreate, user: CurrentUser
 ) -> Any:
     return await create_project(session=session, project_in=project_in, user_id=user.id)
 
 
-@router.patch("/{id}", response_model=ProjectPublic)
+@router.patch(
+    "/{id}",
+    response_model=ProjectPublic,
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED, status.HTTP_404_NOT_FOUND),
+)
 async def update_project_route(
     session: SessionDep,
     project_in: ProjectUpdate,
     project: OwnedProject,
+    user: CurrentUser,
 ) -> Any:
-    return await update_project(session=session, db_obj=project, project_in=project_in)
+    return await update_project(
+        session=session, db_obj=project, project_in=project_in, user_id=user.id
+    )
 
 
-@router.delete("/{id}", response_model=ProjectPublic)
+@router.delete(
+    "/{id}",
+    response_model=ProjectPublic,
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED, status.HTTP_404_NOT_FOUND),
+)
 async def delete_project_route(
     session: SessionDep,
     project: OwnedProject,

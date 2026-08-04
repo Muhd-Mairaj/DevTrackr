@@ -63,3 +63,10 @@ class Integration(IntegrationBase, BaseModel, table=True):
             if self.token_expiry
             else None,
         }
+
+
+class GithubStatus(SQLModel):
+    """Setup state of the user's GitHub integration and app installation."""
+
+    account_linked: bool
+    app_installed: bool

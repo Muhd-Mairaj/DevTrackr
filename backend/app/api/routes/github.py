@@ -1,16 +1,15 @@
-"""GitHub OAuth login and App installation routes.
+"""GitHub OAuth login routes.
 
-Two flows: OAuth login (``/authorize`` -> ``/callback``) and App installation
-(``/install`` -> ``/setup-callback``). The flows, the ``state`` CSRF model, and
-the ``GET /user/installations`` IDOR check are documented in
-``docs/github-oauth-and-app-install.md``.
+Handles the OAuth login flow (``/authorize`` -> ``/callback``). App installation
+and integration data endpoints live in ``routes/integrations/github.py``. The
+flows, the ``state`` CSRF model, and the ``GET /user/installations`` IDOR check
+are documented in ``docs/github-oauth-and-app-install.md``.
 """
 
 import logging
-import secrets
 import uuid
 from datetime import datetime
-from typing import Any, cast
+from typing import cast
 
 from authlib.integrations.starlette_client import OAuth, OAuthError
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -18,7 +17,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.api.deps import CurrentUser, OptionalCurrentUser
+from app.api.responses import error_responses
 from app.core.config import settings
 from app.core.security import create_access_token, set_auth_cookies
 from app.crud.auth import create_session
@@ -28,9 +27,9 @@ from app.crud.github_installation import (
 )
 from app.crud.integration import (
     create_integration,
-    get_integration_by_provider,
     update_integration,
 )
+from app.crud.repository import upsert_repository
 from app.crud.user import create_oauth_user, get_user_by_email
 from app.db.session import get_db
 from app.models.integration import (
@@ -72,7 +71,15 @@ async def github_authorize(request: Request) -> RedirectResponse:
     )
 
 
-@router.get("/callback", name="github_callback")
+@router.get(
+    "/callback",
+    name="github_callback",
+    responses=error_responses(
+        status.HTTP_400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED,
+        status.HTTP_403_FORBIDDEN,
+    ),
+)
 async def github_callback(
     request: Request,
     session: AsyncSession = Depends(get_db),
@@ -184,103 +191,85 @@ async def github_callback(
     return response
 
 
-@router.get("/install")
-async def github_install(
-    request: Request, current_user: CurrentUser
-) -> RedirectResponse:
-    """Start a GitHub App installation (login required).
+def _next_link(link_header: str | None) -> str | None:
+    """Return the next-page URL from a GitHub Link header, if any."""
+    if not link_header:
+        return None
+    for part in link_header.split(","):
+        url, _, rel = part.partition(";")
+        if 'rel="next"' in rel:
+            return url.strip().strip("<>")
+    return None
 
-    Sets a CSRF ``state`` in the session so ``/setup-callback`` can verify the
-    redirect came from us. See ``docs/github-oauth-and-app-install.md``.
+
+async def _sync_github_repositories(
+    *,
+    session: AsyncSession,
+    token: OAuth2Token,
+    user_id: uuid.UUID,
+) -> str | None:
+    """Upsert the user's GitHub repos into ``Repository`` rows.
+
+    Runs after an installation link so the repo selector can serve synced
+    rows from the DB.  Returns ``None`` when every repo was synced, or a
+    non-``None`` outcome code that the caller can pass through to the
+    frontend redirect.
+
+    Never raises: every failure path is logged and surfaced through the
+    return value so the installation link always completes.
     """
-    state = secrets.token_urlsafe(32)
-    request.session["gh_install_state"] = state
-    install_url = (
-        f"https://github.com/apps/{settings.GITHUB_APP_SLUG}/installations/new"
-        f"?state={state}"
-    )
-    logger.info(
-        "User %s starting GitHub App install (state=%s...)", current_user.id, state[:8]
-    )
-    return RedirectResponse(install_url, status_code=302)
+    synced = 0
+    errors = 0
+    try:
+        next_url: str | None = "user/repos?per_page=100"
+        while next_url:
+            try:
+                resp = await oauth.github.get(next_url, token=token)
+                resp.raise_for_status()
+            except Exception:
+                logger.exception(
+                    "GitHub repo sync page fetch failed for user_id=%s at %s",
+                    user_id,
+                    next_url,
+                )
+                return "sync_error"
 
+            for repo in resp.json():
+                try:
+                    await upsert_repository(
+                        session=session,
+                        user_id=user_id,
+                        github_id=repo["id"],
+                        full_name=repo["full_name"],
+                        repo_name=repo["name"],
+                        url=repo.get("html_url"),
+                        description=repo.get("description"),
+                        commit=False,
+                    )
+                    synced += 1
+                except Exception:
+                    logger.exception(
+                        "Failed to upsert repo github_id=%s for user_id=%s",
+                        repo.get("id"),
+                        user_id,
+                    )
+                    errors += 1
+            await session.commit()
+            next_url = _next_link(resp.headers.get("Link"))
+    except Exception:
+        logger.exception("GitHub repo sync failed for user_id=%s", user_id)
+        return "sync_error"
 
-@router.get("/setup-callback")
-async def github_setup_callback(
-    request: Request,
-    user: OptionalCurrentUser,
-    session: AsyncSession = Depends(get_db),
-) -> RedirectResponse:
-    """Handle the GitHub App Setup URL redirect after installation.
-
-    Links the installation when possible, otherwise stashes it and routes
-    through OAuth. See ``docs/github-oauth-and-app-install.md`` for the full
-    scenario table and security model.
-    """
-    installation_id = request.query_params.get("installation_id")
-    if not installation_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Missing installation_id in setup callback",
+    if errors:
+        logger.warning(
+            "GitHub repo sync for user_id=%s: %s synced, %s errors",
+            user_id,
+            synced,
+            errors,
         )
-
-    # Validate state to prevent CSRF attacks
-    callback_state = request.query_params.get("state")
-    expected_state = request.session.pop("gh_install_state", None)
-    if expected_state is not None:
-        if callback_state != expected_state:
-            logger.warning(
-                "Setup callback state mismatch (possible CSRF) for installation_id=%s",
-                installation_id,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid state for GitHub App installation",
-            )
-    else:
-        # No state set -> direct GitHub install or admin-approval flow.
-        logger.info(
-            "Setup callback without prior state for installation_id=%s", installation_id
-        )
-
-    # Stash the installation_id for OAuth redirect.
-    request.session["pending_gh_installation"] = installation_id
-
-    oauth_login_url = (
-        f"{settings.FRONTEND_HOST}{settings.API_STR}/auth/github/authorize"
-    )
-
-    if user is None:
-        logger.info(
-            "Not logged in for installation_id=%s; redirecting to OAuth",
-            installation_id,
-        )
-        return RedirectResponse(oauth_login_url, status_code=302)
-
-    # Logged in but no GitHub token yet -> get one via OAuth, then link.
-    integration = await get_integration_by_provider(
-        session=session, user_id=user.id, provider="github"
-    )
-    if not integration:
-        logger.info(
-            "User %s has no GitHub integration; redirecting to OAuth for "
-            "installation_id=%s",
-            user.id,
-            installation_id,
-        )
-        return RedirectResponse(oauth_login_url, status_code=302)
-
-    # Have a GitHub token -> link now and clear the pending stash.
-    outcome = await _link_installation(
-        session=session,
-        token=integration.to_token(),
-        installation_id=installation_id,
-        user_id=user.id,
-    )
-    request.session.pop("pending_gh_installation", None)
-
-    redirect_url = f"{settings.FRONTEND_HOST}?github_app={outcome or 'success'}"
-    return RedirectResponse(redirect_url, status_code=302)
+    if errors and synced == 0:
+        return "sync_error"
+    return "sync_partial" if errors else None
 
 
 async def _link_installation(
@@ -346,32 +335,16 @@ async def _link_installation(
         suspended_at=datetime.fromisoformat(suspended_raw) if suspended_raw else None,
         user_id=user_id,
     )
+    # Populate Repository rows so the selector serves synced repos from the DB.
+    # Runs after a successful link on every install path (setup-callback and
+    # the pending-install OAuth callback).
+    sync_outcome = await _sync_github_repositories(
+        session=session, token=token, user_id=user_id
+    )
     logger.info(
         "Linked installation_id=%s (account=%s) to user_id=%s",
         installation_id,
         account.get("login", ""),
         user_id,
     )
-    return None
-
-
-@router.get("/repositories")
-async def get_github_repositories(
-    current_user: CurrentUser,
-    session: AsyncSession = Depends(get_db),
-) -> list[dict[str, Any]]:
-    """List repositories accessible to the current user's GitHub integration."""
-    integration = await get_integration_by_provider(
-        session=session, user_id=current_user.id, provider="github"
-    )
-
-    if not integration:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="GitHub integration not found for this user",
-        )
-
-    # Fetch GitHub repositories using the stored token
-    resp = await oauth.github.get("user/repos", token=integration.to_token())
-    resp.raise_for_status()
-    return cast(list[dict[str, Any]], resp.json())
+    return sync_outcome  # None on clean sync, outcome code otherwise

@@ -75,6 +75,28 @@ export const strings = {
       `${project.name} · ${project.is_active ? strings.projects.active : strings.projects.inactive} · Created ${formatDate(project.created_at)}`,
     detailErrorToast: "Couldn't load project details. Try again.",
   },
+  integrations: {
+    githubSetupPrompt: "Set up GitHub to sync repositories",
+    githubInstallButton: "Install GitHub App",
+    githubInstalledToast: "GitHub app installed, repositories synced",
+    githubInstallErrorToast: "GitHub app setup didn't complete",
+    githubInstallSyncErrorToast:
+      "GitHub app installed, but repository sync didn't complete. Repositories will appear on next sync.",
+    githubInstallSyncPartialToast:
+      "GitHub app installed, but some repositories couldn't be synced. They will appear on next sync.",
+    githubInstallUnauthorizedToast:
+      "This GitHub App installation doesn't belong to your account.",
+    githubInstallConflictToast:
+      "This GitHub App installation is already linked to another account.",
+    githubLoading: "Loading repositories...",
+    githubError: "Could not load repositories",
+    repoSelectorLabel: "Repositories",
+    repoSelectorDescription: "Link GitHub repositories to this project",
+    repoSearchPlaceholder: "Search repositories...",
+    noReposFound: "No repositories found",
+    repoOpenLink: (name: string) => `Open ${name} on GitHub`,
+    reposCount: (n: number) => `${n} repo${n === 1 ? "" : "s"}`,
+  },
   login: {
     brand: "DevTrackr",
     title: "DevTrackr",

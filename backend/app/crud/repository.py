@@ -1,31 +1,116 @@
 import uuid
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, cast
 
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.models.project_repository import ProjectRepository
 from app.models.repository import Repository, RepositoryCreate, RepositoryUpdate
 
 
 async def create_repository(
-    *, session: AsyncSession, repo_in: RepositoryCreate, project_id: uuid.UUID
+    *, session: AsyncSession, repo_in: RepositoryCreate, user_id: uuid.UUID
 ) -> Repository:
-    db_obj = Repository.model_validate(repo_in, update={"project_id": project_id})
+    db_obj = Repository.model_validate(repo_in, update={"user_id": user_id})
     session.add(db_obj)
     await session.commit()
     await session.refresh(db_obj)
     return db_obj
 
 
-async def get_repository(*, session: AsyncSession, id: uuid.UUID) -> Repository | None:
-    return await session.get(Repository, id)
+async def get_repository_for_user(
+    *, session: AsyncSession, id: uuid.UUID, user_id: uuid.UUID
+) -> Repository | None:
+    # a repo that is not owned by the current user must not resolve.
+    statement = select(Repository).where(
+        Repository.id == id, Repository.user_id == user_id
+    )
+    result = await session.exec(statement)
+    return result.one_or_none()
+
+
+async def upsert_repository(
+    *,
+    session: AsyncSession,
+    user_id: uuid.UUID,
+    github_id: int,
+    full_name: str,
+    repo_name: str,
+    url: str | None = None,
+    description: str | None = None,
+    commit: bool = True,
+) -> Repository:
+    # Install-time sync: one call per repo from the GitHub API response.
+    # Creates the row on first sync; refreshes metadata and reactivates a
+    # soft-deleted row on later syncs.  When commit=False the caller is
+    # responsible for committing (used to batch a page of repos).
+    statement = select(Repository).where(
+        Repository.github_id == github_id, Repository.user_id == user_id
+    )
+    db_obj = (await session.exec(statement)).one_or_none()
+    if db_obj is None:
+        db_obj = Repository(
+            user_id=user_id,
+            github_id=github_id,
+            full_name=full_name,
+            repo_name=repo_name,
+            url=url,
+            description=description,
+        )
+        session.add(db_obj)
+    else:
+        db_obj.full_name = full_name
+        db_obj.repo_name = repo_name
+        db_obj.url = url
+        db_obj.description = description
+        db_obj.is_active = True
+    if commit:
+        await session.commit()
+        await session.refresh(db_obj)
+    else:
+        await session.flush()
+    return db_obj
+
+
+async def get_repositories_by_user(
+    *, session: AsyncSession, user_id: uuid.UUID
+) -> Sequence[Repository]:
+    statement = (
+        select(Repository)
+        .where(Repository.user_id == user_id)
+        .order_by(Repository.full_name)
+    )
+    result = await session.exec(statement)
+    return result.all()
+
+
+async def get_repositories_by_github_ids(
+    *, session: AsyncSession, github_ids: Sequence[int], user_id: uuid.UUID
+) -> Sequence[Repository]:
+    if not github_ids:
+        return []
+    github_id_col = cast(Any, Repository.github_id)
+    statement = select(Repository).where(
+        github_id_col.in_(github_ids), Repository.user_id == user_id
+    )
+    result = await session.exec(statement)
+    return result.all()
 
 
 async def get_repositories_by_project(
-    *, session: AsyncSession, project_id: uuid.UUID
+    *, session: AsyncSession, project_id: uuid.UUID, user_id: uuid.UUID
 ) -> Sequence[Repository]:
-    statement = select(Repository).where(Repository.project_id == project_id)
+    # Only repos linked to THIS project and linked to this user
+    statement = select(Repository).where(
+        select(ProjectRepository.repository_id)
+        .where(
+            ProjectRepository.repository_id == Repository.id,
+            ProjectRepository.project_id == project_id,
+        )
+        .exists(),
+        Repository.user_id == user_id,
+    )
     result = await session.exec(statement)
     return result.all()
 

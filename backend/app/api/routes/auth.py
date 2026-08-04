@@ -14,6 +14,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.api.deps import CurrentUser
+from app.api.responses import error_responses
 from app.core.security import (
     ACCESS_TOKEN_COOKIE_NAME,
     REFRESH_TOKEN_COOKIE_NAME,
@@ -39,6 +40,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     "/register",
     response_model=AuthResponse,
     status_code=status.HTTP_201_CREATED,
+    responses=error_responses(status.HTTP_409_CONFLICT),
 )
 async def register(
     body: UserCreate,
@@ -82,7 +84,11 @@ async def register(
     return AuthResponse(user=UserPublic.model_validate(user))
 
 
-@router.post("/login", response_model=AuthResponse)
+@router.post(
+    "/login",
+    response_model=AuthResponse,
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN),
+)
 async def login(
     body: UserLogin,
     request: Request,
@@ -121,7 +127,11 @@ async def login(
     return AuthResponse(user=UserPublic.model_validate(user))
 
 
-@router.post("/refresh", response_model=AuthResponse)
+@router.post(
+    "/refresh",
+    response_model=AuthResponse,
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED),
+)
 async def refresh(
     response: Response,
     session: AsyncSession = Depends(get_db),
@@ -188,6 +198,10 @@ async def logout(
     response.delete_cookie(key=REFRESH_TOKEN_COOKIE_NAME)
 
 
-@router.get("/me", response_model=UserPublic)
+@router.get(
+    "/me",
+    response_model=UserPublic,
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED),
+)
 async def me(user: CurrentUser) -> UserPublic:
     return UserPublic.model_validate(user)
