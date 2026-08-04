@@ -12,6 +12,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.api.deps import CurrentUser, OptionalCurrentUser, SessionDep
+from app.api.responses import error_responses
 from app.api.routes.github import _link_installation
 from app.core.config import settings
 from app.crud.github_installation import get_installations_by_user
@@ -24,7 +25,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/integrations/github", tags=["integrations"])
 
 
-@router.get("/status", response_model=GithubStatus)
+@router.get(
+    "/status",
+    response_model=GithubStatus,
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED),
+)
 async def github_status(session: SessionDep, user: CurrentUser) -> GithubStatus:
     """Report the user's GitHub setup state for the frontend prompts."""
     integration = await get_integration_by_provider(
@@ -37,7 +42,10 @@ async def github_status(session: SessionDep, user: CurrentUser) -> GithubStatus:
     )
 
 
-@router.get("/install")
+@router.get(
+    "/install",
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED),
+)
 async def github_install(
     request: Request, current_user: CurrentUser
 ) -> RedirectResponse:
@@ -58,7 +66,12 @@ async def github_install(
     return RedirectResponse(install_url, status_code=302)
 
 
-@router.get("/setup-callback")
+@router.get(
+    "/setup-callback",
+    responses=error_responses(
+        status.HTTP_400_BAD_REQUEST, status.HTTP_401_UNAUTHORIZED
+    ),
+)
 async def github_setup_callback(
     request: Request,
     user: OptionalCurrentUser,

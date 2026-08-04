@@ -17,6 +17,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.api.responses import error_responses
 from app.core.config import settings
 from app.core.security import create_access_token, set_auth_cookies
 from app.crud.auth import create_session
@@ -70,7 +71,15 @@ async def github_authorize(request: Request) -> RedirectResponse:
     )
 
 
-@router.get("/callback", name="github_callback")
+@router.get(
+    "/callback",
+    name="github_callback",
+    responses=error_responses(
+        status.HTTP_400_BAD_REQUEST,
+        status.HTTP_401_UNAUTHORIZED,
+        status.HTTP_403_FORBIDDEN,
+    ),
+)
 async def github_callback(
     request: Request,
     session: AsyncSession = Depends(get_db),

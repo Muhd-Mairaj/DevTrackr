@@ -16,6 +16,18 @@ export type AuthResponse = {
 };
 
 /**
+ * ErrorDetail
+ *
+ * Body shape of a raised HTTPException: {"detail": "..."}.
+ */
+export type ErrorDetail = {
+    /**
+     * Detail
+     */
+    detail: string;
+};
+
+/**
  * GithubStatus
  *
  * Setup state of the user's GitHub integration and app installation.
@@ -234,6 +246,10 @@ export type RegisterData = {
 
 export type RegisterErrors = {
     /**
+     * Resource already exists
+     */
+    409: ErrorDetail;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -259,6 +275,14 @@ export type LoginData = {
 
 export type LoginErrors = {
     /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
+     * Insufficient permissions
+     */
+    403: ErrorDetail;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -283,6 +307,10 @@ export type RefreshData = {
 };
 
 export type RefreshErrors = {
+    /**
+     * Authentication required
+     */
+    401: ErrorDetail;
     /**
      * Validation Error
      */
@@ -334,6 +362,10 @@ export type MeData = {
 
 export type MeErrors = {
     /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -371,6 +403,23 @@ export type GithubCallbackData = {
     url: '/api/auth/github/callback';
 };
 
+export type GithubCallbackErrors = {
+    /**
+     * Invalid request
+     */
+    400: ErrorDetail;
+    /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
+     * Insufficient permissions
+     */
+    403: ErrorDetail;
+};
+
+export type GithubCallbackError = GithubCallbackErrors[keyof GithubCallbackErrors];
+
 export type GithubCallbackResponses = {
     /**
      * Successful Response
@@ -386,6 +435,10 @@ export type GithubStatusData = {
 };
 
 export type GithubStatusErrors = {
+    /**
+     * Authentication required
+     */
+    401: ErrorDetail;
     /**
      * Validation Error
      */
@@ -412,6 +465,10 @@ export type GithubInstallData = {
 
 export type GithubInstallErrors = {
     /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -435,6 +492,14 @@ export type GithubSetupCallbackData = {
 
 export type GithubSetupCallbackErrors = {
     /**
+     * Invalid request
+     */
+    400: ErrorDetail;
+    /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -457,6 +522,10 @@ export type GetProjectsData = {
 };
 
 export type GetProjectsErrors = {
+    /**
+     * Authentication required
+     */
+    401: ErrorDetail;
     /**
      * Validation Error
      */
@@ -484,6 +553,10 @@ export type CreateProjectData = {
 };
 
 export type CreateProjectErrors = {
+    /**
+     * Authentication required
+     */
+    401: ErrorDetail;
     /**
      * Validation Error
      */
@@ -515,6 +588,14 @@ export type DeleteProjectData = {
 
 export type DeleteProjectErrors = {
     /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
+     * Resource not found
+     */
+    404: ErrorDetail;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -544,6 +625,14 @@ export type GetProjectData = {
 };
 
 export type GetProjectErrors = {
+    /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
+     * Resource not found
+     */
+    404: ErrorDetail;
     /**
      * Validation Error
      */
@@ -575,6 +664,14 @@ export type UpdateProjectData = {
 
 export type UpdateProjectErrors = {
     /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
+     * Resource not found
+     */
+    404: ErrorDetail;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -600,9 +697,17 @@ export type GetRepositoriesData = {
 
 export type GetRepositoriesErrors = {
     /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
+    /**
+     * GitHub account not linked or app not installed
+     */
+    428: ErrorDetail;
 };
 
 export type GetRepositoriesError = GetRepositoriesErrors[keyof GetRepositoriesErrors];
