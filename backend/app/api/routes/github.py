@@ -198,34 +198,69 @@ async def _sync_github_repositories(
     session: AsyncSession,
     token: OAuth2Token,
     user_id: uuid.UUID,
-) -> None:
+) -> str | None:
     """Upsert the user's GitHub repos into ``Repository`` rows.
 
     Runs after an installation link so the repo selector can serve synced
-    rows from the DB. Best-effort and never raises: a sync failure is logged
-    and the installation link still completes. Fetches every page of
-    ``/user/repos`` (the same scope the old passthrough used).
+    rows from the DB.  Returns ``None`` when every repo was synced, or a
+    non-``None`` outcome code that the caller can pass through to the
+    frontend redirect.
+
+    Never raises: every failure path is logged and surfaced through the
+    return value so the installation link always completes.
     """
+    synced = 0
+    errors = 0
     try:
         next_url: str | None = "user/repos?per_page=100"
         while next_url:
-            resp = await oauth.github.get(next_url, token=token)
-            resp.raise_for_status()
-            for repo in resp.json():
-                await upsert_repository(
-                    session=session,
-                    user_id=user_id,
-                    github_id=repo["id"],
-                    full_name=repo["full_name"],
-                    repo_name=repo["name"],
-                    url=repo.get("html_url"),
-                    description=repo.get("description"),
-                    commit=False,
+            try:
+                resp = await oauth.github.get(next_url, token=token)
+                resp.raise_for_status()
+            except Exception:
+                logger.exception(
+                    "GitHub repo sync page fetch failed for user_id=%s at %s",
+                    user_id,
+                    next_url,
                 )
+                return "sync_error"
+
+            for repo in resp.json():
+                try:
+                    await upsert_repository(
+                        session=session,
+                        user_id=user_id,
+                        github_id=repo["id"],
+                        full_name=repo["full_name"],
+                        repo_name=repo["name"],
+                        url=repo.get("html_url"),
+                        description=repo.get("description"),
+                        commit=False,
+                    )
+                    synced += 1
+                except Exception:
+                    logger.exception(
+                        "Failed to upsert repo github_id=%s for user_id=%s",
+                        repo.get("id"),
+                        user_id,
+                    )
+                    errors += 1
             await session.commit()
             next_url = _next_link(resp.headers.get("Link"))
     except Exception:
         logger.exception("GitHub repo sync failed for user_id=%s", user_id)
+        return "sync_error"
+
+    if errors:
+        logger.warning(
+            "GitHub repo sync for user_id=%s: %s synced, %s errors",
+            user_id,
+            synced,
+            errors,
+        )
+    if errors and synced == 0:
+        return "sync_error"
+    return "sync_partial" if errors else None
 
 
 async def _link_installation(
@@ -294,11 +329,13 @@ async def _link_installation(
     # Populate Repository rows so the selector serves synced repos from the DB.
     # Runs after a successful link on every install path (setup-callback and
     # the pending-install OAuth callback).
-    await _sync_github_repositories(session=session, token=token, user_id=user_id)
+    sync_outcome = await _sync_github_repositories(
+        session=session, token=token, user_id=user_id
+    )
     logger.info(
         "Linked installation_id=%s (account=%s) to user_id=%s",
         installation_id,
         account.get("login", ""),
         user_id,
     )
-    return None
+    return sync_outcome  # None on clean sync, outcome code otherwise
