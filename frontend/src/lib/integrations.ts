@@ -40,9 +40,7 @@ export async function startGithubInstall() {
   // re-triggers the endpoint so the user lands on GitHub's install page.
   try {
     await IntegrationsService.githubInstall();
-  } catch {
-
-  }
+  } catch {}
 }
 
 export function useGithubStatus(options?: { enabled?: boolean }) {
