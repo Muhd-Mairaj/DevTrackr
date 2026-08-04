@@ -28,6 +28,33 @@ export type ErrorDetail = {
 };
 
 /**
+ * GithubInstallationPublic
+ *
+ * Installation details for the settings page.
+ *
+ * The manage URL is derived on the client from account_type, account_login
+ * and installation_id (user and org installs have different paths).
+ */
+export type GithubInstallationPublic = {
+    /**
+     * Installation Id
+     */
+    installation_id: string;
+    /**
+     * Account Login
+     */
+    account_login: string;
+    /**
+     * Account Type
+     */
+    account_type: string;
+    /**
+     * Suspended At
+     */
+    suspended_at: string | null;
+};
+
+/**
  * GithubStatus
  *
  * Setup state of the user's GitHub integration and app installation.
@@ -455,6 +482,33 @@ export type GithubStatusResponses = {
 };
 
 export type GithubStatusResponse = GithubStatusResponses[keyof GithubStatusResponses];
+
+export type GithubInstallationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/integrations/github/installations';
+};
+
+export type GithubInstallationsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GithubInstallationsError = GithubInstallationsErrors[keyof GithubInstallationsErrors];
+
+export type GithubInstallationsResponses = {
+    /**
+     * Response Github Installations
+     *
+     * Successful Response
+     */
+    200: Array<GithubInstallationPublic>;
+};
+
+export type GithubInstallationsResponse = GithubInstallationsResponses[keyof GithubInstallationsResponses];
 
 export type GithubInstallData = {
     body?: never;
