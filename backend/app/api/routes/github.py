@@ -220,7 +220,9 @@ async def _sync_github_repositories(
                     repo_name=repo["name"],
                     url=repo.get("html_url"),
                     description=repo.get("description"),
+                    commit=False,
                 )
+            await session.commit()
             next_url = _next_link(resp.headers.get("Link"))
     except Exception:
         logger.exception("GitHub repo sync failed for user_id=%s", user_id)
