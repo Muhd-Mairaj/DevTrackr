@@ -1,11 +1,3 @@
-"""GitHub OAuth login routes.
-
-Handles the OAuth login flow (``/authorize`` -> ``/callback``). App installation
-and integration data endpoints live in ``routes/integrations/github.py``. The
-flows, the ``state`` CSRF model, and the ``GET /user/installations`` IDOR check
-are documented in ``docs/github-oauth-and-app-install.md``.
-"""
-
 import logging
 from typing import cast
 

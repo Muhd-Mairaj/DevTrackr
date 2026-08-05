@@ -1,9 +1,3 @@
-"""GitHub App installation and integration data routes.
-
-These endpoints manage GitHub integration (installation flow and data access),
-separate from the OAuth login flow in ``routes/github.py``.
-"""
-
 import logging
 import secrets
 from collections.abc import Sequence
