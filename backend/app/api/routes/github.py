@@ -1,4 +1,5 @@
 import logging
+from datetime import UTC, datetime
 from typing import cast
 
 from authlib.integrations.starlette_client import OAuthError
@@ -27,6 +28,7 @@ from app.models.integration import (
     Integration,
     IntegrationCreate,
     IntegrationUpdate,
+    OAuth2Token,
 )
 from app.models.user import User
 
@@ -37,8 +39,20 @@ router = APIRouter(prefix="/auth/github", tags=["auth"])
 
 @router.get("/authorize")
 async def github_authorize(request: Request) -> RedirectResponse:
-    """Redirect the user to GitHub's OAuth consent page for login."""
+    """Redirect the user to GitHub's OAuth consent page for login.
+
+    Accepts an optional ``state`` (from /setup-callback) used as the OAuth
+    nonce so the callback can resolve a pending app installation.
+    """
     redirect_uri = f"{settings.FRONTEND_HOST}{settings.API_STR}/auth/github/callback"
+    state = request.query_params.get("state")
+    if state:
+        return cast(
+            RedirectResponse,
+            await github_oauth.github.authorize_redirect(
+                request, redirect_uri, state=state
+            ),
+        )
     return cast(
         RedirectResponse,
         await github_oauth.github.authorize_redirect(request, redirect_uri),
@@ -139,24 +153,62 @@ async def github_callback(
         device_name=request.headers.get("user-agent"),
     )
 
-    # Link any installation stashed by /setup-callback before login.
-    redirect_url = settings.FRONTEND_HOST
-    pending_installation_id = request.session.pop("pending_gh_installation", None)
-    if pending_installation_id:
-        outcome = await link_installation(
-            session=session,
-            token=token,
-            installation_id=pending_installation_id,
-            user_id=user.id,
+    # Link any installation stashed by /setup-callback before login. The
+    # stash is keyed by the OAuth state nonce echoed in the callback URL, so
+    # only the login that started the flow can consume it.
+    outcome, consumed = await _consume_and_link_pending(
+        request=request, session=session, token=token, user=user
+    )
+    if outcome:
+        logger.warning(
+            "Pending installation link for user_id=%s did not complete: %s",
+            user.id,
+            outcome,
         )
-        if outcome:
-            logger.warning(
-                "Pending installation link for user_id=%s did not complete: %s",
-                user.id,
-                outcome,
-            )
-        redirect_url = f"{settings.FRONTEND_HOST}?github_app={outcome or 'success'}"
-
-    response = RedirectResponse(url=redirect_url, status_code=302)
+    if consumed:
+        response = RedirectResponse(
+            url=f"{settings.FRONTEND_HOST}?github_app={outcome or 'success'}",
+            status_code=302,
+        )
+    else:
+        response = RedirectResponse(url=settings.FRONTEND_HOST, status_code=302)
     set_auth_cookies(response, access_token_jwt, refresh_token)
     return response
+
+
+async def _consume_and_link_pending(
+    *,
+    request: Request,
+    session: AsyncSession,
+    token: OAuth2Token,
+    user: User,
+) -> tuple[str | None, bool]:
+    """Link a pending installation stashed by /setup-callback, if any.
+
+    The stash is keyed by the OAuth state nonce echoed in the callback URL,
+    so only the login that started the flow can consume it. Entries expire
+    after 15 minutes. Returns ``(outcome, consumed)``: ``outcome`` is None on
+    success or no-op, "expired" when the entry was too old to link, or a link
+    failure code; ``consumed`` is True when a pending entry existed and was
+    removed, False when there was nothing to link (a plain login). Never
+    raises.
+    """
+    pending = request.session.get("pending_gh_installations", {})
+    state = request.query_params.get("state")
+    entry = pending.pop(state, None) if state else None
+    request.session["pending_gh_installations"] = pending
+    if entry is None:
+        return None, False
+    expires_at = entry.get("expires_at")
+    if expires_at and datetime.fromisoformat(expires_at) <= datetime.now(UTC):
+        logger.info("Pending installation for state=%s expired", state)
+        return "expired", True
+    return (
+        await link_installation(
+            session=session,
+            token=token,
+            installation_id=entry["installation_id"],
+            user_id=user.id,
+        ),
+        True,
+    )
