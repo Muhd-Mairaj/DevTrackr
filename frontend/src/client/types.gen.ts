@@ -30,10 +30,10 @@ export type ErrorDetail = {
 /**
  * GithubInstallationPublic
  *
- * Installation details for the settings page.
+ * A GitHub App installation linked to the user.
  *
- * The manage URL is derived on the client from account_type, account_login
- * and installation_id (user and org installs have different paths).
+ * ``account_type`` is the GitHub account kind (``User`` or
+ * ``Organization``) and ``account_login`` the account it is installed on.
  */
 export type GithubInstallationPublic = {
     /**
@@ -47,7 +47,7 @@ export type GithubInstallationPublic = {
     /**
      * Account Type
      */
-    account_type: string;
+    account_type: 'User' | 'Organization';
     /**
      * Suspended At
      */

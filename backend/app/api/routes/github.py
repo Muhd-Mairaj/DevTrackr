@@ -325,6 +325,14 @@ async def _link_installation(
         return "conflict"
 
     account = matched.get("account") or {}
+    account_type = account.get("type")
+    if account_type not in ("User", "Organization"):
+        logger.warning(
+            "Unexpected account type %r for installation_id=%s, not linking",
+            account_type,
+            installation_id,
+        )
+        return "error"
     suspended_raw = matched.get("suspended_at")
     try:
         suspended_at = datetime.fromisoformat(suspended_raw) if suspended_raw else None
@@ -333,7 +341,7 @@ async def _link_installation(
             installation_id=str(installation_id),
             account_login=account.get("login", ""),
             account_id=str(account.get("id", "")),
-            account_type=account.get("type", ""),
+            account_type=account_type,
             suspended_at=suspended_at,
             user_id=user_id,
         )

@@ -52,7 +52,7 @@ async def github_status(session: SessionDep, user: CurrentUser) -> GithubStatus:
 async def github_installations(
     session: SessionDep, user: CurrentUser
 ) -> Sequence[GitHubInstallation]:
-    """List the user's GitHub App installations for the settings page."""
+    """List the current user's GitHub App installations."""
     return await get_installations_by_user(session=session, user_id=user.id)
 
 
