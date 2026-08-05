@@ -326,15 +326,24 @@ async def _link_installation(
 
     account = matched.get("account") or {}
     suspended_raw = matched.get("suspended_at")
-    await upsert_installation(
-        session=session,
-        installation_id=str(installation_id),
-        account_login=account.get("login", ""),
-        account_id=str(account.get("id", "")),
-        account_type=account.get("type", ""),
-        suspended_at=datetime.fromisoformat(suspended_raw) if suspended_raw else None,
-        user_id=user_id,
-    )
+    try:
+        suspended_at = datetime.fromisoformat(suspended_raw) if suspended_raw else None
+        await upsert_installation(
+            session=session,
+            installation_id=str(installation_id),
+            account_login=account.get("login", ""),
+            account_id=str(account.get("id", "")),
+            account_type=account.get("type", ""),
+            suspended_at=suspended_at,
+            user_id=user_id,
+        )
+    except Exception:
+        logger.exception(
+            "Failed to persist installation_id=%s for user_id=%s",
+            installation_id,
+            user_id,
+        )
+        return "error"
     # Populate Repository rows so the selector serves synced repos from the DB.
     # Runs after a successful link on every install path (setup-callback and
     # the pending-install OAuth callback).

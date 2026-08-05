@@ -1,4 +1,4 @@
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, RefreshCw } from "lucide-react";
 import { GithubMark } from "@/components/github-mark";
 import { StatusChip } from "@/components/status-chip";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,12 @@ import {
 import { strings } from "@/lib/strings";
 
 export function GithubSettingsCard() {
-  const { data: installations, isLoading, isError } = useGithubInstallations();
+  const {
+    data: installations,
+    isLoading,
+    isError,
+    refetch,
+  } = useGithubInstallations();
 
   return (
     <section className="mt-4 max-w-xl rounded-md border border-border bg-card p-5">
@@ -23,9 +28,15 @@ export function GithubSettingsCard() {
             <Skeleton className="h-4 w-1/3" />
           </div>
         ) : isError ? (
-          <p className="text-xs text-muted-foreground">
-            {strings.integrations.githubError}
-          </p>
+          <div className="flex flex-col items-start gap-2.5">
+            <p className="text-xs text-muted-foreground">
+              {strings.integrations.githubInstallationsError}
+            </p>
+            <Button variant="ghost" size="sm" onClick={() => refetch()}>
+              <RefreshCw className="size-3.5" />
+              {strings.common.retry}
+            </Button>
+          </div>
         ) : !installations || installations.length === 0 ? (
           <div className="flex flex-col items-start gap-2.5">
             <p className="text-xs text-muted-foreground">

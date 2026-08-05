@@ -492,6 +492,10 @@ export type GithubInstallationsData = {
 
 export type GithubInstallationsErrors = {
     /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
      * Validation Error
      */
     422: HttpValidationError;

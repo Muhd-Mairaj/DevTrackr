@@ -96,6 +96,7 @@ export const strings = {
       "This GitHub App installation is already linked to another account.",
     githubLoading: "Loading repositories...",
     githubError: "Could not load repositories",
+    githubInstallationsError: "Could not load GitHub installations",
     repoSelectorLabel: "Repositories",
     repoSelectorDescription: "Link GitHub repositories to this project",
     repoSearchPlaceholder: "Search repositories...",
