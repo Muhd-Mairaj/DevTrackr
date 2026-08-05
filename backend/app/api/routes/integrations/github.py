@@ -14,11 +14,11 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.api.deps import CurrentUser, OptionalCurrentUser, SessionDep
 from app.api.responses import error_responses
-from app.api.routes.github import _link_installation
 from app.core.config import settings
 from app.crud.github_installation import get_installations_by_user
 from app.crud.integration import get_integration_by_provider
 from app.db.session import get_db
+from app.integrations.github import link_installation
 from app.models.github_installation import GitHubInstallation, GithubInstallationPublic
 from app.models.integration import GithubStatus
 
@@ -151,7 +151,7 @@ async def github_setup_callback(
         return RedirectResponse(oauth_login_url, status_code=302)
 
     # Have a GitHub token -> link now and clear the pending stash.
-    outcome = await _link_installation(
+    outcome = await link_installation(
         session=session,
         token=integration.to_token(),
         installation_id=installation_id,
