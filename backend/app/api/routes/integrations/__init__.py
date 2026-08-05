@@ -1,1 +1,1 @@
-import app.api.routes.integrations.github  # noqa
+from app.api.routes.integrations import github  # noqa

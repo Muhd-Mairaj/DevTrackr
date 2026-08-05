@@ -31,6 +31,10 @@ export function useGithubInstallations() {
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
+    // The settings page can stay open while the user manages the
+    // installation in the Manage tab; refresh on focus so the card does
+    // not keep showing an install that was just removed on GitHub.
+    refetchOnWindowFocus: "always",
   });
 }
 

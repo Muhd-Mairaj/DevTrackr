@@ -122,7 +122,7 @@ export class IntegrationsService {
     /**
      * Github Installations
      *
-     * List the user's GitHub App installations for the settings page.
+     * List the current user's GitHub App installations.
      */
     public static githubInstallations<ThrowOnError extends boolean = false>(options?: Options<GithubInstallationsData, ThrowOnError>) {
         return (options?.client ?? client).get<GithubInstallationsResponses, GithubInstallationsErrors, ThrowOnError>({
