@@ -1,12 +1,3 @@
-"""GitHub API integration layer.
-
-Mirrors ``crud/`` for external calls: pure functions taking keyword args, no
-FastAPI imports, unit-testable without HTTP. OAuth login routes live in
-``app/api/routes/github.py``; app-install routes in
-``app/api/routes/integrations/github.py``. Security model documented in
-``docs/github-oauth-and-app-install.md``.
-"""
-
 import logging
 import secrets
 from datetime import datetime
