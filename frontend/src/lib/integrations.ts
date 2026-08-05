@@ -34,13 +34,11 @@ export function useGithubInstallations() {
   });
 }
 
-export async function startGithubInstall() {
-  // Prime the auth session and CSRF state through the SDK before
-  // navigating. The backend 302s to GitHub; the browser navigation
-  // re-triggers the endpoint so the user lands on GitHub's install page.
-  try {
-    await IntegrationsService.githubInstall();
-  } catch {}
+export function startGithubInstall() {
+  // Full-page navigation to the install endpoint; the backend 302s to
+  // GitHub's install page and setup-callback bounces back to the app
+  // with ?github_app=<outcome>.
+  window.location.assign("/api/integrations/github/install");
 }
 
 export function useGithubStatus(options?: { enabled?: boolean }) {

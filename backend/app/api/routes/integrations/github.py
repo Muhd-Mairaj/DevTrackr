@@ -44,7 +44,11 @@ async def github_status(session: SessionDep, user: CurrentUser) -> GithubStatus:
     )
 
 
-@router.get("/installations", response_model=list[GithubInstallationPublic])
+@router.get(
+    "/installations",
+    response_model=list[GithubInstallationPublic],
+    responses=error_responses(status.HTTP_401_UNAUTHORIZED),
+)
 async def github_installations(
     session: SessionDep, user: CurrentUser
 ) -> Sequence[GitHubInstallation]:
