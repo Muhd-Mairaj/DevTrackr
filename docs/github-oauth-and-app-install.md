@@ -1,7 +1,10 @@
 # GitHub OAuth & App Installation
 
 How DevTrackr authenticates users with GitHub and links GitHub App
-installations. The implementation lives in `backend/app/api/routes/github.py`.
+installations. The linking logic lives in `backend/app/integrations/github.py`
+(pure functions, no FastAPI); the routes that drive it live in
+`backend/app/api/routes/github.py` and
+`backend/app/api/routes/integrations/github.py`.
 
 ## Overview
 
@@ -28,6 +31,11 @@ the user's signed session cookie, and passes it to GitHub. GitHub echoes it back
 to `/setup-callback`, where we compare the (untrusted) query param against the
 (trusted, HMAC-signed) session value. An attacker can neither read nor forge the
 victim's session state, so a forged callback fails the check.
+
+States are kept in a session list (`gh_install_states`) so multiple tabs can
+each hold a valid in-flight install; the matching value is removed on first use,
+so replaying a callback fails. A state that is present but not in the list is
+rejected as CSRF (`401`).
 
 `state` is **present** only for website-initiated installs. GitHub **drops** it
 for direct installs from github.com and for org-admin approvals on behalf of a
@@ -59,12 +67,20 @@ GitHub redirects here after an install with
 | absent             | logged in, no GitHub token       | Stash installation, redirect to OAuth; link on `/callback` |
 | absent             | logged in with a GitHub token    | Link immediately                                    |
 
-The pending `installation_id` is stored in the session so it survives the OAuth
-round-trip; `/callback` links it once the user has a token.
+The pending `installation_id` is stored in the session
+(`pending_gh_installations`) so it survives the OAuth round-trip; `/callback`
+links it once the user has a token. The stash is a dict keyed by a **nonce**
+(the OAuth `state` value): `/setup-callback` redirects to `/authorize?state=<nonce>`,
+`/authorize` passes that `state` through to GitHub's OAuth consent page, and
+`/callback` consumes only the entry whose nonce arrives back on the callback
+URL. A plain login (no `state`) has nothing to consume, so one user's pending
+installation can never be linked to whoever happens to log in next. Entries
+expire after 15 minutes; an expired entry is reported as `expired` instead of
+falsely succeeding.
 
 ## Link outcomes
 
-`_link_installation` returns `None` on success, or a short code surfaced to the
+`link_installation` returns `None` on success, or a short code surfaced to the
 frontend via `?github_app=…`:
 
 | Code             | Meaning                                  |
@@ -72,4 +88,5 @@ frontend via `?github_app=…`:
 | `success`        | Installation linked                      |
 | `unauthorized`   | `installation_id` is not one of the user's installations |
 | `conflict`       | Installation is already linked to a different user |
+| `expired`        | The stashed installation was older than 15 minutes |
 | `error`          | GitHub API call failed                   |
