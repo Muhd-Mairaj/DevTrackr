@@ -59,6 +59,9 @@ function HomePage() {
     if (outcome === null) return;
     queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
     queryClient.invalidateQueries({ queryKey: integrationKeys.githubStatus });
+    queryClient.invalidateQueries({
+      queryKey: integrationKeys.githubInstallations,
+    });
     window.history.replaceState({}, "", window.location.pathname);
 
     const outcomeMessages: Record<

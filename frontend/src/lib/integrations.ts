@@ -1,17 +1,48 @@
 import { useQuery } from "@tanstack/react-query";
 import { IntegrationsService } from "@/client";
-import type { GithubStatus } from "@/client/types.gen";
-
-const GITHUB_INSTALL_URL = "/api/integrations/github/install";
+import type {
+  GithubInstallationPublic,
+  GithubStatus,
+} from "@/client/types.gen";
 
 export const integrationKeys = {
   githubStatus: ["integrations", "github", "status"] as const,
+  githubInstallations: ["integrations", "github", "installations"] as const,
 };
 
+export function githubManageUrl(
+  installation: GithubInstallationPublic,
+): string {
+  // User and org installs have different settings paths on GitHub; both
+  // pages carry the repo access toggles and the uninstall button.
+  const base =
+    installation.account_type === "Organization"
+      ? `https://github.com/organizations/${installation.account_login}/settings/installations`
+      : "https://github.com/settings/installations";
+  return `${base}/${installation.installation_id}`;
+}
+
+export function useGithubInstallations() {
+  return useQuery({
+    queryKey: integrationKeys.githubInstallations,
+    queryFn: async (): Promise<GithubInstallationPublic[]> => {
+      const res = await IntegrationsService.githubInstallations();
+      if (!res.data) throw new Error("No data returned from server");
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000,
+    // The settings page can stay open while the user manages the
+    // installation in the Manage tab; refresh on focus so the card does
+    // not keep showing an install that was just removed on GitHub.
+    refetchOnWindowFocus: "always",
+  });
+}
+
 export function startGithubInstall() {
-  // The endpoint 302s to GitHub; setup-callback bounces back to the app
+  // Full-page navigation to the install endpoint; the backend 302s to
+  // GitHub's install page and setup-callback bounces back to the app
   // with ?github_app=<outcome>.
-  window.location.href = GITHUB_INSTALL_URL;
+  window.location.assign("/api/integrations/github/install");
 }
 
 export function useGithubStatus(options?: { enabled?: boolean }) {

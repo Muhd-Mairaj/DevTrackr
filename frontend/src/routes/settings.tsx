@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { DayStamp } from "@/components/day-stamp";
+import { GithubSettingsCard } from "@/components/github-settings-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { strings } from "@/lib/strings";
@@ -179,6 +180,8 @@ function SettingsPage() {
           {strings.settings.columnAdd}
         </Button>
       </section>
+
+      <GithubSettingsCard />
     </div>
   );
 }

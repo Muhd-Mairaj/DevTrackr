@@ -1,6 +1,7 @@
 import uuid
 from collections.abc import Sequence
 from datetime import datetime
+from typing import Literal
 
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -32,7 +33,7 @@ async def upsert_installation(
     installation_id: str,
     account_login: str,
     account_id: str,
-    account_type: str,
+    account_type: Literal["User", "Organization"],
     user_id: uuid.UUID,
     suspended_at: datetime | None = None,
 ) -> GitHubInstallation:
