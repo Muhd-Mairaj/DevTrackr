@@ -28,6 +28,33 @@ export type ErrorDetail = {
 };
 
 /**
+ * GithubInstallationPublic
+ *
+ * A GitHub App installation linked to the user.
+ *
+ * ``account_type`` is the GitHub account kind (``User`` or
+ * ``Organization``) and ``account_login`` the account it is installed on.
+ */
+export type GithubInstallationPublic = {
+    /**
+     * Installation Id
+     */
+    installation_id: string;
+    /**
+     * Account Login
+     */
+    account_login: string;
+    /**
+     * Account Type
+     */
+    account_type: 'User' | 'Organization';
+    /**
+     * Suspended At
+     */
+    suspended_at: string | null;
+};
+
+/**
  * GithubStatus
  *
  * Setup state of the user's GitHub integration and app installation.
@@ -455,6 +482,37 @@ export type GithubStatusResponses = {
 };
 
 export type GithubStatusResponse = GithubStatusResponses[keyof GithubStatusResponses];
+
+export type GithubInstallationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/integrations/github/installations';
+};
+
+export type GithubInstallationsErrors = {
+    /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GithubInstallationsError = GithubInstallationsErrors[keyof GithubInstallationsErrors];
+
+export type GithubInstallationsResponses = {
+    /**
+     * Response Github Installations
+     *
+     * Successful Response
+     */
+    200: Array<GithubInstallationPublic>;
+};
+
+export type GithubInstallationsResponse = GithubInstallationsResponses[keyof GithubInstallationsResponses];
 
 export type GithubInstallData = {
     body?: never;

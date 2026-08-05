@@ -1,8 +1,8 @@
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Literal, Optional
 
-from sqlmodel import Column, DateTime, Field, Relationship
+from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, String
 
 from .base import BaseModel
 
@@ -19,7 +19,9 @@ class GitHubInstallation(BaseModel, table=True):
     # The GitHub account the App is installed on.
     account_login: str = Field(max_length=255)
     account_id: str = Field(index=True, max_length=64)
-    account_type: str = Field(max_length=32)  # "User" | "Organization"
+    account_type: Literal["User", "Organization"] = Field(
+        sa_column=Column(String(32), nullable=False)
+    )
 
     # Set when GitHub suspends the installation
     suspended_at: datetime | None = Field(
@@ -36,3 +38,16 @@ class GitHubInstallation(BaseModel, table=True):
         index=True,
     )
     user: Optional["User"] = Relationship(back_populates="github_installations")
+
+
+class GithubInstallationPublic(SQLModel):
+    """A GitHub App installation linked to the user.
+
+    ``account_type`` is the GitHub account kind (``User`` or
+    ``Organization``) and ``account_login`` the account it is installed on.
+    """
+
+    installation_id: str
+    account_login: str
+    account_type: Literal["User", "Organization"]
+    suspended_at: datetime | None

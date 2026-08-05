@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, DeleteProjectData, DeleteProjectErrors, DeleteProjectResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GetRepositoriesData, GetRepositoriesErrors, GetRepositoriesResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackErrors, GithubCallbackResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, GithubStatusData, GithubStatusErrors, GithubStatusResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses, UpdateProjectData, UpdateProjectErrors, UpdateProjectResponses } from './types.gen';
+import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, DeleteProjectData, DeleteProjectErrors, DeleteProjectResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GetRepositoriesData, GetRepositoriesErrors, GetRepositoriesResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackErrors, GithubCallbackResponses, GithubInstallationsData, GithubInstallationsErrors, GithubInstallationsResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, GithubStatusData, GithubStatusErrors, GithubStatusResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses, UpdateProjectData, UpdateProjectErrors, UpdateProjectResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -115,6 +115,20 @@ export class IntegrationsService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/integrations/github/status',
+            ...options
+        });
+    }
+
+    /**
+     * Github Installations
+     *
+     * List the current user's GitHub App installations.
+     */
+    public static githubInstallations<ThrowOnError extends boolean = false>(options?: Options<GithubInstallationsData, ThrowOnError>) {
+        return (options?.client ?? client).get<GithubInstallationsResponses, GithubInstallationsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/integrations/github/installations',
             ...options
         });
     }
