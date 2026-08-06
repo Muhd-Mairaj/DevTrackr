@@ -13,6 +13,7 @@ _ERROR_DESCRIPTIONS: dict[int, str] = {
     status.HTTP_403_FORBIDDEN: "Insufficient permissions",
     status.HTTP_404_NOT_FOUND: "Resource not found",
     status.HTTP_409_CONFLICT: "Resource already exists",
+    status.HTTP_422_UNPROCESSABLE_CONTENT: "Validation failed",
     status.HTTP_428_PRECONDITION_REQUIRED: (
         "GitHub account not linked or app not installed"
     ),
