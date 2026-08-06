@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ProjectPublic, TimeEntryPublic } from "@/client/types.gen";
+import { ColumnManagerDialog } from "@/components/columns/column-manager-dialog";
 import { DeleteEntryDialog } from "@/components/entries/delete-entry-dialog";
 import { EntriesTable } from "@/components/entries/entries-table";
 import { EntryFormDialog } from "@/components/entries/entry-form-dialog";
@@ -33,8 +34,7 @@ export function ProjectPageShell({
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<TimeEntryPublic | null>(null);
   const [deleting, setDeleting] = useState<TimeEntryPublic | null>(null);
-  // columns state will be used later
-  const [_, setColumnsOpen] = useState(false);
+  const [columnsOpen, setColumnsOpen] = useState(false);
 
   const total = entriesQuery.data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -182,7 +182,11 @@ export function ProjectPageShell({
         entry={deleting}
         onDeleted={handleDeleteSuccess}
       />
-      {/* Column manager dialog lands in Task 8; the button above opens it. */}
+      <ColumnManagerDialog
+        open={columnsOpen}
+        onOpenChange={setColumnsOpen}
+        projectId={projectId}
+      />
     </div>
   );
 }
