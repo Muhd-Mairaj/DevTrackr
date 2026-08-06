@@ -4,13 +4,11 @@ import { useEffect, useState } from "react";
 import type { ProjectPublic, TimeEntryPublic } from "@/client/types.gen";
 import { ColumnManagerDialog } from "@/components/columns/column-manager-dialog";
 import { DeleteEntryDialog } from "@/components/entries/delete-entry-dialog";
-import { EntriesTable } from "@/components/entries/entries-table";
+import { EntriesArea } from "@/components/entries/entries-area";
 import { EntryFormDialog } from "@/components/entries/entry-form-dialog";
-import { EmptyState, QueryError } from "@/components/projects/query-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { strings } from "@/ii8n/strings";
-import { useColumns } from "@/lib/columns";
 import { PAGE_SIZE, useEntries } from "@/lib/entries";
 
 interface ProjectPageShellProps {
@@ -29,7 +27,6 @@ export function ProjectPageShell({
   projectError,
 }: ProjectPageShellProps) {
   const navigate = useNavigate({ from: "/projects/$projectId" });
-  const { data: columns } = useColumns(projectId);
   const entriesQuery = useEntries(projectId, page);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<TimeEntryPublic | null>(null);
@@ -45,6 +42,11 @@ export function ProjectPageShell({
       navigate({ search: { page: totalPages } });
     }
   }, [page, totalPages, entriesQuery.data, navigate]);
+
+  const openNewEntry = () => {
+    setEditing(null);
+    setFormOpen(true);
+  };
 
   const handleDeleteSuccess = (deleted: TimeEntryPublic) => {
     // Deleting the last row of a non-first page steps back one page.
@@ -99,10 +101,7 @@ export function ProjectPageShell({
             id="new-entry-btn"
             size="sm"
             className="gap-1.5"
-            onClick={() => {
-              setEditing(null);
-              setFormOpen(true);
-            }}
+            onClick={openNewEntry}
           >
             <Plus className="size-3.5" />
             {strings.entries.newEntry}
@@ -110,58 +109,19 @@ export function ProjectPageShell({
         </div>
       </div>
 
-      {entriesQuery.isLoading ? (
-        <div className="overflow-hidden rounded-md border border-border bg-card">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton rows
-              key={i}
-              className="flex gap-3 border-b border-border px-3 py-2.5"
-            >
-              <Skeleton className="h-3 w-16" />
-              <Skeleton className="h-3 w-12" />
-              <Skeleton className="h-3 w-2/5" />
-            </div>
-          ))}
-        </div>
-      ) : entriesQuery.isError ? (
-        <QueryError
-          message={(entriesQuery.error as Error)?.message}
-          onRetry={() => entriesQuery.refetch()}
-        />
-      ) : entriesQuery.data && entriesQuery.data.items.length === 0 ? (
-        <EmptyState
-          title={strings.entries.emptyTitle}
-          description={strings.entries.emptyDescription}
-          action={
-            <Button
-              id="empty-new-entry-btn"
-              className="gap-1.5"
-              onClick={() => {
-                setEditing(null);
-                setFormOpen(true);
-              }}
-            >
-              <Plus className="size-3.5" />
-              {strings.entries.newEntry}
-            </Button>
-          }
-        />
-      ) : (
-        <EntriesTable
-          columns={columns ?? []}
-          entries={entriesQuery.data?.items ?? []}
-          page={page}
-          total={total}
-          onEdit={(entry) => {
-            setEditing(entry);
-            setFormOpen(true);
-          }}
-          onDelete={setDeleting}
-          onConfigureColumns={() => setColumnsOpen(true)}
-          onPageChange={(next) => navigate({ search: { page: next } })}
-        />
-      )}
+      <EntriesArea
+        entriesQuery={entriesQuery}
+        projectId={projectId}
+        page={page}
+        onEdit={(entry) => {
+          setEditing(entry);
+          setFormOpen(true);
+        }}
+        onDelete={setDeleting}
+        onConfigureColumns={() => setColumnsOpen(true)}
+        onPageChange={(next) => navigate({ search: { page: next } })}
+        onNewEntry={openNewEntry}
+      />
 
       <EntryFormDialog
         open={formOpen}
