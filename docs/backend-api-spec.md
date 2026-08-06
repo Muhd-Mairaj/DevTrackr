@@ -176,6 +176,7 @@ async def delete_project_route(session: SessionDep, project: OwnedProject) -> An
 - Define cross-cutting dependencies (`CurrentUser`, `SessionDep`, `GithubJWT`) in `deps.py` as `Annotated` aliases. Define per-resource ownership dependencies (`Owned<Resource>`) in the route module.
 - Scope list queries by `user_id` in the database query.
 - Match the existing route, deps, and CRUD modules before building new ones.
+- Declare every schema with SQLModel, never plain pydantic `BaseModel` (section 10).
 
 ### Never
 
@@ -184,3 +185,42 @@ async def delete_project_route(session: SessionDep, project: OwnedProject) -> An
 - No inline ownership checks in route bodies; use the `Owned<Resource>` dependency pattern.
 - No 403 to signal "you do not own this object"; use 404.
 - No route that reads user data without `CurrentUser`.
+
+---
+
+## 9. Pagination
+
+List routes that paginate take `skip` (default 0) and `limit` (default 25, cap 100)
+and return a `PaginatedResponse[T]` from `app/models/base.py`: `items`, `total`,
+and the applied `skip`/`limit` echoed back so callers can round-trip the page.
+Routes declare `response_model=PaginatedResponse[TimeEntryPublic]` (inline
+parametrization) and return the page from `fetch_page` in `app/crud/pagination.py`
+typed as the ORM model; the response model converts the rows. Routes never write
+their own count/offset code.
+
+---
+
+## 10. Model conventions
+
+- Every schema is SQLModel. Table models (`table=True`) need SQLModel's table
+  machinery; plain API shapes (create/update/public/page schemas) could be
+  pydantic `BaseModel` just as well, but the repo standard is SQLModel
+  everywhere so the family of a class is never in question. Reach for plain
+  pydantic only with a concrete reason (e.g. a library constraint) and say so
+  in the commit.
+- `app/models/base.py` defines its own `BaseModel(SQLModel)` table base.
+  Never import pydantic's `BaseModel` under that name in that file; use
+  SQLModel or alias the pydantic import.
+- A schema base that exists only to contribute a `model_validator` declares
+  the fields it validates under `if TYPE_CHECKING:` (pattern:
+  `_TimeEntryValidation` in `app/models/time_entry.py`). mypy sees the
+  annotations; pydantic never registers them as fields.
+- Generic schemas use PEP 695 type-parameter syntax; ruff UP046 enforces this
+  on Python 3.13. Shared schema bases live in `app/models/base.py`.
+- SQLModel generics do not substitute type parameters when FastAPI emits
+  OpenAPI: a response schema built from `PaginatedResponse[Item]` gets
+  `items: {}`, so the generated client types the items as `unknown`.
+  `PaginatedResponse[T]` is therefore plain pydantic with a comment saying
+  why (the envelope never touches the database). Subclassing the parametrized
+  generic does not help; declare `response_model=PaginatedResponse[Item]`
+  inline.

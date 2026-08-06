@@ -1,8 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pydantic import model_validator
+from sqlalchemy import Column
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship, SQLModel
 
 from .base import BaseModel
@@ -40,6 +42,12 @@ class ProjectUpdate(SQLModel):
 class Project(ProjectBase, BaseModel, table=True):
     user_id: uuid.UUID = Field(
         foreign_key="users.id", nullable=False, ondelete="CASCADE"
+    )
+
+    # Per-project logbook column configuration. A list of
+    # {kind, name, builtin} items; NULL means "use defaults"
+    column_config: list[dict[str, Any]] | None = Field(
+        default=None, sa_column=Column(JSONB, nullable=True)
     )
 
     user: "User" = Relationship()
