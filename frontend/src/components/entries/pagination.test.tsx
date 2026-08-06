@@ -33,3 +33,43 @@ describe("Pagination", () => {
     expect(screen.getByLabelText("Next page")).toBeDisabled();
   });
 });
+
+describe("Pagination page windows", () => {
+  it("renders two ellipses and the current page in the middle", () => {
+    render(
+      <Pagination page={5} pageCount={12} total={300} onPageChange={vi.fn()} />,
+    );
+    expect(screen.getAllByText("…")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "4" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "5" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "6" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "12" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "5" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
+  it("clamps the window to the start", () => {
+    render(
+      <Pagination page={2} pageCount={12} total={300} onPageChange={vi.fn()} />,
+    );
+    expect(screen.getAllByText("…")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "5" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "6" })).not.toBeInTheDocument();
+  });
+
+  it("clamps the window to the end", () => {
+    render(
+      <Pagination
+        page={11}
+        pageCount={12}
+        total={300}
+        onPageChange={vi.fn()}
+      />,
+    );
+    expect(screen.getAllByText("…")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "8" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "1" })).toBeInTheDocument();
+  });
+});

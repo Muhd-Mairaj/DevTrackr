@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
+from pydantic import ValidationError
 
 from app.api.deps import SessionDep
 from app.api.responses import error_responses
@@ -21,7 +22,12 @@ router = APIRouter(prefix="/projects", tags=["columns"])
 async def get_columns_route(project: OwnedProject) -> list[ProjectColumnItem]:
     config = await get_column_config(project=project)
     source = config if config is not None else DEFAULT_COLUMNS
-    return [ProjectColumnItem(**item) for item in source]
+    try:
+        return [ProjectColumnItem(**item) for item in source]
+    except ValidationError:
+        # Corrupt stored config (only possible via direct DB writes; the PUT
+        # path validates) falls back to the defaults rather than 500ing.
+        return [ProjectColumnItem(**item) for item in DEFAULT_COLUMNS]
 
 
 @router.put(

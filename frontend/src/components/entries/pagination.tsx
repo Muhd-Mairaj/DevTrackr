@@ -53,7 +53,7 @@ export function Pagination({
           n === "…" ? (
             <span
               // biome-ignore lint/suspicious/noArrayIndexKey: static ellipsis list
-              key={i}
+              key={`ellipsis-${i}`}
               className="px-1 font-mono text-[11px] text-muted-foreground"
             >
               …

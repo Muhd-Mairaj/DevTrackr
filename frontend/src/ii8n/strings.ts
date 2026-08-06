@@ -80,6 +80,7 @@ export const strings = {
     deleteLabel: "Delete entry",
     emptyTitle: "No entries yet",
     emptyDescription: "Log your first time entry for this project.",
+    columnsFailed: "Columns could not be loaded",
     projectNotFoundTitle: "Project not found",
     projectNotFoundDescription: "This project may have been deleted.",
     configureColumns: "Configure columns",

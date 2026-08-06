@@ -30,7 +30,7 @@ export function EntriesArea({
   onPageChange,
   onNewEntry,
 }: EntriesAreaProps) {
-  const { data: columns } = useColumns(projectId);
+  const columnsQuery = useColumns(projectId);
 
   if (entriesQuery.isLoading) {
     return (
@@ -79,15 +79,22 @@ export function EntriesArea({
   }
 
   return (
-    <EntriesTable
-      columns={columns ?? []}
-      entries={entriesQuery.data?.items ?? []}
-      page={page}
-      total={entriesQuery.data?.total ?? 0}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      onConfigureColumns={onConfigureColumns}
-      onPageChange={onPageChange}
-    />
+    <>
+      {columnsQuery.isError && (
+        <p className="mb-2 text-xs text-muted-foreground">
+          {strings.entries.columnsFailed}
+        </p>
+      )}
+      <EntriesTable
+        columns={columnsQuery.data ?? []}
+        entries={entriesQuery.data?.items ?? []}
+        page={page}
+        total={entriesQuery.data?.total ?? 0}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onConfigureColumns={onConfigureColumns}
+        onPageChange={onPageChange}
+      />
+    </>
   );
 }

@@ -66,9 +66,10 @@ export function EntriesTable({
         <table className="w-full min-w-[560px] border-collapse">
           <thead>
             <tr className="border-b border-border">
-              {columns.map((column) => (
+              {columns.map((column, index) => (
                 <th
-                  key={`${column.kind}-${column.name}`}
+                  // biome-ignore lint/suspicious/noArrayIndexKey: duplicate column names make kind+name non-unique
+                  key={`${column.kind}-${index}`}
                   scope="col"
                   className="px-3 py-2 text-left font-mono text-[9.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground whitespace-nowrap"
                 >
@@ -86,11 +87,6 @@ export function EntriesTable({
                   <Plus className="size-3" />
                 </button>
               </th>
-              <th
-                scope="col"
-                aria-label={strings.entries.actions}
-                className="w-16"
-              />
             </tr>
           </thead>
           <tbody>
@@ -99,9 +95,10 @@ export function EntriesTable({
                 key={entry.id}
                 className="border-b border-border transition-colors last:border-b-0 hover:bg-primary/5 hover:shadow-[inset_2px_0_0_0_var(--primary)]"
               >
-                {columns.map((column) => (
+                {columns.map((column, index) => (
                   <td
-                    key={`${column.kind}-${column.name}`}
+                    // biome-ignore lint/suspicious/noArrayIndexKey: duplicate column names make kind+name non-unique
+                    key={`${column.kind}-${index}`}
                     className="max-w-64 px-3 py-2 align-middle text-[12.5px] whitespace-nowrap"
                   >
                     <CellValue column={column} entry={entry} />
