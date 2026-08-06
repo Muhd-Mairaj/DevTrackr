@@ -10,6 +10,8 @@ export default mergeConfig(
       setupFiles: ["./src/test/setup.ts"],
       include: ["src/**/*.{test,spec}.{ts,tsx}"],
       exclude: ["tests/e2e/**/*", "node_modules/**/*"],
+      // Time assertions in tests assume UTC rendering.
+      env: { TZ: "UTC" },
     },
   }),
 );
