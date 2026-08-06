@@ -19,6 +19,23 @@ function parseStoredTheme(value: string | null): Theme {
     : "system";
 }
 
+function readStoredTheme(): Theme {
+  try {
+    return parseStoredTheme(localStorage.getItem(THEME_STORAGE_KEY));
+  } catch {
+    // Storage unavailable; fall back to system
+    return "system";
+  }
+}
+
+function writeStoredTheme(theme: Theme): void {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // Storage unavailable; the theme still applies for this session
+  }
+}
+
 function systemPrefersDark(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
@@ -33,9 +50,7 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() =>
-    parseStoredTheme(localStorage.getItem(THEME_STORAGE_KEY)),
-  );
+  const [theme, setThemeState] = useState<Theme>(readStoredTheme);
   const [prefersDark, setPrefersDark] = useState(systemPrefersDark);
 
   // Track OS theme changes so system mode resolves live
@@ -59,7 +74,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next);
-    localStorage.setItem(THEME_STORAGE_KEY, next);
+    writeStoredTheme(next);
   }, []);
 
   const cycleTheme = useCallback(() => {

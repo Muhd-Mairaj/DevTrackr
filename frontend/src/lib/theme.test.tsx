@@ -38,6 +38,7 @@ afterEach(() => {
   document.documentElement.classList.remove("dark");
   document.documentElement.style.colorScheme = "";
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe("ThemeProvider", () => {
@@ -121,5 +122,37 @@ describe("ThemeProvider", () => {
 
     expect(screen.getByTestId("resolved")).toHaveTextContent("dark");
     expect(document.documentElement).toHaveClass("dark");
+  });
+
+  it("falls back to system when storage reads throw", () => {
+    installMatchMediaMock(false);
+    // Spy on Storage.prototype, not the localStorage instance: jsdom's
+    // localStorage is a Proxy and instance-level spies never intercept.
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("storage blocked");
+    });
+
+    renderWithTheme();
+
+    expect(screen.getByTestId("theme")).toHaveTextContent("system");
+    expect(document.documentElement).not.toHaveClass("dark");
+  });
+
+  it("applies setTheme for the session when storage writes throw", async () => {
+    const user = userEvent.setup();
+    installMatchMediaMock(false);
+    renderWithTheme("light");
+
+    // See the note above: spy on Storage.prototype, not the instance.
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("storage blocked");
+    });
+
+    await user.click(screen.getByRole("button", { name: "dark" }));
+
+    expect(screen.getByTestId("theme")).toHaveTextContent("dark");
+    expect(screen.getByTestId("resolved")).toHaveTextContent("dark");
+    expect(document.documentElement).toHaveClass("dark");
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("light");
   });
 });
