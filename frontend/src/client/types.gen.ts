@@ -28,18 +28,6 @@ export type ErrorDetail = {
 };
 
 /**
- * GithubInstallStart
- *
- * Response for POST /integrations/github/install.
- */
-export type GithubInstallStart = {
-    /**
-     * Url
-     */
-    url: string;
-};
-
-/**
  * GithubInstallationPublic
  *
  * A GitHub App installation linked to the user.
@@ -90,6 +78,28 @@ export type HttpValidationError = {
      * Detail
      */
     detail?: Array<ValidationError>;
+};
+
+/**
+ * PaginatedResponse[TimeEntryPublic]
+ */
+export type PaginatedResponseTimeEntryPublic = {
+    /**
+     * Items
+     */
+    items: Array<TimeEntryPublic>;
+    /**
+     * Total
+     */
+    total: number;
+    /**
+     * Skip
+     */
+    skip: number;
+    /**
+     * Limit
+     */
+    limit: number;
 };
 
 /**
@@ -202,6 +212,96 @@ export type RepositoryPublic = {
      * Description
      */
     description: string | null;
+};
+
+/**
+ * TimeEntryCreate
+ */
+export type TimeEntryCreate = {
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Start Time
+     */
+    start_time: string;
+    /**
+     * End Time
+     */
+    end_time?: string | null;
+    /**
+     * Duration Seconds
+     */
+    duration_seconds?: number | null;
+};
+
+/**
+ * TimeEntryPublic
+ */
+export type TimeEntryPublic = {
+    /**
+     * Id
+     */
+    id?: string;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Created At
+     */
+    created_at?: string;
+    /**
+     * Updated At
+     */
+    updated_at?: string;
+    /**
+     * Deleted At
+     */
+    deleted_at?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Start Time
+     */
+    start_time: string;
+    /**
+     * End Time
+     */
+    end_time?: string | null;
+    /**
+     * Duration Seconds
+     */
+    duration_seconds?: number | null;
+    /**
+     * Project Id
+     */
+    project_id: string;
+};
+
+/**
+ * TimeEntryUpdate
+ */
+export type TimeEntryUpdate = {
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Start Time
+     */
+    start_time?: string | null;
+    /**
+     * End Time
+     */
+    end_time?: string | null;
+    /**
+     * Duration Seconds
+     */
+    duration_seconds?: number | null;
 };
 
 /**
@@ -550,10 +650,8 @@ export type GithubInstallResponses = {
     /**
      * Successful Response
      */
-    200: GithubInstallStart;
+    200: unknown;
 };
-
-export type GithubInstallResponse = GithubInstallResponses[keyof GithubInstallResponses];
 
 export type GithubSetupCallbackData = {
     body?: never;
@@ -794,6 +892,177 @@ export type GetRepositoriesResponses = {
 };
 
 export type GetRepositoriesResponse = GetRepositoriesResponses[keyof GetRepositoriesResponses];
+
+export type GetEntriesForProjectData = {
+    body?: never;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/projects/{id}/entries';
+};
+
+export type GetEntriesForProjectErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetEntriesForProjectError = GetEntriesForProjectErrors[keyof GetEntriesForProjectErrors];
+
+export type GetEntriesForProjectResponses = {
+    /**
+     * Successful Response
+     */
+    200: PaginatedResponseTimeEntryPublic;
+};
+
+export type GetEntriesForProjectResponse = GetEntriesForProjectResponses[keyof GetEntriesForProjectResponses];
+
+export type CreateTimeEntryData = {
+    body: TimeEntryCreate;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/projects/{id}/entries';
+};
+
+export type CreateTimeEntryErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateTimeEntryError = CreateTimeEntryErrors[keyof CreateTimeEntryErrors];
+
+export type CreateTimeEntryResponses = {
+    /**
+     * Successful Response
+     */
+    201: TimeEntryPublic;
+};
+
+export type CreateTimeEntryResponse = CreateTimeEntryResponses[keyof CreateTimeEntryResponses];
+
+export type DeleteTimeEntryData = {
+    body?: never;
+    path: {
+        /**
+         * Entry Id
+         */
+        entry_id: string;
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/projects/{id}/entries/{entry_id}';
+};
+
+export type DeleteTimeEntryErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteTimeEntryError = DeleteTimeEntryErrors[keyof DeleteTimeEntryErrors];
+
+export type DeleteTimeEntryResponses = {
+    /**
+     * Successful Response
+     */
+    200: TimeEntryPublic;
+};
+
+export type DeleteTimeEntryResponse = DeleteTimeEntryResponses[keyof DeleteTimeEntryResponses];
+
+export type GetTimeEntryData = {
+    body?: never;
+    path: {
+        /**
+         * Entry Id
+         */
+        entry_id: string;
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/projects/{id}/entries/{entry_id}';
+};
+
+export type GetTimeEntryErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetTimeEntryError = GetTimeEntryErrors[keyof GetTimeEntryErrors];
+
+export type GetTimeEntryResponses = {
+    /**
+     * Successful Response
+     */
+    200: TimeEntryPublic;
+};
+
+export type GetTimeEntryResponse = GetTimeEntryResponses[keyof GetTimeEntryResponses];
+
+export type UpdateTimeEntryData = {
+    body: TimeEntryUpdate;
+    path: {
+        /**
+         * Entry Id
+         */
+        entry_id: string;
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/projects/{id}/entries/{entry_id}';
+};
+
+export type UpdateTimeEntryErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateTimeEntryError = UpdateTimeEntryErrors[keyof UpdateTimeEntryErrors];
+
+export type UpdateTimeEntryResponses = {
+    /**
+     * Successful Response
+     */
+    200: TimeEntryPublic;
+};
+
+export type UpdateTimeEntryResponse = UpdateTimeEntryResponses[keyof UpdateTimeEntryResponses];
 
 export type PingData = {
     body?: never;
