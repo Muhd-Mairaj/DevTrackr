@@ -3,16 +3,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { FolderPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ProjectPublic } from "@/client/types.gen";
-import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { DayStamp } from "@/components/day-stamp";
-import { DeleteProjectDialog } from "@/components/delete-project-dialog";
-import { EditProjectDialog } from "@/components/edit-project-dialog";
-import { ProjectCard } from "@/components/project-card";
+import { CreateProjectDialog } from "@/components/projects/create-project-dialog";
+import { DeleteProjectDialog } from "@/components/projects/delete-project-dialog";
+import { EditProjectDialog } from "@/components/projects/edit-project-dialog";
+import { ProjectCard } from "@/components/projects/project-card";
 import {
   EmptyState,
   LoadingSkeleton,
   QueryError,
-} from "@/components/query-state";
+} from "@/components/projects/query-state";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/ii8n/strings";

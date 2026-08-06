@@ -2,8 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import type { ProjectPublic, ProjectUpdate } from "@/client/types.gen";
-import { RepositorySelector } from "@/components/repository-selector";
+import { RepositorySelector } from "@/components/projects/repository-selector";
 import { AppDialog } from "@/components/ui/app-dialog";
 import {
   Form,
@@ -16,9 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/ii8n/strings";
-import { useUpdateProject } from "@/lib/projects";
+import { useCreateProject } from "@/lib/projects";
 
-const updateSchema = z.object({
+const createSchema = z.object({
   name: z.string().min(1, strings.projects.nameRequired),
   description: z.string().optional(),
   // No .default(): a default would make z.input optional while z.output is
@@ -27,76 +26,62 @@ const updateSchema = z.object({
   repositoryIds: z.array(z.number()),
 });
 
-type UpdateValues = z.infer<typeof updateSchema>;
+type CreateValues = z.infer<typeof createSchema>;
 
-interface EditProjectDialogProps {
-  project: ProjectPublic | null;
+interface CreateProjectDialogProps {
+  open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function EditProjectDialog({
-  project,
+export function CreateProjectDialog({
+  open,
   onOpenChange,
-}: EditProjectDialogProps) {
+}: CreateProjectDialogProps) {
   const { toast } = useToast();
-  const updateProject = useUpdateProject();
+  const createProject = useCreateProject();
 
-  const form = useForm<UpdateValues>({
-    resolver: zodResolver(updateSchema),
+  const form = useForm<CreateValues>({
+    resolver: zodResolver(createSchema),
     defaultValues: { name: "", description: "", repositoryIds: [] },
   });
 
   useEffect(() => {
-    if (project) {
-      form.reset({
-        name: project.name,
-        description: project.description ?? "",
-        repositoryIds: (project.repositories ?? []).map((r) => r.github_id),
-      });
+    if (open) {
+      form.reset({ name: "", description: "", repositoryIds: [] });
     }
-  }, [project, form]);
+  }, [open, form]);
 
-  const onSubmit = async (values: UpdateValues) => {
-    if (!project) return;
+  const onSubmit = async (values: CreateValues) => {
     try {
-      const body: ProjectUpdate = {
+      await createProject.mutateAsync({
         name: values.name,
         description: values.description || null,
-      };
-      // Only include repository_ids when the project's repos were loaded,
-      // otherwise the backend's full-set-replace would clear all links.
-      // An absent field leaves links unchanged.
-      if (project.repositories !== undefined) {
-        body.repository_ids = values.repositoryIds;
-      }
-      await updateProject.mutateAsync({
-        id: project.id,
-        body,
+        repository_ids: values.repositoryIds,
       });
       onOpenChange(false);
-      toast("success", strings.projects.updatedToast);
+      toast("success", strings.projects.createdToast);
     } catch (err) {
       form.setError("root", { message: (err as Error).message });
     }
   };
 
-  const isSubmitting = updateProject.isPending;
+  const isSubmitting = createProject.isPending;
 
   return (
     <AppDialog
-      open={project !== null}
+      open={open}
       onOpenChange={onOpenChange}
-      title={strings.projects.updateTitle}
-      description={strings.projects.updateDescription}
-      actionLabel={strings.projects.updateButton}
+      title={strings.projects.createTitle}
+      description={strings.projects.createDescription}
+      actionLabel={strings.projects.createButton}
       isPending={isSubmitting}
-      formId="edit-project-form"
-      id="edit-project-dialog"
-      actionButtonId="edit-project-submit-btn"
+      formId="create-project-form"
+      id="create-project-dialog"
+      actionButtonId="create-project-submit-btn"
     >
       <Form {...form}>
         <form
-          id="edit-project-form"
+          id="create-project-form"
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex min-w-0 flex-col gap-4"
         >
@@ -108,7 +93,7 @@ export function EditProjectDialog({
                 <FormLabel>{strings.projects.nameLabel}</FormLabel>
                 <FormControl>
                   <Input
-                    id="edit-project-name"
+                    id="project-name"
                     placeholder={strings.projects.namePlaceholder}
                     autoFocus
                     disabled={isSubmitting}
@@ -127,7 +112,7 @@ export function EditProjectDialog({
                 <FormLabel>{strings.projects.descriptionLabel}</FormLabel>
                 <FormControl>
                   <Input
-                    id="edit-project-description"
+                    id="project-description"
                     placeholder={strings.projects.descriptionPlaceholder}
                     disabled={isSubmitting}
                     {...field}
