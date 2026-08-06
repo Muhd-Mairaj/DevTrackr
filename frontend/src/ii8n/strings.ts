@@ -78,7 +78,6 @@ export const strings = {
     columnsButton: "Columns",
     editLabel: "Edit entry",
     deleteLabel: "Delete entry",
-    loadFailed: "Could not load entries",
     emptyTitle: "No entries yet",
     emptyDescription: "Log your first time entry for this project.",
     projectNotFoundTitle: "Project not found",
