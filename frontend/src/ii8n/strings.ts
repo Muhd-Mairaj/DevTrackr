@@ -1,4 +1,3 @@
-import type { ProjectPublic } from "@/client/types.gen";
 import { formatDate } from "@/lib/utils";
 
 /**
@@ -82,9 +81,38 @@ export const strings = {
     updateDescription: "Change the name or notes for this project.",
     updateButton: "Update project",
     updatedToast: "Project updated",
-    detailToast: (project: ProjectPublic) =>
-      `${project.name} · ${project.is_active ? strings.projects.active : strings.projects.inactive} · Created ${formatDate(project.created_at)}`,
-    detailErrorToast: "Couldn't load project details. Try again.",
+  },
+  entries: {
+    metaLine: (created: string, count: number) =>
+      `Created ${formatDate(created)} · ${count} entries`,
+    newEntry: "New entry",
+    columnsButton: "Columns",
+    editLabel: "Edit entry",
+    deleteLabel: "Delete entry",
+    loadFailed: "Could not load entries",
+    emptyTitle: "No entries yet",
+    emptyDescription: "Log your first time entry for this project.",
+    projectNotFoundTitle: "Project not found",
+    projectNotFoundDescription: "This project may have been deleted.",
+    configureColumns: "Configure columns",
+  },
+  columns: {
+    title: "Logbook columns",
+    description:
+      "These columns shape this project's entries table and its generated logbook.",
+    add: "Add column",
+    namePlaceholder: "Column name",
+    removeLabel: "Remove column",
+    moveUp: "Move up",
+    moveDown: "Move down",
+    kindTime: "TIME",
+    kindDuration: "DURATION",
+    kindSource: "SOURCE",
+    kindDescription: "DESCRIPTION",
+    kindCustom: "CUSTOM",
+    saveButton: "Save changes",
+    savedToast: "Columns saved",
+    nameRequired: "Column name is required",
   },
   integrations: {
     githubSetupPrompt: "Set up GitHub to sync repositories",
