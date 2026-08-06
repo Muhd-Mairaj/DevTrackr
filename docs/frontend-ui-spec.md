@@ -184,7 +184,7 @@ For days with multiple entries compressed behind an AI summary (or any grouped e
 
 ### 4.9 Column manager
 
-The logbook customization surface, placed in Settings. It controls both the in-app logbook table and the output logbook document.
+The logbook customization surface for one project, opened from the project page header. Its config is stored per project on the backend (`GET/PUT /projects/{id}/columns`); Settings no longer hosts it. It controls both the in-app logbook table and the output logbook document.
 
 - One row per column: drag handle, inline-editable name input, mono type label (TIME / DURATION / SOURCE / DESCRIPTION / CUSTOM), remove button.
 - "Add column" opens a small choice of column types. Built-in columns (time, duration, source, description) can be renamed but not removed; custom columns can be removed.
@@ -255,12 +255,13 @@ Every page follows the same order:
 | Page | Blueprint |
 |---|---|
 | Projects (`/`) | Day-stamp, heading + "New project" primary, KPI strip, card grid |
+| Project detail (`/projects/:projectId`) | Day-stamp, project heading with meta, paginated ledger table rendering exactly the configured columns with a configure slot, row edit/delete, mono page ruler pagination |
 | Login | Wordmark, centered card with the sign-in form |
-| Settings | Single column: profile fields, connection cards (Toggl / GitHub / AI provider), logbook column manager |
+| Settings | Single column: profile fields, connection cards (Toggl / GitHub / AI provider) |
 
 ### 5.4 Undecided pages
 
-The logbook, project detail, and insights pages are not yet fixed. When building them, compose from the patterns in 5.2 following the anatomy rule in 5.1. Keep the ledger panel as the default surface for entry lists. The project detail page will show the entries for one project: day-stamp, project heading with meta, and a ledger panel grouped by day, with expandable composite rows (4.8) for summarized days.
+The logbook and insights pages are not yet fixed. When building them, compose from the patterns in 5.2 following the anatomy rule in 5.1. Keep the ledger panel as the default surface for entry lists.
 
 ### 5.5 Responsive behavior
 
