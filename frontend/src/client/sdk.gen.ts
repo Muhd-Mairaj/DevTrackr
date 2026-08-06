@@ -83,6 +83,9 @@ export class AuthService {
      * Github Authorize
      *
      * Redirect the user to GitHub's OAuth consent page for login.
+     *
+     * Accepts an optional ``state`` (from /setup-callback) used as the OAuth
+     * nonce so the callback can resolve a pending app installation.
      */
     public static githubAuthorize<ThrowOnError extends boolean = false>(options?: Options<GithubAuthorizeData, ThrowOnError>) {
         return (options?.client ?? client).get<GithubAuthorizeResponses, unknown, ThrowOnError>({
@@ -138,11 +141,12 @@ export class IntegrationsService {
      *
      * Start a GitHub App installation (login required).
      *
-     * Sets a CSRF ``state`` in the session so ``/setup-callback`` can verify the
-     * redirect came from us. See ``docs/github-oauth-and-app-install.md``.
+     * Sets a one-time CSRF ``state`` in the session so ``/setup-callback`` can
+     * verify the redirect came from us. The frontend opens the returned URL in a
+     * popup. See docs/github-oauth-and-app-install.md.
      */
     public static githubInstall<ThrowOnError extends boolean = false>(options?: Options<GithubInstallData, ThrowOnError>) {
-        return (options?.client ?? client).get<GithubInstallResponses, GithubInstallErrors, ThrowOnError>({
+        return (options?.client ?? client).post<GithubInstallResponses, GithubInstallErrors, ThrowOnError>({
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/integrations/github/install',
@@ -155,9 +159,10 @@ export class IntegrationsService {
      *
      * Handle the GitHub App Setup URL redirect after installation.
      *
-     * Links the installation when possible, otherwise stashes it and routes
-     * through OAuth. See ``docs/github-oauth-and-app-install.md`` for the full
-     * scenario table and security model.
+     * Links the installation when possible, otherwise stashes it keyed by the
+     * OAuth state nonce and routes through OAuth. See
+     * docs/github-oauth-and-app-install.md for the full scenario table and
+     * security model.
      */
     public static githubSetupCallback<ThrowOnError extends boolean = false>(options?: Options<GithubSetupCallbackData, ThrowOnError>) {
         return (options?.client ?? client).get<GithubSetupCallbackResponses, GithubSetupCallbackErrors, ThrowOnError>({

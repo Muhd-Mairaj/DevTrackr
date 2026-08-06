@@ -1,5 +1,3 @@
-import { Loader2 } from "lucide-react";
-import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,7 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { strings } from "@/lib/strings";
+import { strings } from "@/ii8n/strings";
+import { Loader2 } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface AppDialogProps {
   open: boolean;

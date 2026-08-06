@@ -1,6 +1,6 @@
 import { client } from "@/client/client.gen";
 import { AuthService } from "@/client/sdk.gen";
-import { isPublicApiRoute, isPublicPageRoute } from "@/lib/auth";
+import { isPublicApiRoute, isPublicPageRoute } from "@/contexts/auth";
 
 // Throw Axios errors on HTTP failure instead of returning { data: undefined, error }
 client.setConfig({
