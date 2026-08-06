@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { strings } from "@/ii8n/strings";
 import { startGithubInstall } from "@/lib/integrations";
 import { useRepositories } from "@/lib/repositories";
-import { strings } from "@/lib/strings";
 
 interface RepositorySelectorProps {
   selected: number[];

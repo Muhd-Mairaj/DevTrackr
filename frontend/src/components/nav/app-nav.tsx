@@ -2,10 +2,11 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { GithubMark } from "@/components/github-mark";
 import { LogoMark } from "@/components/logo-mark";
+import { ThemeToggle } from "@/components/nav/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/contexts/auth";
+import { strings } from "@/ii8n/strings";
 import { startGithubInstall, useGithubStatus } from "@/lib/integrations";
-import { strings } from "@/lib/strings";
 
 export function AppNav() {
   const { user, logout } = useAuth();
@@ -44,6 +45,7 @@ export function AppNav() {
         </div>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           {user && (
             <span className="hidden font-mono text-xs text-muted-foreground sm:block">
               {user.email}

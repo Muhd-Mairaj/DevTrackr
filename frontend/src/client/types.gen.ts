@@ -28,6 +28,18 @@ export type ErrorDetail = {
 };
 
 /**
+ * GithubInstallStart
+ *
+ * Response for POST /integrations/github/install.
+ */
+export type GithubInstallStart = {
+    /**
+     * Url
+     */
+    url: string;
+};
+
+/**
  * GithubInstallationPublic
  *
  * A GitHub App installation linked to the user.
@@ -538,8 +550,10 @@ export type GithubInstallResponses = {
     /**
      * Successful Response
      */
-    200: unknown;
+    200: GithubInstallStart;
 };
+
+export type GithubInstallResponse = GithubInstallResponses[keyof GithubInstallResponses];
 
 export type GithubSetupCallbackData = {
     body?: never;

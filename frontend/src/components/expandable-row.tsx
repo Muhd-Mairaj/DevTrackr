@@ -3,7 +3,7 @@ import { useState } from "react";
 import { type LedgerEntry, LedgerRow } from "@/components/ledger-row";
 import { StatusChip } from "@/components/status-chip";
 import { Skeleton } from "@/components/ui/skeleton";
-import { strings } from "@/lib/strings";
+import { strings } from "@/ii8n/strings";
 import { cn } from "@/lib/utils";
 
 interface ExpandableRowProps {

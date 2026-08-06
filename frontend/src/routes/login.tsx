@@ -3,7 +3,7 @@ import { LoginForm } from "@/components/login/login-form";
 import { RegisterForm } from "@/components/login/register-form";
 import { LogoMark } from "@/components/logo-mark";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { strings } from "@/lib/strings";
+import { strings } from "@/ii8n/strings";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,

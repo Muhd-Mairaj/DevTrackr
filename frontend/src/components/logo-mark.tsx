@@ -1,4 +1,4 @@
-import { strings } from "@/lib/strings";
+import { strings } from "@/ii8n/strings";
 
 /**
  * Provisional DevTrackr mark: a primary rounded square with ruled lines
