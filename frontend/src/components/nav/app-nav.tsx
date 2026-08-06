@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { GithubMark } from "@/components/github-mark";
 import { LogoMark } from "@/components/logo-mark";
@@ -7,11 +7,15 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth";
 import { strings } from "@/ii8n/strings";
 import { startGithubInstall, useGithubStatus } from "@/lib/integrations";
+import { cn } from "@/lib/utils";
 
 export function AppNav() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { location } = useRouterState();
   const { data: githubStatus, isError } = useGithubStatus();
+  const onProjects =
+    location.pathname === "/" || location.pathname.startsWith("/projects");
 
   const handleLogout = async () => {
     await logout();
@@ -29,8 +33,10 @@ export function AppNav() {
           <nav className="ml-3 flex items-center gap-1">
             <Link
               to="/"
-              activeProps={{ className: "bg-accent text-foreground" }}
-              className="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground hover:text-foreground"
+              className={cn(
+                "rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground hover:text-foreground",
+                onProjects && "bg-accent text-foreground",
+              )}
             >
               {strings.nav.projects}
             </Link>
