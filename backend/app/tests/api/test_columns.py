@@ -1,10 +1,12 @@
 import uuid
 
 from httpx import AsyncClient
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.security import ACCESS_TOKEN_COOKIE_NAME, create_access_token
 from app.crud.user import create_oauth_user
+from app.models.project import Project
 
 
 async def _authed(
@@ -144,3 +146,25 @@ async def test_columns_foreign_project_404(
     # second user owns no projects; first user's project id is foreign
     resp = await client.get(f"/api/projects/{other}/columns")
     assert resp.status_code == 404
+
+
+async def test_columns_corrupt_stored_config_falls_back_to_defaults(
+    client: AsyncClient, db: AsyncSession
+) -> None:
+    await _authed(client, db)
+    project_id = uuid.UUID(await _project(client))
+    project = (await db.exec(select(Project).where(Project.id == project_id))).one()
+    project.column_config = [{"kind": "BOGUS", "name": "X"}]
+    db.add(project)
+    await db.commit()
+
+    resp = await client.get(f"/api/projects/{project_id}/columns")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert [c["kind"] for c in body] == [
+        "TIME",
+        "DURATION",
+        "SOURCE",
+        "DESCRIPTION",
+    ]
+    assert all(c["builtin"] for c in body)

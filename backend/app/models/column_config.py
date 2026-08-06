@@ -1,7 +1,7 @@
 from typing import Any, Literal
 
 from pydantic import field_validator, model_validator
-from sqlmodel import SQLModel
+from sqlmodel import Field, SQLModel
 
 ColumnKind = Literal["TIME", "DURATION", "SOURCE", "DESCRIPTION", "CUSTOM"]
 
@@ -22,7 +22,7 @@ DEFAULT_COLUMNS: list[dict[str, Any]] = [
 
 class ProjectColumnItem(SQLModel):
     kind: ColumnKind
-    name: str
+    name: str = Field(max_length=60)
     builtin: bool = False
 
     @field_validator("name")
@@ -43,6 +43,8 @@ def validate_column_config(items: list[ProjectColumnItem]) -> None:
     """Enforce the spec 4.9 rule: builtins appear exactly once, in any order."""
     if not items:
         raise ValueError("at least one column is required")
+    if len(items) > 20:
+        raise ValueError("at most 20 columns are allowed")
     kinds = [item.kind for item in items]
     for builtin in BUILTIN_KINDS:
         if kinds.count(builtin) != 1:
