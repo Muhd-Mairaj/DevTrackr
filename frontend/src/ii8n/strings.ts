@@ -95,6 +95,12 @@ export const strings = {
     projectNotFoundTitle: "Project not found",
     projectNotFoundDescription: "This project may have been deleted.",
     configureColumns: "Configure columns",
+    actions: "Entry actions",
+    previousPage: "Previous page",
+    nextPage: "Next page",
+    pagesNav: "Entries pages",
+    pageRange: (start: number, end: number, total: number) =>
+      `${start}–${end} of ${total}`,
   },
   columns: {
     title: "Logbook columns",
