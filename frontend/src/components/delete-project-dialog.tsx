@@ -1,8 +1,8 @@
 import type { ProjectPublic } from "@/client/types.gen";
 import { AppDialog } from "@/components/ui/app-dialog";
+import { useToast } from "@/contexts/toast";
+import { strings } from "@/ii8n/strings";
 import { useDeleteProject } from "@/lib/projects";
-import { strings } from "@/lib/strings";
-import { useToast } from "@/lib/toast";
 
 interface DeleteProjectDialogProps {
   project: ProjectPublic | null;

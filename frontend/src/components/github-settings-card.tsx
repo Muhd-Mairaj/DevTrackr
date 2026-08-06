@@ -3,12 +3,12 @@ import { GithubMark } from "@/components/github-mark";
 import { StatusChip } from "@/components/status-chip";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { strings } from "@/ii8n/strings";
 import {
   githubManageUrl,
   startGithubInstall,
   useGithubInstallations,
 } from "@/lib/integrations";
-import { strings } from "@/lib/strings";
 
 export function GithubSettingsCard() {
   const {

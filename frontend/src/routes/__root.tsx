@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { AppNav } from "@/components/app-nav";
 import { RootErrorComponent } from "@/components/root-error";
-import { AuthProvider, isPublicPageRoute, useAuth } from "@/lib/auth";
+import { AuthProvider, isPublicPageRoute, useAuth } from "@/contexts/auth";
 
 export const Route = createRootRoute({
   component: RootComponent,

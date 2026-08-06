@@ -14,11 +14,11 @@ import {
   QueryError,
 } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/contexts/toast";
+import { strings } from "@/ii8n/strings";
 import { integrationKeys } from "@/lib/integrations";
 import { projectKeys, useProject, useProjects } from "@/lib/projects";
 import { repositoryKeys } from "@/lib/repositories";
-import { strings } from "@/lib/strings";
-import { useToast } from "@/lib/toast";
 
 export const Route = createFileRoute("/")({
   component: HomePage,

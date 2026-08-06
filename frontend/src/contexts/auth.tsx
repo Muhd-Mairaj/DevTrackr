@@ -1,5 +1,3 @@
-// Auth context: session state + login/register/logout actions.
-// All HTTP calls live in users.ts, not here.
 import {
   createContext,
   useCallback,

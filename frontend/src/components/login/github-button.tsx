@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { strings } from "@/lib/strings";
+import { strings } from "@/ii8n/strings";
 
 interface GitHubButtonProps {
   disabled?: boolean;

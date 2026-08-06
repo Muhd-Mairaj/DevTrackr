@@ -4,9 +4,9 @@ import { GithubMark } from "@/components/github-mark";
 import { LogoMark } from "@/components/logo-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/contexts/auth";
+import { strings } from "@/ii8n/strings";
 import { startGithubInstall, useGithubStatus } from "@/lib/integrations";
-import { strings } from "@/lib/strings";
 
 export function AppNav() {
   const { user, logout } = useAuth();

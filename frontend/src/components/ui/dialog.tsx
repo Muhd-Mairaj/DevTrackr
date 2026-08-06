@@ -1,8 +1,8 @@
-import { X } from "lucide-react";
-import * as React from "react";
-import { Dialog as DialogPrimitive } from "radix-ui";
-import { strings } from "@/lib/strings";
+import { strings } from "@/ii8n/strings";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
+import { Dialog as DialogPrimitive } from "radix-ui";
+import * as React from "react";
 
 function Dialog(props: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
@@ -121,5 +121,5 @@ export {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 };
