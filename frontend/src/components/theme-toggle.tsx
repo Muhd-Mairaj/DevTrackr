@@ -1,7 +1,7 @@
 import { Monitor, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { strings } from "@/lib/strings";
-import { type Theme, useTheme } from "@/lib/theme";
+import { type Theme, useTheme } from "@/contexts/theme";
+import { strings } from "@/ii8n/strings";
 
 const THEME_ICONS: Record<Theme, typeof Sun> = {
   light: Sun,

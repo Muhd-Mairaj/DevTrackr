@@ -3,8 +3,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { useAuth } from "@/lib/auth";
-import { strings } from "@/lib/strings";
+import { useAuth } from "@/contexts/auth";
+import { strings } from "@/ii8n/strings";
 import { Divider } from "../divider";
 import { Button } from "../ui/button";
 import {

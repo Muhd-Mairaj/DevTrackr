@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { strings } from "@/lib/strings";
+import { strings } from "@/ii8n/strings";
 
 export const Route = createFileRoute("/counter")({
   component: CounterComponent,

@@ -5,7 +5,7 @@ import { DayStamp } from "@/components/day-stamp";
 import { GithubSettingsCard } from "@/components/github-settings-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { strings } from "@/lib/strings";
+import { strings } from "@/ii8n/strings";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,

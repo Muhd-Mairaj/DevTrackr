@@ -14,9 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/contexts/toast";
+import { strings } from "@/ii8n/strings";
 import { useUpdateProject } from "@/lib/projects";
-import { strings } from "@/lib/strings";
-import { useToast } from "@/lib/toast";
 
 const updateSchema = z.object({
   name: z.string().min(1, strings.projects.nameRequired),
