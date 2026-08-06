@@ -22,6 +22,11 @@ export const strings = {
     insights: "Insights",
     settings: "Settings",
   },
+  theme: {
+    toSystem: "Switch to system theme",
+    toDark: "Switch to dark theme",
+    toLight: "Switch to light theme",
+  },
   settings: {
     title: "Settings",
     subtitle: "Connections, providers, and logbook formatting.",
