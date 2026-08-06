@@ -103,6 +103,24 @@ export type PaginatedResponseTimeEntryPublic = {
 };
 
 /**
+ * ProjectColumnItem
+ */
+export type ProjectColumnItem = {
+    /**
+     * Kind
+     */
+    kind: 'TIME' | 'DURATION' | 'SOURCE' | 'DESCRIPTION' | 'CUSTOM';
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Builtin
+     */
+    builtin?: boolean;
+};
+
+/**
  * ProjectCreate
  */
 export type ProjectCreate = {
@@ -520,6 +538,89 @@ export type MeResponses = {
 };
 
 export type MeResponse = MeResponses[keyof MeResponses];
+
+export type GetColumnsData = {
+    body?: never;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/projects/{id}/columns';
+};
+
+export type GetColumnsErrors = {
+    /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
+     * Resource not found
+     */
+    404: ErrorDetail;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetColumnsError = GetColumnsErrors[keyof GetColumnsErrors];
+
+export type GetColumnsResponses = {
+    /**
+     * Response Get Columns
+     *
+     * Successful Response
+     */
+    200: Array<ProjectColumnItem>;
+};
+
+export type GetColumnsResponse = GetColumnsResponses[keyof GetColumnsResponses];
+
+export type SetColumnsData = {
+    /**
+     * Columns
+     */
+    body: Array<ProjectColumnItem>;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/projects/{id}/columns';
+};
+
+export type SetColumnsErrors = {
+    /**
+     * Authentication required
+     */
+    401: ErrorDetail;
+    /**
+     * Resource not found
+     */
+    404: ErrorDetail;
+    /**
+     * Validation failed
+     */
+    422: ErrorDetail;
+};
+
+export type SetColumnsError = SetColumnsErrors[keyof SetColumnsErrors];
+
+export type SetColumnsResponses = {
+    /**
+     * Response Set Columns
+     *
+     * Successful Response
+     */
+    200: Array<ProjectColumnItem>;
+};
+
+export type SetColumnsResponse = SetColumnsResponses[keyof SetColumnsResponses];
 
 export type GithubAuthorizeData = {
     body?: never;

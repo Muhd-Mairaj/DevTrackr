@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, CreateTimeEntryData, CreateTimeEntryErrors, CreateTimeEntryResponses, DeleteProjectData, DeleteProjectErrors, DeleteProjectResponses, DeleteTimeEntryData, DeleteTimeEntryErrors, DeleteTimeEntryResponses, GetEntriesForProjectData, GetEntriesForProjectErrors, GetEntriesForProjectResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GetRepositoriesData, GetRepositoriesErrors, GetRepositoriesResponses, GetTimeEntryData, GetTimeEntryErrors, GetTimeEntryResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackErrors, GithubCallbackResponses, GithubInstallationsData, GithubInstallationsErrors, GithubInstallationsResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, GithubStatusData, GithubStatusErrors, GithubStatusResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses, UpdateProjectData, UpdateProjectErrors, UpdateProjectResponses, UpdateTimeEntryData, UpdateTimeEntryErrors, UpdateTimeEntryResponses } from './types.gen';
+import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, CreateTimeEntryData, CreateTimeEntryErrors, CreateTimeEntryResponses, DeleteProjectData, DeleteProjectErrors, DeleteProjectResponses, DeleteTimeEntryData, DeleteTimeEntryErrors, DeleteTimeEntryResponses, GetColumnsData, GetColumnsErrors, GetColumnsResponses, GetEntriesForProjectData, GetEntriesForProjectErrors, GetEntriesForProjectResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GetRepositoriesData, GetRepositoriesErrors, GetRepositoriesResponses, GetTimeEntryData, GetTimeEntryErrors, GetTimeEntryResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackErrors, GithubCallbackResponses, GithubInstallationsData, GithubInstallationsErrors, GithubInstallationsResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, GithubStatusData, GithubStatusErrors, GithubStatusResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses, SetColumnsData, SetColumnsErrors, SetColumnsResponses, UpdateProjectData, UpdateProjectErrors, UpdateProjectResponses, UpdateTimeEntryData, UpdateTimeEntryErrors, UpdateTimeEntryResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -103,6 +103,36 @@ export class AuthService {
             responseType: 'json',
             url: '/api/auth/github/callback',
             ...options
+        });
+    }
+}
+
+export class ColumnsService {
+    /**
+     * Get Columns Route
+     */
+    public static getColumns<ThrowOnError extends boolean = false>(options: Options<GetColumnsData, ThrowOnError>) {
+        return (options.client ?? client).get<GetColumnsResponses, GetColumnsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/projects/{id}/columns',
+            ...options
+        });
+    }
+
+    /**
+     * Set Columns Route
+     */
+    public static setColumns<ThrowOnError extends boolean = false>(options: Options<SetColumnsData, ThrowOnError>) {
+        return (options.client ?? client).put<SetColumnsResponses, SetColumnsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/projects/{id}/columns',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
         });
     }
 }
