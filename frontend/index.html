@@ -6,21 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevTrackr</title>
     <script>
-      (function () {
+      (() => {
         try {
-          var stored = localStorage.getItem("devtrackr-theme");
-          var theme =
+          const stored = localStorage.getItem("devtrackr-theme");
+          const theme =
             stored === "light" || stored === "dark" || stored === "system"
               ? stored
               : "system";
-          var dark =
+          const dark =
             theme === "dark" ||
             (theme === "system" &&
               window.matchMedia("(prefers-color-scheme: dark)").matches);
-          var root = document.documentElement;
+          const root = document.documentElement;
           root.classList.toggle("dark", dark);
           root.style.colorScheme = dark ? "dark" : "light";
-        } catch (err) {
+        } catch {
           // localStorage or matchMedia unavailable; stay on the default light theme
         }
       })();
