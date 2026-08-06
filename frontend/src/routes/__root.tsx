@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
-import { AppNav } from "@/components/app-nav";
+import { AppNav } from "@/components/nav/app-nav";
 import { RootErrorComponent } from "@/components/root-error";
 import { AuthProvider, isPublicPageRoute, useAuth } from "@/contexts/auth";
 
