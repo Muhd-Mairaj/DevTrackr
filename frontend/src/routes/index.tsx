@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { FolderPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ProjectPublic } from "@/client/types.gen";
@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/ii8n/strings";
 import { integrationKeys } from "@/lib/integrations";
-import { projectKeys, useProject, useProjects } from "@/lib/projects";
+import { useProjects } from "@/lib/projects";
 import { repositoryKeys } from "@/lib/repositories";
 
 export const Route = createFileRoute("/")({
@@ -31,25 +31,7 @@ function HomePage() {
   const [editing, setEditing] = useState<ProjectPublic | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const projectDetails = useProject(selectedId);
-
-  const handleViewProject = (project: ProjectPublic) => {
-    queryClient.invalidateQueries({ queryKey: projectKeys.detail(project.id) });
-    setSelectedId(project.id);
-  };
-
-  useEffect(() => {
-    if (projectDetails.data) {
-      toast("success", strings.projects.detailToast(projectDetails.data));
-    }
-  }, [projectDetails.data, toast]);
-
-  useEffect(() => {
-    if (projectDetails.error) {
-      toast("error", strings.projects.detailErrorToast);
-    }
-  }, [projectDetails.error, toast]);
+  const navigate = useNavigate();
 
   // Landing back from the GitHub App install flow carries ?github_app=<outcome>
   // on the URL; refresh the synced repos, drop the param, and report.
@@ -187,7 +169,13 @@ function HomePage() {
             <ProjectCard
               key={project.id}
               project={project}
-              onClick={handleViewProject}
+              onClick={(p) =>
+                navigate({
+                  to: "/projects/$projectId",
+                  params: { projectId: p.id },
+                  search: { page: 1 },
+                })
+              }
               onEdit={setEditing}
               onDelete={setDeleting}
             />
@@ -199,10 +187,7 @@ function HomePage() {
       <DeleteProjectDialog
         project={deleting}
         onOpenChange={(open) => {
-          if (!open) {
-            if (deleting?.id === selectedId) setSelectedId(null);
-            setDeleting(null);
-          }
+          if (!open) setDeleting(null);
         }}
       />
       <EditProjectDialog
