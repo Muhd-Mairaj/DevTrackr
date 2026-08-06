@@ -37,8 +37,6 @@ export function useProject(id: string | null) {
       return res.data;
     },
     enabled: id !== null,
-    // Fresh data reference per fetch so the details toast refires on same-card re-click
-    structuralSharing: false,
   });
 }
 
