@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, DeleteProjectData, DeleteProjectErrors, DeleteProjectResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GetRepositoriesData, GetRepositoriesErrors, GetRepositoriesResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackErrors, GithubCallbackResponses, GithubInstallationsData, GithubInstallationsErrors, GithubInstallationsResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, GithubStatusData, GithubStatusErrors, GithubStatusResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses, UpdateProjectData, UpdateProjectErrors, UpdateProjectResponses } from './types.gen';
+import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, CreateTimeEntryData, CreateTimeEntryErrors, CreateTimeEntryResponses, DeleteProjectData, DeleteProjectErrors, DeleteProjectResponses, DeleteTimeEntryData, DeleteTimeEntryErrors, DeleteTimeEntryResponses, GetEntriesForProjectData, GetEntriesForProjectErrors, GetEntriesForProjectResponses, GetProjectData, GetProjectErrors, GetProjectResponses, GetProjectsData, GetProjectsErrors, GetProjectsResponses, GetRepositoriesData, GetRepositoriesErrors, GetRepositoriesResponses, GetTimeEntryData, GetTimeEntryErrors, GetTimeEntryResponses, GithubAuthorizeData, GithubAuthorizeResponses, GithubCallbackData, GithubCallbackErrors, GithubCallbackResponses, GithubInstallationsData, GithubInstallationsErrors, GithubInstallationsResponses, GithubInstallData, GithubInstallErrors, GithubInstallResponses, GithubSetupCallbackData, GithubSetupCallbackErrors, GithubSetupCallbackResponses, GithubStatusData, GithubStatusErrors, GithubStatusResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, MeData, MeErrors, MeResponses, PingData, PingResponses, RefreshData, RefreshErrors, RefreshResponses, RegisterData, RegisterErrors, RegisterResponses, RootData, RootResponses, UpdateProjectData, UpdateProjectErrors, UpdateProjectResponses, UpdateTimeEntryData, UpdateTimeEntryErrors, UpdateTimeEntryResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -142,11 +142,11 @@ export class IntegrationsService {
      * Start a GitHub App installation (login required).
      *
      * Sets a one-time CSRF ``state`` in the session so ``/setup-callback`` can
-     * verify the redirect came from us. The frontend opens the returned URL in a
-     * popup. See docs/github-oauth-and-app-install.md.
+     * verify the redirect came from us. The list keeps multiple tabs' flows
+     * valid. See docs/github-oauth-and-app-install.md.
      */
     public static githubInstall<ThrowOnError extends boolean = false>(options?: Options<GithubInstallData, ThrowOnError>) {
-        return (options?.client ?? client).post<GithubInstallResponses, GithubInstallErrors, ThrowOnError>({
+        return (options?.client ?? client).get<GithubInstallResponses, GithubInstallErrors, ThrowOnError>({
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/integrations/github/install',
@@ -253,6 +253,76 @@ export class RepositoriesService {
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/repositories/',
             ...options
+        });
+    }
+}
+
+export class EntriesService {
+    /**
+     * Get Entries For Project Route
+     */
+    public static getEntriesForProject<ThrowOnError extends boolean = false>(options: Options<GetEntriesForProjectData, ThrowOnError>) {
+        return (options.client ?? client).get<GetEntriesForProjectResponses, GetEntriesForProjectErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/projects/{id}/entries',
+            ...options
+        });
+    }
+
+    /**
+     * Create Time Entry Route
+     */
+    public static createTimeEntry<ThrowOnError extends boolean = false>(options: Options<CreateTimeEntryData, ThrowOnError>) {
+        return (options.client ?? client).post<CreateTimeEntryResponses, CreateTimeEntryErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/projects/{id}/entries',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+
+    /**
+     * Delete Time Entry Route
+     */
+    public static deleteTimeEntry<ThrowOnError extends boolean = false>(options: Options<DeleteTimeEntryData, ThrowOnError>) {
+        return (options.client ?? client).delete<DeleteTimeEntryResponses, DeleteTimeEntryErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/projects/{id}/entries/{entry_id}',
+            ...options
+        });
+    }
+
+    /**
+     * Get Time Entry Route
+     */
+    public static getTimeEntry<ThrowOnError extends boolean = false>(options: Options<GetTimeEntryData, ThrowOnError>) {
+        return (options.client ?? client).get<GetTimeEntryResponses, GetTimeEntryErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/projects/{id}/entries/{entry_id}',
+            ...options
+        });
+    }
+
+    /**
+     * Update Time Entry Route
+     */
+    public static updateTimeEntry<ThrowOnError extends boolean = false>(options: Options<UpdateTimeEntryData, ThrowOnError>) {
+        return (options.client ?? client).patch<UpdateTimeEntryResponses, UpdateTimeEntryErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/projects/{id}/entries/{entry_id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
         });
     }
 }
