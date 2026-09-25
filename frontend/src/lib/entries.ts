@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import { EntriesService } from "@/client";
 import type {
   TimeEntryCreate,
@@ -101,6 +102,11 @@ export function useCreateEntry(
             : prev,
       );
       queryClient.invalidateQueries({ queryKey: entryKeys.list(projectId) });
+      try {
+        localStorage.setItem("devtrackr-has-entry", "1");
+      } catch {
+        // storage unavailable; flag is best-effort onboarding state
+      }
       onSuccess?.(data, vars, context, mutationContext);
     },
     onError: (err, vars, context, mutationContext) => {
@@ -229,4 +235,55 @@ export function useDeleteEntry(
     },
     ...rest,
   });
+}
+
+/** Re-create payload for undoing a delete (new id; same content/range). */
+export function entryToRecreatePayload(
+  entry: TimeEntryPublic,
+): TimeEntryCreate {
+  return {
+    description: entry.description ?? null,
+    start_time: entry.start_time,
+    end_time: entry.end_time ?? null,
+    duration_seconds: entry.duration_seconds ?? null,
+  };
+}
+
+/**
+ * Delete with undo support. Stores the last deleted entry so callers can
+ * toast an Undo action that re-creates it with the same content and range.
+ */
+export function useUndoDeleteEntry(projectId: string) {
+  const queryClient = useQueryClient();
+  const deleteMutation = useDeleteEntry(projectId);
+  const createMutation = useCreateEntry(projectId);
+  const [lastDeleted, setLastDeleted] = useState<TimeEntryPublic | null>(null);
+
+  const remove = useCallback(
+    async (entry: TimeEntryPublic) => {
+      if (!entry.id) return null;
+      setLastDeleted(entry);
+      return deleteMutation.mutateAsync(entry.id);
+    },
+    [deleteMutation],
+  );
+
+  const undo = useCallback(async () => {
+    if (!lastDeleted) return null;
+    const snapshot = lastDeleted;
+    setLastDeleted(null);
+    const created = await createMutation.mutateAsync(
+      entryToRecreatePayload(snapshot),
+    );
+    queryClient.invalidateQueries({ queryKey: entryKeys.list(projectId) });
+    return created;
+  }, [lastDeleted, createMutation, queryClient, projectId]);
+
+  return {
+    remove,
+    undo,
+    lastDeleted,
+    canUndo: lastDeleted !== null,
+    isPending: deleteMutation.isPending || createMutation.isPending,
+  };
 }

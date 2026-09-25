@@ -77,9 +77,17 @@ axiosInstance.interceptors.response.use(
 );
 
 function redirectToLogin() {
-  if (!isPublicPageRoute(window.location.pathname)) {
+  const pathname = window.location.pathname;
+  if (isPublicPageRoute(pathname)) return;
+  // Preserve the destination so a re-login can navigate back; guard against
+  // nesting ?next= when already on /login (e.g. refresh-token failure there).
+  if (pathname === "/login") {
     window.location.replace("/login");
+    return;
   }
+  const next = `${pathname}${window.location.search}`;
+  const params = new URLSearchParams({ next, expired: "1" });
+  window.location.replace(`/login?${params.toString()}`);
 }
 
 function deriveMessage(status: number | undefined, error: unknown): string {

@@ -61,6 +61,11 @@ export function useSaveColumns(
       queryClient.invalidateQueries({
         queryKey: columnKeys.project(projectId),
       });
+      try {
+        localStorage.setItem("devtrackr-has-columns", "1");
+      } catch {
+        // storage unavailable; flag is best-effort onboarding state
+      }
       onSuccess?.(data, vars, context, mutationContext);
     },
     onError: (err, vars, context, mutationContext) => {
