@@ -70,13 +70,17 @@
   --secondary: oklch(0.967 -0.0003 -0.0029);
   --secondary-foreground: oklch(0.2542 -0.0031 -0.0107);
   --muted: oklch(0.967 -0.0003 -0.0029);
-  --muted-foreground: oklch(0.531 -0.0055 -0.0163);
+  /* Darkened for contrast: meets 4.5:1 against muted backgrounds. */
+  --muted-foreground: oklch(0.45 -0.0055 -0.0163);
   --accent: oklch(0.967 -0.0003 -0.0029);
   --accent-foreground: oklch(0.2542 -0.0031 -0.0107);
   --destructive: oklch(0.5517 0.1866 0.0851);
   --border: oklch(0.8758 -0.0046 -0.0114);
   --input: oklch(0.7783 -0.0061 -0.0151);
   --ring: oklch(0.5399 -0.0413 -0.1861);
+  /* Border tokens: use --border for static layout dividers and --edge for
+     interactive control outlines (inputs, buttons) where stronger contrast
+     against the background is needed. */
   --edge: oklch(0.7783 -0.0061 -0.0151);
   --success: oklch(0.5244 -0.1188 0.0741);
   --warning: oklch(0.5542 0.0302 0.1129);
@@ -108,7 +112,8 @@
   --secondary: oklch(0.2666 -0.0034 -0.0146);
   --secondary-foreground: oklch(0.9425 -0.0049 -0.0099);
   --muted: oklch(0.2666 -0.0034 -0.0146);
-  --muted-foreground: oklch(0.6769 -0.0041 -0.015);
+  /* Lightened for contrast in dark mode. */
+  --muted-foreground: oklch(0.72 -0.0041 -0.015);
   --accent: oklch(0.2666 -0.0034 -0.0146);
   --accent-foreground: oklch(0.9425 -0.0049 -0.0099);
   --destructive: oklch(0.6651 0.1824 0.0928);
