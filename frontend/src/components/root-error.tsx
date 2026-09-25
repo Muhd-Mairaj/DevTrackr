@@ -1,6 +1,7 @@
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ErrorBanner } from "@/components/ui/error-banner";
 import { strings } from "@/ii8n/strings";
 
 export function RootErrorComponent({ error, reset }: ErrorComponentProps) {
@@ -19,6 +20,9 @@ export function RootErrorComponent({ error, reset }: ErrorComponentProps) {
           <p className="text-muted-foreground text-sm">
             {strings.error.rootDescription}
           </p>
+          {error instanceof Error && error.message && (
+            <ErrorBanner message={error.message} />
+          )}
         </div>
         <div className="flex items-center gap-3 pt-2">
           {reset && (
