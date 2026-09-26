@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { UtilsService } from "@/client";
+import { strings } from "@/ii8n/strings";
 
 type PingResponse = {
   status?: string;
@@ -18,18 +19,24 @@ export function PingStatus() {
         }
       })
       .catch((err: unknown) => {
-        setError(
-          err instanceof Error ? err.message : "Error fetching ping status",
-        );
+        setError(err instanceof Error ? err.message : strings.ping.fetchError);
       });
   }, []);
 
   if (error) {
-    return <div data-testid="ping-error">{error}</div>;
+    return (
+      <div data-testid="ping-error" role="alert">
+        {error}
+      </div>
+    );
   }
 
   if (!data) {
-    return <div data-testid="ping-loading">Loading ping...</div>;
+    return (
+      <div data-testid="ping-loading" role="status">
+        {strings.ping.loading}
+      </div>
+    );
   }
 
   return (
