@@ -1,4 +1,4 @@
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pause, Pencil, Plus, Trash2 } from "lucide-react";
 import { memo, useMemo } from "react";
 import type { ProjectColumnItem, TimeEntryPublic } from "@/client/types.gen";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,9 @@ interface EntriesTableProps {
   total: number;
   onEdit: (entry: TimeEntryPublic) => void;
   onDelete: (entry: TimeEntryPublic) => void;
+  onPause?: (entry: TimeEntryPublic) => void;
+  /** True while a table pause request is in flight. */
+  isPausing?: boolean;
   onConfigureColumns: () => void;
   onPageChange: (page: number) => void;
 }
@@ -77,6 +80,8 @@ export function EntriesTable({
   total,
   onEdit,
   onDelete,
+  onPause,
+  isPausing,
   onConfigureColumns,
   onPageChange,
 }: EntriesTableProps) {
@@ -133,6 +138,19 @@ export function EntriesTable({
                 ))}
                 <td className="sticky right-0 bg-card px-3 py-2 align-middle text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-0.5">
+                    {entry.end_time == null && onPause && (
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        onClick={() => onPause(entry)}
+                        disabled={isPausing}
+                        aria-label={`${strings.entries.pauseButton}: ${entry.description ?? entry.id}`}
+                        title={strings.entries.pauseTitle}
+                        className="border-amber-500/50 bg-amber-500/10 text-amber-700 transition-colors hover:bg-amber-500/20 hover:text-amber-800 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 dark:text-amber-400 dark:hover:text-amber-300"
+                      >
+                        <Pause aria-hidden="true" className="size-3.5" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon-sm"

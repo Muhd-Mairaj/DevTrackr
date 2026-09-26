@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Pause } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -31,9 +32,8 @@ const entrySchema = z
     start: z.string().min(1, strings.entries.startRequired),
     end: z.string().optional(),
     duration: z.string().optional(),
-    ongoing: z.boolean(),
   })
-  .refine((v) => v.ongoing || !v.end || new Date(v.end) > new Date(v.start), {
+  .refine((v) => !v.end || new Date(v.end) > new Date(v.start), {
     message: strings.entries.endAfterStart,
     path: ["end"],
   });
@@ -109,7 +109,6 @@ export function EntryFormDialog({
       start: "",
       end: "",
       duration: "",
-      ongoing: false,
     },
   });
 
@@ -125,18 +124,16 @@ export function EntryFormDialog({
         start,
         end,
         duration: minutes !== null ? formatDurationInput(minutes) : "",
-        ongoing: entry ? !entry.end_time : false,
       });
     }
   }, [open, entry, form]);
 
   const startValue = form.watch("start");
   const endValue = form.watch("end");
-  const ongoingValue = form.watch("ongoing");
 
   // Editing end updates the duration text (unless it is being typed in).
   useEffect(() => {
-    if (durationFocused.current || ongoingValue) return;
+    if (durationFocused.current) return;
     if (!startValue || !endValue) return;
     const minutes = rangeMinutes(startValue, endValue);
     if (minutes === null) return;
@@ -144,27 +141,23 @@ export function EntryFormDialog({
     if (form.getValues("duration") !== next) {
       form.setValue("duration", next, { shouldValidate: false });
     }
-  }, [startValue, endValue, ongoingValue, form]);
+  }, [startValue, endValue, form]);
 
   const liveDuration = useMemo(() => {
     if (!startValue) return null;
-    const endMs = ongoingValue
-      ? Date.now()
-      : endValue
-        ? new Date(endValue).getTime()
-        : Number.NaN;
+    // An empty end means the entry is still running: preview start → now.
+    const endMs = endValue ? new Date(endValue).getTime() : Date.now();
     const ms = endMs - new Date(startValue).getTime();
     if (Number.isNaN(ms) || ms <= 0) return null;
     return formatDuration(Math.floor(ms / 1000));
-  }, [startValue, endValue, ongoingValue]);
+  }, [startValue, endValue]);
 
   const overlaps = useMemo(() => {
     if (!startValue) return false;
     const startMs = new Date(startValue).getTime();
     if (Number.isNaN(startMs)) return false;
-    // Ongoing entries occupy start → now for the overlap hint.
-    const endMs =
-      !ongoingValue && endValue ? new Date(endValue).getTime() : Date.now();
+    // A running entry (empty end) occupies start → now for the hint.
+    const endMs = endValue ? new Date(endValue).getTime() : Date.now();
     if (Number.isNaN(endMs) || endMs <= startMs) return false;
     return existingEntries.some((e) => {
       if (entry?.id && e.id === entry.id) return false;
@@ -176,7 +169,7 @@ export function EntryFormDialog({
       if (Number.isNaN(en)) return false;
       return startMs < en && endMs > s;
     });
-  }, [startValue, endValue, ongoingValue, existingEntries, entry?.id]);
+  }, [startValue, endValue, existingEntries, entry?.id]);
 
   const handleNow = () => {
     form.setValue(
@@ -192,7 +185,7 @@ export function EntryFormDialog({
     onChange: (value: string) => void,
   ) => {
     onChange(raw);
-    if (ongoingValue || !startValue) return;
+    if (!startValue) return;
     const minutes = parseDurationInput(raw);
     if (minutes === null) return;
     const startMs = new Date(startValue).getTime();
@@ -204,15 +197,21 @@ export function EntryFormDialog({
     );
   };
 
+  // Pausing an entry only offered when editing an entry that is currently running
+  const isRunningEdit = isEdit && entry?.end_time == null && !endValue;
+  const handlePause = () => {
+    form.setValue("end", toLocalInput(new Date().toISOString()), {
+      shouldValidate: true,
+    });
+  };
+
   const onSubmit = async (values: EntryValues) => {
     try {
       const body = {
         description: values.description,
         start_time: new Date(values.start).toISOString(),
-        end_time:
-          values.ongoing || !values.end
-            ? null
-            : new Date(values.end).toISOString(),
+        // An empty end keeps the entry running (end_time: null).
+        end_time: values.end ? new Date(values.end).toISOString() : null,
       };
       if (isEdit && entry) {
         // Server entries always carry an id; the generated type keeps it
@@ -315,13 +314,37 @@ export function EntryFormDialog({
               name="end"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{strings.entries.endLabel}</FormLabel>
+                  <div className="flex items-center justify-between gap-2">
+                    <FormLabel>{strings.entries.endLabel}</FormLabel>
+                    {isRunningEdit && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="xs"
+                        onClick={handlePause}
+                        disabled={mutation.isPending}
+                        title={strings.entries.pauseTitle}
+                        className="gap-1 border-amber-500/50 bg-amber-500/10 font-semibold text-amber-700 transition-colors hover:bg-amber-500/20 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300"
+                      >
+                        <Pause className="size-3.5" aria-hidden="true" />
+                        {strings.entries.pauseButton}
+                      </Button>
+                    )}
+                  </div>
+                  {isRunningEdit && (
+                    <p
+                      role="note"
+                      className="text-xs text-amber-700 dark:text-amber-400"
+                    >
+                      {strings.entries.runningEditHint}
+                    </p>
+                  )}
                   <DateTimeInput
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     dateLabel={strings.entries.endDateLabel}
                     timeLabel={strings.entries.endTimeLabel}
-                    disabled={mutation.isPending || ongoingValue}
+                    disabled={mutation.isPending}
                   />
                   <FormMessage />
                 </FormItem>
@@ -353,34 +376,6 @@ export function EntryFormDialog({
                     />
                   </FormControl>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="ongoing"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center gap-2">
-                  <FormControl>
-                    <input
-                      type="checkbox"
-                      checked={field.value}
-                      disabled={mutation.isPending}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        field.onChange(checked);
-                        if (checked) {
-                          form.setValue("end", "", {
-                            shouldValidate: true,
-                          });
-                        }
-                      }}
-                      className="size-4 shrink-0 accent-primary"
-                    />
-                  </FormControl>
-                  <FormLabel className="font-normal">
-                    {strings.entries.ongoingLabel}
-                  </FormLabel>
                 </FormItem>
               )}
             />
