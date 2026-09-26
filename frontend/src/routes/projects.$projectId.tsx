@@ -18,8 +18,9 @@ import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/page-container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/contexts/toast";
 import { strings } from "@/ii8n/strings";
-import { PAGE_SIZE, useEntries } from "@/lib/entries";
+import { PAGE_SIZE, useEntries, usePauseEntry } from "@/lib/entries";
 import { downloadCsv, exportEntriesCsv } from "@/lib/export";
 import { useProject } from "@/lib/projects";
 import { focusSearchInput, useKeyboardShortcuts } from "@/lib/shortcuts";
@@ -59,6 +60,8 @@ function ProjectPage() {
   } = useProject(projectId);
   const navigate = Route.useNavigate();
   const entriesQuery = useEntries(projectId, page);
+  const { pause, isPausing } = usePauseEntry(projectId);
+  const { toast } = useToast();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<TimeEntryPublic | null>(null);
   const [deleting, setDeleting] = useState<TimeEntryPublic | null>(null);
@@ -147,6 +150,15 @@ function ProjectPage() {
     if (deleteOpenItemCountRef.current === 1 && page > 1) {
       navigate({ search: { page: page - 1 } });
     }
+  };
+
+  // Pausing a running entry from the table stamps its end with now.
+  const handlePauseEntry = (entry: TimeEntryPublic) => {
+    if (!entry.id || entry.end_time != null || isPausing) return;
+    pause(entry.id, {
+      onSuccess: () => toast("success", strings.entries.updatedToast),
+      onError: (err) => toast("error", err.message),
+    });
   };
 
   if (isLoading) {
@@ -292,6 +304,8 @@ function ProjectPage() {
                   entriesQuery.data?.items.length ?? 0;
                 setDeleting(entry);
               }}
+              onPause={handlePauseEntry}
+              isPausing={isPausing}
               onConfigureColumns={() => setColumnsOpen(true)}
               onPageChange={handlePageChange}
               onNewEntry={openNewEntry}

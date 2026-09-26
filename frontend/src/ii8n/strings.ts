@@ -139,7 +139,10 @@ export const strings = {
     durationLabel: "Duration",
     durationPlaceholder: "1:30 or 90",
     nowButton: "Now",
-    ongoingLabel: "Ongoing / no end yet",
+    pauseButton: "Pause",
+    pauseTitle: "Pause (sets the end time to now)",
+    runningEditHint:
+      "This entry is still running. Pause stamps the end with the current time.",
     overlapWarning: "This time range overlaps an existing entry.",
     runningLabel: "Running",
     recentLabel: "Recent descriptions",

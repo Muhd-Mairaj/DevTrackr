@@ -15,6 +15,8 @@ interface EntriesAreaProps {
   page: number;
   onEdit: (entry: TimeEntryPublic) => void;
   onDelete: (entry: TimeEntryPublic) => void;
+  onPause?: (entry: TimeEntryPublic) => void;
+  isPausing?: boolean;
   onConfigureColumns: () => void;
   onPageChange: (page: number) => void;
   onNewEntry: () => void;
@@ -29,6 +31,8 @@ export function EntriesArea({
   page,
   onEdit,
   onDelete,
+  onPause,
+  isPausing,
   onConfigureColumns,
   onPageChange,
   onNewEntry,
@@ -143,6 +147,8 @@ export function EntriesArea({
         total={entriesQuery.data?.total ?? 0}
         onEdit={onEdit}
         onDelete={onDelete}
+        onPause={onPause}
+        isPausing={isPausing}
         onConfigureColumns={onConfigureColumns}
         onPageChange={onPageChange}
       />
