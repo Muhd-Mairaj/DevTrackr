@@ -66,9 +66,9 @@ describe("EntriesTable", () => {
         onPageChange={vi.fn()}
       />,
     );
-    await user.click(screen.getByLabelText("Edit entry"));
+    await user.click(screen.getByRole("button", { name: /Edit entry/ }));
     expect(onEdit).toHaveBeenCalledWith(entry);
-    await user.click(screen.getByLabelText("Delete entry"));
+    await user.click(screen.getByRole("button", { name: /Delete entry/ }));
     expect(onDelete).toHaveBeenCalledWith(entry);
   });
 
