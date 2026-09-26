@@ -189,6 +189,33 @@ export function useUpdateEntry(
   });
 }
 
+/**
+ * Pause a running entry by stamping its end with now. Wraps its own
+ * update mutation so pausing never interferes with the edit dialog's save.
+ */
+export function usePauseEntry(projectId: string) {
+  const mutation = useUpdateEntry(projectId);
+  const pause = useCallback(
+    (
+      id: string,
+      options?: {
+        onSuccess?: () => void;
+        onError?: (err: Error) => void;
+      },
+    ) => {
+      mutation.mutate(
+        { id, body: { end_time: new Date().toISOString() } },
+        {
+          onSuccess: () => options?.onSuccess?.(),
+          onError: (err) => options?.onError?.(err),
+        },
+      );
+    },
+    [mutation],
+  );
+  return { pause, isPausing: mutation.isPending };
+}
+
 export function useDeleteEntry(
   projectId: string,
   options?: UseMutationOptions<TimeEntryPublic, Error, string>,

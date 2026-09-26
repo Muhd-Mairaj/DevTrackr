@@ -54,7 +54,7 @@ export function OnboardingChecklist({
     try {
       localStorage.setItem(ONBOARD_DISMISSED_KEY, "1");
     } catch {
-      // Storage unavailable (private mode) — hide for this session only.
+      // Storage unavailable (private mode), so hide for this session only.
     }
     setDismissed(true);
   };
