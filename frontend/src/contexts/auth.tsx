@@ -24,7 +24,10 @@ export const PUBLIC_API_ROUTES = [
 ];
 
 export function isPublicPageRoute(pathname: string): boolean {
-  return PUBLIC_PAGE_ROUTES.some((route) => pathname.startsWith(route));
+  // Strip query/hash and match exactly: "/login" or anything under "/login/".
+  // A bare startsWith("/login") over-matches routes like "/login-callback".
+  const path = pathname.split(/[?#]/)[0];
+  return path === "/login" || path.startsWith("/login/");
 }
 
 export function isPublicApiRoute(url: string): boolean {

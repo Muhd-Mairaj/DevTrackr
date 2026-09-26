@@ -28,10 +28,9 @@ export function ThemeToggle() {
       size="icon-sm"
       className="text-muted-foreground hover:text-foreground"
       aria-label={label}
-      title={label}
       onClick={cycleTheme}
     >
-      <Icon className="size-4" />
+      <Icon className="size-4" aria-hidden="true" />
     </Button>
   );
 }
