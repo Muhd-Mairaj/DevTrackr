@@ -6,7 +6,9 @@
       "name": "frontend",
       "dependencies": {
         "@fontsource/ibm-plex-mono": "^5.3.0",
+        "@fontsource/jetbrains-mono": "^5.3.0",
         "@fontsource/schibsted-grotesk": "^5.3.0",
+        "@fontsource/space-grotesk": "^5.3.0",
         "@hookform/resolvers": "^5.5.7",
         "@tanstack/react-query": "^5.90.5",
         "@tanstack/react-router": "^1.133.15",
@@ -223,7 +225,11 @@
 
     "@fontsource/ibm-plex-mono": ["@fontsource/ibm-plex-mono@5.3.0", "", {}, "sha512-eTgnZjZEGk1QtD3ZstF+Vclo2HLAni8YMy34/DxllwZvyz1lR/1RF/xTiAquOBO7MvqBx8D2Ig2WCPMVfdZu7Q=="],
 
+    "@fontsource/jetbrains-mono": ["@fontsource/jetbrains-mono@5.3.0", "", {}, "sha512-fqDfB5I9f1p1TV486aUgB9t8zP84P0O1FtQR5Ol9vjwPy+S+EIGlVYm1cvj2W5shcZMTg2nZFdVMoH5wFu8a1A=="],
+
     "@fontsource/schibsted-grotesk": ["@fontsource/schibsted-grotesk@5.3.0", "", {}, "sha512-9k+Fd2eg7umKxI2JV2HtDcOkXEM0iJx0u4Iu1b+QHikVU8Sl/MtozJ/mtZfsltR6xnVGSQjpcxXQeJPW0KGpIA=="],
+
+    "@fontsource/space-grotesk": ["@fontsource/space-grotesk@5.3.0", "", {}, "sha512-ksnGizDPXIDuvqcTYTSrmZ+evx9sDlS8rp7+42BQ7wU+spt3twEoXfbJz672C+5CLg6VeUQwRy5RXshWb67LcQ=="],
 
     "@hey-api/client-axios": ["@hey-api/client-axios@0.9.1", "", { "peerDependencies": { "@hey-api/openapi-ts": "< 2", "axios": ">= 1.0.0 < 2" } }, "sha512-fvpOdnEz6tu5T2+IMNZW3g9mAZwaXavqpsvtapEZNtYxyYtQ+lQs9wJn/VPhZEvdXAXu8HPTCRpmfa0t1aRATA=="],
 
