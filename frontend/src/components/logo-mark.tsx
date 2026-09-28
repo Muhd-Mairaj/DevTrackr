@@ -1,11 +1,11 @@
 import { strings } from "@/i18n/strings";
 
 /**
- * Provisional DevTrackr mark: a primary rounded square with ruled lines
- * and a stamp dot. Replace with the real logo when designed; keep the
- * same component interface so the swap touches one file.
+ * DevTrackr mark, "daybook": an ink tile holding a leaf with a coral today-rule.
+ * It is the product's own object — a page in a work journal. Reads at 16px and
+ * in monochrome. Swapping the identity touches this one file.
  */
-export function LogoMark({ size = 24 }: { size?: number }) {
+export function LogoMark({ size = 26 }: { size?: number }) {
   return (
     <svg
       width={size}
@@ -13,29 +13,42 @@ export function LogoMark({ size = 24 }: { size?: number }) {
       viewBox="0 0 26 26"
       role="img"
       aria-label={strings.common.brand}
+      className="shrink-0"
     >
-      <rect width="26" height="26" rx="6" fill="var(--primary)" />
+      <rect width="26" height="26" rx="7" fill="var(--brand-ink)" />
+      <rect
+        x="5.25"
+        y="4.75"
+        width="15.5"
+        height="16.5"
+        rx="2"
+        fill="var(--brand-paper)"
+      />
       <path
-        d="M7 9.5h12M7 13h8.5"
-        stroke="var(--primary-foreground)"
-        strokeOpacity="0.9"
+        d="M9 4.75V21.25"
+        stroke="var(--brand-ink)"
         strokeWidth="1.6"
         strokeLinecap="round"
       />
       <path
-        d="M7 16.5h12"
-        stroke="var(--primary-foreground)"
-        strokeOpacity="0.35"
-        strokeWidth="1.6"
+        d="M12 10.5H18"
+        stroke="var(--signal)"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
-      <circle
-        cx="19.5"
-        cy="16.5"
-        r="2.6"
-        fill="var(--destructive)"
-        stroke="var(--primary-foreground)"
-        strokeWidth="1.1"
+      <path
+        d="M12 14H18"
+        stroke="var(--brand-ink)"
+        strokeOpacity="0.45"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+      <path
+        d="M12 17.5H15.5"
+        stroke="var(--brand-ink)"
+        strokeOpacity="0.45"
+        strokeWidth="1.3"
+        strokeLinecap="round"
       />
     </svg>
   );
