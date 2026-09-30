@@ -22,7 +22,7 @@ export function OfflineBanner() {
   return (
     <div
       role="alert"
-      className="fixed inset-x-0 bottom-0 z-50 bg-destructive px-4 py-2 text-center text-xs font-medium text-white"
+      className="fixed inset-x-0 bottom-14 z-50 border-t border-warning/30 bg-warning/15 px-4 py-2 text-center text-xs font-medium text-warning"
     >
       {strings.offline.message}
     </div>

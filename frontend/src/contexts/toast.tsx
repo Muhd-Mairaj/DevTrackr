@@ -145,7 +145,7 @@ function ToastView({
       onFocus={clearTimer}
       onBlur={startTimer}
       className={cn(
-        "pointer-events-auto flex items-center gap-2 rounded-md border border-edge bg-card px-3 py-2 text-sm text-foreground shadow-md",
+        "pointer-events-auto flex items-center gap-2 rounded-lg border border-edge bg-card px-3 py-2 text-sm text-foreground shadow-md",
         "animate-in slide-in-from-top-2 fade-in duration-200 motion-reduce:animate-none",
       )}
     >
