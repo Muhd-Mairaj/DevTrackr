@@ -137,21 +137,19 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
   )
 }
 
-function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
+  function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   const { error, formMessageId } = useFormField()
   const body = error ? String(error?.message ?? "") : props.children
 
-  if (!body) {
-    return null
-  }
-
+  // The slot is reserved even when empty so an appearing error does not
+  // push the form down (see reference: input-state gate).
   return (
     <p
       data-slot="form-message"
       id={formMessageId}
-      role="alert"
-      aria-live="polite"
-      className={cn("text-xs text-destructive", className)}
+      role={body ? "alert" : undefined}
+      aria-live={body ? "polite" : undefined}
+      className={cn("min-h-[1lh] text-xs text-destructive", className)}
       {...props}
     >
       {body}
