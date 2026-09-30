@@ -40,13 +40,17 @@ function formatDayStamp(date: Date): string {
   }
 }
 
+/**
+ * The dateline that opens every page: a mono date and a ruled hairline running
+ * to the edge. The "ruled paper" motif of the Daybook identity.
+ */
 export function DayStamp({ date, className }: DayStampProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <span className="font-mono text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
+      <span className="font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase whitespace-nowrap">
         {formatDayStamp(date)}
       </span>
-      <span className="h-px flex-1 bg-border" />
+      <span aria-hidden="true" className="rule min-w-0 flex-1" />
     </div>
   );
 }
