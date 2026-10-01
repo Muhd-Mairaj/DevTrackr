@@ -57,7 +57,7 @@ export function RepositorySelector({
       return (
         <div className="min-w-0 space-y-2">
           <Label>{strings.integrations.repoSelectorLabel}</Label>
-          <div className="flex flex-col items-start gap-2.5 rounded-md border bg-card px-3 py-3">
+          <div className="flex flex-col items-start gap-2.5 rounded-lg border border-border bg-card px-3 py-3">
             <p className="text-xs text-muted-foreground">
               {strings.integrations.githubSetupPrompt}
             </p>
@@ -82,7 +82,7 @@ export function RepositorySelector({
     return (
       <div className="min-w-0 space-y-2">
         <Label>{strings.integrations.repoSelectorLabel}</Label>
-        <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-muted-foreground">
           <AlertCircle
             aria-hidden="true"
             className="size-3.5 shrink-0 text-destructive"
@@ -114,10 +114,10 @@ export function RepositorySelector({
   return (
     <fieldset className="min-w-0 space-y-2">
       <div>
-        <legend className="flex items-center gap-2 text-xs leading-none font-semibold select-none">
+        <legend className="flex items-center gap-2 font-mono text-[11px] font-medium tracking-[0.12em] text-muted-foreground uppercase select-none">
           {strings.integrations.repoSelectorLabel}
         </legend>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           {strings.integrations.repoSelectorDescription}
         </p>
       </div>
@@ -125,7 +125,7 @@ export function RepositorySelector({
       <div className="relative">
         <Search
           aria-hidden="true"
-          className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
         />
         <label htmlFor="repo-search" className="sr-only">
           {strings.integrations.repoSearchPlaceholder}
@@ -136,12 +136,12 @@ export function RepositorySelector({
           placeholder={strings.integrations.repoSearchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-8"
+          className="pl-9"
           disabled={disabled}
         />
       </div>
 
-      <div className="max-h-48 overflow-y-auto rounded-md border">
+      <div className="max-h-48 overflow-y-auto rounded-lg border border-border">
         {filtered.length === 0 ? (
           <p className="px-3 py-4 text-center text-xs text-muted-foreground">
             {strings.integrations.noReposFound}
@@ -176,7 +176,7 @@ function RepoRow({
   disabled: boolean;
 }) {
   return (
-    <li className="flex items-center gap-2 px-3 py-2">
+    <li className="flex items-center gap-2 px-3 py-2 transition-colors hover:bg-muted/50">
       <input
         type="checkbox"
         id={`repo-${repo.github_id}`}

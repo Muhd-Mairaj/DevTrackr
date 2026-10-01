@@ -3,6 +3,7 @@ import type { ProjectPublic } from "@/client/types.gen";
 import { AppDialog } from "@/components/ui/app-dialog";
 import { ErrorBanner } from "@/components/ui/error-banner";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/i18n/strings";
 import { useUndoDeleteProject } from "@/lib/projects";
@@ -77,12 +78,9 @@ export function DeleteProjectDialog({
       actionButtonId="delete-project-confirm-btn"
     >
       <div className="flex flex-col gap-2">
-        <label
-          htmlFor="delete-project-confirm-input"
-          className="text-sm text-muted-foreground"
-        >
+        <Label htmlFor="delete-project-confirm-input">
           {strings.projects.typeToConfirm}
-        </label>
+        </Label>
         <Input
           id="delete-project-confirm-input"
           value={confirmText}
