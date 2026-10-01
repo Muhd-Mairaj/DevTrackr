@@ -1,5 +1,7 @@
-import { AlertCircle, FolderSearch, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { Panel, PanelBody } from "@/components/ui/panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { strings } from "@/i18n/strings";
 import { cn } from "@/lib/utils";
@@ -19,18 +21,19 @@ export function LoadingSkeleton({
     return (
       <div role="status" className={cn("flex flex-col gap-3", className)}>
         {Array.from({ length: count }).map((_, i) => (
-          <div
+          <Panel
             // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton list
             key={i}
-            className="flex items-center gap-4 rounded-md border bg-card p-4"
           >
-            <Skeleton className="size-10 shrink-0 rounded-[4px]" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-2/5" />
-              <Skeleton className="h-3 w-3/5" />
-            </div>
-            <Skeleton className="h-5 w-16 rounded-[4px]" />
-          </div>
+            <PanelBody className="flex items-center gap-4">
+              <Skeleton className="size-10 shrink-0 rounded" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-2/5" />
+                <Skeleton className="h-3 w-3/5" />
+              </div>
+              <Skeleton className="h-5 w-16 rounded-sm" />
+            </PanelBody>
+          </Panel>
         ))}
       </div>
     );
@@ -45,21 +48,22 @@ export function LoadingSkeleton({
       )}
     >
       {Array.from({ length: count }).map((_, i) => (
-        <div
+        <Panel
           // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton grid
           key={i}
-          className="flex flex-col gap-3 rounded-md border bg-card p-5"
         >
-          <div className="flex items-start justify-between">
-            <Skeleton className="h-4 w-2/5" />
-            <Skeleton className="h-5 w-14 rounded-[4px]" />
-          </div>
-          <Skeleton className="h-3 w-4/5" />
-          <Skeleton className="h-3 w-3/5" />
-          <div className="mt-auto flex items-center gap-2 pt-2">
-            <Skeleton className="h-3 w-20" />
-          </div>
-        </div>
+          <PanelBody className="flex flex-col gap-3">
+            <div className="flex items-start justify-between">
+              <Skeleton className="h-4 w-2/5" />
+              <Skeleton className="h-5 w-14 rounded-sm" />
+            </div>
+            <Skeleton className="h-3 w-4/5" />
+            <Skeleton className="h-3 w-3/5" />
+            <div className="mt-auto flex items-center gap-2 pt-2">
+              <Skeleton className="h-3 w-20" />
+            </div>
+          </PanelBody>
+        </Panel>
       ))}
     </div>
   );
@@ -80,7 +84,7 @@ export function QueryError({
     <div
       role="alert"
       className={cn(
-        "flex items-start gap-3 rounded-md border border-destructive/35 bg-destructive/5 px-4 py-3",
+        "flex items-start gap-3 rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3",
         className,
       )}
     >
@@ -89,8 +93,12 @@ export function QueryError({
         className="mt-0.5 size-4 shrink-0 text-destructive"
       />
       <div className="flex-1 space-y-1">
-        <p className="text-sm font-semibold">{strings.error.loadFailed}</p>
-        <p className="text-xs text-muted-foreground">{message}</p>
+        <p className="text-sm font-semibold text-destructive">
+          {strings.error.loadFailed}
+        </p>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {message}
+        </p>
       </div>
       {onRetry && (
         <Button
@@ -99,7 +107,7 @@ export function QueryError({
           onClick={onRetry}
           className="gap-1.5"
         >
-          <RefreshCw className="size-3.5" />
+          <RefreshCw className="size-3.5" aria-hidden="true" />
           {strings.common.retry}
         </Button>
       )}
@@ -108,15 +116,13 @@ export function QueryError({
 }
 
 interface EmptyStateProps {
-  icon?: React.ReactNode;
   title?: string;
   description?: string;
-  action?: React.ReactNode;
+  action?: ReactNode;
   className?: string;
 }
 
 export function EmptyState({
-  icon,
   title = strings.empty.defaultTitle,
   description,
   action,
@@ -125,17 +131,17 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-md border border-dashed border-edge px-6 py-14 text-center",
+        "relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl border border-dashed border-edge px-6 py-14 text-center",
         className,
       )}
     >
-      <div className="flex size-10 items-center justify-center rounded-md bg-muted">
-        {icon ?? <FolderSearch className="size-5 text-muted-foreground" />}
-      </div>
+      <div aria-hidden="true" className="rule w-16" />
       <div className="space-y-1">
-        <p className="text-[13px] font-semibold">{title}</p>
+        <p className="text-sm font-semibold tracking-tight">{title}</p>
         {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
+          <p className="mx-auto max-w-[46ch] text-sm leading-relaxed text-muted-foreground">
+            {description}
+          </p>
         )}
       </div>
       {action}

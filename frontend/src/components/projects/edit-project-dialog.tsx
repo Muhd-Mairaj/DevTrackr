@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/i18n/strings";
 import { useUpdateProject } from "@/lib/projects";
@@ -126,12 +127,12 @@ export function EditProjectDialog({
               <FormItem>
                 <FormLabel>{strings.projects.descriptionLabel}</FormLabel>
                 <FormControl>
-                  <textarea
+                  <Textarea
                     id="edit-project-description"
                     placeholder={strings.projects.descriptionPlaceholder}
                     disabled={isSubmitting}
                     rows={3}
-                    className="min-h-20 w-full min-w-0 rounded-md border border-edge bg-card px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive"
+                    className="min-h-20"
                     {...field}
                   />
                 </FormControl>
