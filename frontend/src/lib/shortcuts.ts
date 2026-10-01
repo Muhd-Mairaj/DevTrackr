@@ -15,17 +15,22 @@ export interface ShortcutHandlers {
   onHelp?: () => void;
 }
 
-/**
- * True when keyboard shortcuts should be ignored because the user is
+/** True when keyboard shortcuts should be ignored because the user is
  * typing, choosing an option, or composing text (IME).
- * Pure helper kept separate for unit testing.
- */
+ * Pure helper kept separate for unit testing. */
 export function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
   if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
   if (target.isContentEditable) return true;
   return false;
+}
+
+/** Platform-appropriate modifier glyph for the command palette hint. */
+export function isMacPlatform(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const platform = navigator.platform || navigator.userAgent || "";
+  return /Mac|iPhone|iPad|iPod/.test(platform);
 }
 
 /** Focus the first visible search input known to the app. Returns true if focused. */
