@@ -3,7 +3,13 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { FolderPlus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { ProjectPublic } from "@/client/types.gen";
+import {
+  RecentList,
+  StatsStrip,
+  TodaySection,
+} from "@/components/console/console-modules";
 import { DayStamp } from "@/components/day-stamp";
+import { usePageCommands } from "@/components/nav/command-palette";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { CreateProjectDialog } from "@/components/projects/create-project-dialog";
 import { DeleteProjectDialog } from "@/components/projects/delete-project-dialog";
@@ -21,8 +27,12 @@ import {
 import { ShortcutHelpDialog } from "@/components/shortcut-help-dialog";
 import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/page-container";
+import { Panel } from "@/components/ui/panel";
+import { Section, SectionHeading } from "@/components/ui/section";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/i18n/strings";
+import { totalSeconds, useConsoleFeed } from "@/lib/console";
+import { NEW_PROJECT_EVENT } from "@/lib/events";
 import { consumeGithubReturn } from "@/lib/github-return";
 import { integrationKeys, useGithubStatus } from "@/lib/integrations";
 import { useCreateProject, useProjects } from "@/lib/projects";
@@ -30,10 +40,10 @@ import { repositoryKeys } from "@/lib/repositories";
 import { focusSearchInput, useKeyboardShortcuts } from "@/lib/shortcuts";
 
 export const Route = createFileRoute("/")({
-  component: HomePage,
+  component: ConsolePage,
 });
 
-function HomePage() {
+function ConsolePage() {
   const { data: projects, isLoading, isError, error, refetch } = useProjects();
   const [createOpen, setCreateOpen] = useState(false);
   const [deleting, setDeleting] = useState<ProjectPublic | null>(null);
@@ -44,6 +54,7 @@ function HomePage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { data: githubStatus } = useGithubStatus();
+  const { running, today, entries } = useConsoleFeed(projects);
   const entryDone = (projects ?? []).some((p) => p.has_entries);
   const columnsDone = (projects ?? []).some((p) => p.has_custom_columns);
   const createProject = useCreateProject({
@@ -56,6 +67,23 @@ function HomePage() {
       focusSearchInput();
     },
   });
+
+  usePageCommands("console", [
+    {
+      id: "console-new-project",
+      label: strings.palette.newProject,
+      group: strings.palette.actions,
+      icon: FolderPlus,
+      run: () => setCreateOpen(true),
+    },
+  ]);
+
+  // Shell commands (command palette) open page-local dialogs via events.
+  useEffect(() => {
+    const openNew = () => setCreateOpen(true);
+    window.addEventListener(NEW_PROJECT_EVENT, openNew);
+    return () => window.removeEventListener(NEW_PROJECT_EVENT, openNew);
+  }, []);
 
   // Landing back from the GitHub App install flow carries ?github_app=<outcome>
   // on the URL; refresh the synced repos, drop the param, report, then
@@ -120,7 +148,6 @@ function HomePage() {
     () => projects?.filter((p) => p.is_active).length ?? 0,
     [projects],
   );
-  const inactiveCount = (projects?.length ?? 0) - activeCount;
 
   const visibleProjects = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -134,7 +161,7 @@ function HomePage() {
   }, [projects, searchQuery, statusFilter]);
 
   useEffect(() => {
-    document.title = `${strings.projects.title} · ${strings.common.brand}`;
+    document.title = `${strings.console.title} · ${strings.common.brand}`;
   }, []);
 
   const githubDone = Boolean(
@@ -147,6 +174,10 @@ function HomePage() {
   const showOnboarding =
     !isLoading && !isError && ((projects?.length ?? 0) === 0 || doneCount < 3);
 
+  const todaySeconds = useMemo(() => totalSeconds(today), [today]);
+  const recent = useMemo(() => entries.slice(0, 6), [entries]);
+  const firstProjectId = projects?.[0]?.id;
+
   const createSampleProject = () => {
     createProject.mutate({
       name: strings.onboarding.sampleName,
@@ -158,13 +189,13 @@ function HomePage() {
     <PageContainer>
       <DayStamp date={new Date()} />
 
-      <div className="mt-4 mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {strings.projects.title}
+      <div className="mt-4 mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="max-w-prose">
+          <h1 className="font-display text-3xl font-semibold tracking-tight">
+            {strings.console.title}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {strings.projects.subtitle}
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            {strings.console.subtitle}
           </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -180,17 +211,12 @@ function HomePage() {
         </div>
       </div>
 
-      {showOnboarding && (
-        <OnboardingChecklist
-          githubDone={githubDone}
-          projectDone={projectDone}
-          entryDone={entryDone}
-          columnsDone={columnsDone}
-          firstProjectId={projects?.[0]?.id}
-        />
+      {isLoading && (
+        <div className="flex flex-col gap-8">
+          <Panel className="h-40 animate-pulse" />
+          <LoadingSkeleton variant="list" count={3} />
+        </div>
       )}
-
-      {isLoading && <LoadingSkeleton count={6} variant="grid" />}
 
       {isError && (
         <QueryError
@@ -199,88 +225,106 @@ function HomePage() {
         />
       )}
 
-      {!isLoading && !isError && projects && projects.length > 0 && (
-        <div className="mb-6 grid grid-cols-1 overflow-hidden rounded-md border border-border sm:grid-cols-3">
-          <div className="px-4 py-3">
-            <div className="font-mono text-lg font-medium tabular-nums">
-              {projects.length}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {strings.projects.totalLabel}
-            </div>
-          </div>
-          <div className="border-l border-border px-4 py-3">
-            <div className="font-mono text-lg font-medium tabular-nums">
-              {activeCount}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {strings.projects.activeLabel}
-            </div>
-          </div>
-          <div className="border-l border-border px-4 py-3">
-            <div className="font-mono text-lg font-medium tabular-nums">
-              {inactiveCount}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {strings.projects.inactiveLabel}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {!isLoading && !isError && projects?.length === 0 && (
-        <EmptyState
-          title={strings.projects.emptyTitle}
-          description={strings.projects.emptyDescription}
-          action={
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <Button
-                id="empty-new-project-btn"
-                className="gap-2"
-                onClick={() => setCreateOpen(true)}
-              >
-                <FolderPlus className="size-4" aria-hidden="true" />
-                {strings.projects.newProject}
-              </Button>
-              <Button
-                id="try-sample-project-btn"
-                variant="secondary"
-                onClick={createSampleProject}
-                disabled={createProject.isPending}
-              >
-                {strings.onboarding.trySample}
-              </Button>
-            </div>
-          }
-        />
-      )}
-
-      {!isLoading && !isError && projects && projects.length > 0 && (
-        <>
-          <ProjectSearch
-            query={searchQuery}
-            statusFilter={statusFilter}
-            onQueryChange={setSearchQuery}
-            onStatusChange={setStatusFilter}
+      {!isLoading && !isError && (
+        <div className="flex flex-col gap-9">
+          <TodaySection
+            running={running}
+            today={today}
+            firstProjectId={firstProjectId}
+            onNewProject={() => setCreateOpen(true)}
           />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {visibleProjects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                onClick={(p) =>
-                  navigate({
-                    to: "/projects/$projectId",
-                    params: { projectId: p.id },
-                    search: { page: 1 },
-                  })
+
+          {showOnboarding && (
+            <OnboardingChecklist
+              githubDone={githubDone}
+              projectDone={projectDone}
+              entryDone={entryDone}
+              columnsDone={columnsDone}
+              firstProjectId={firstProjectId}
+            />
+          )}
+
+          <StatsStrip
+            projects={projects ?? []}
+            todaySeconds={todaySeconds}
+            activeCount={activeCount}
+          />
+
+          <Section>
+            <SectionHeading
+              title={strings.console.projectsTitle}
+              meta={String(visibleProjects.length)}
+            />
+            {projects && projects.length > 0 ? (
+              <Panel>
+                <div className="border-b border-border p-4">
+                  <ProjectSearch
+                    query={searchQuery}
+                    statusFilter={statusFilter}
+                    onQueryChange={setSearchQuery}
+                    onStatusChange={setStatusFilter}
+                  />
+                </div>
+                <div>
+                  {visibleProjects.map((project) => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      onClick={(p) =>
+                        navigate({
+                          to: "/projects/$projectId",
+                          params: { projectId: p.id },
+                          search: { page: 1 },
+                        })
+                      }
+                      onEdit={setEditing}
+                      onDelete={setDeleting}
+                    />
+                  ))}
+                  {visibleProjects.length === 0 && (
+                    <p className="px-5 py-8 text-center text-sm text-muted-foreground">
+                      {strings.console.noMatches}
+                    </p>
+                  )}
+                </div>
+              </Panel>
+            ) : (
+              <EmptyState
+                title={strings.projects.emptyTitle}
+                description={strings.projects.emptyDescription}
+                action={
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <Button
+                      id="empty-new-project-btn"
+                      variant="secondary"
+                      className="gap-2"
+                      onClick={() => setCreateOpen(true)}
+                    >
+                      <FolderPlus className="size-4" aria-hidden="true" />
+                      {strings.projects.newProject}
+                    </Button>
+                    <Button
+                      id="try-sample-project-btn"
+                      variant="secondary"
+                      onClick={createSampleProject}
+                      disabled={createProject.isPending}
+                    >
+                      {strings.onboarding.trySample}
+                    </Button>
+                  </div>
                 }
-                onEdit={setEditing}
-                onDelete={setDeleting}
               />
-            ))}
-          </div>
-        </>
+            )}
+          </Section>
+
+          <Section>
+            <SectionHeading
+              title={strings.console.recentTitle}
+              meta={String(recent.length)}
+            />
+            <RecentList entries={recent} />
+          </Section>
+        </div>
       )}
 
       <CreateProjectDialog open={createOpen} onOpenChange={setCreateOpen} />
