@@ -324,7 +324,7 @@ export function EntryFormDialog({
                         onClick={handlePause}
                         disabled={mutation.isPending}
                         title={strings.entries.pauseTitle}
-                        className="gap-1 border-amber-500/50 bg-amber-500/10 font-semibold text-amber-700 transition-colors hover:bg-amber-500/20 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300"
+                        className="gap-1 border-warning/50 bg-warning/10 font-semibold text-warning transition-colors hover:bg-warning/20"
                       >
                         <Pause className="size-3.5" aria-hidden="true" />
                         {strings.entries.pauseButton}
@@ -332,10 +332,7 @@ export function EntryFormDialog({
                     )}
                   </div>
                   {isRunningEdit && (
-                    <p
-                      role="note"
-                      className="text-xs text-amber-700 dark:text-amber-400"
-                    >
+                    <p role="note" className="text-xs text-warning">
                       {strings.entries.runningEditHint}
                     </p>
                   )}
@@ -384,7 +381,7 @@ export function EntryFormDialog({
               {liveDuration ? ` ${liveDuration}` : ""}
             </p>
             {overlaps && (
-              <p role="note" className="text-xs text-amber-600">
+              <p role="note" className="text-xs text-warning">
                 {strings.entries.overlapWarning}
               </p>
             )}
