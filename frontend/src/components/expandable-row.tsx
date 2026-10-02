@@ -39,16 +39,16 @@ export function ExpandableRow({
         )}
         aria-expanded={open}
       >
-        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+        <span className="font-mono text-[13px] tabular-nums text-muted-foreground">
           {time}
         </span>
-        <span className="font-mono text-xs font-medium tabular-nums">
+        <span className="font-mono text-[13px] font-medium tabular-nums">
           {duration}
         </span>
         {summaryLoading ? (
           <Skeleton className="h-3 w-3/4" />
         ) : (
-          <span className="truncate text-sm font-medium">{summary}</span>
+          <span className="truncate text-[13px] font-medium">{summary}</span>
         )}
         <span className="flex items-center gap-2">
           <StatusChip tone="neutral">
@@ -68,7 +68,7 @@ export function ExpandableRow({
           open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
       >
-        <div className="overflow-hidden border-l border-edge pl-4">
+        <div className="overflow-hidden border-l border-signal pl-5">
           {entries.map((entry, i) => (
             <LedgerRow
               // biome-ignore lint/suspicious/noArrayIndexKey: static entry list

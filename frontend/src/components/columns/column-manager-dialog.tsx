@@ -1,6 +1,7 @@
-import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
+import { ArrowDown, ArrowUp, GripVertical, Plus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ProjectColumnItem } from "@/client/types.gen";
+import { Tag } from "@/components/tag";
 import { AppDialog } from "@/components/ui/app-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,13 +122,17 @@ export function ColumnManagerDialog({
       isPending={saveColumns.isPending}
       actionButtonId="save-columns-btn"
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         {columns.map((column, index) => (
           <div
             // biome-ignore lint/suspicious/noArrayIndexKey: staged list without stable ids; kind plus position keeps rows distinct
             key={`${column.kind}-${index}`}
-            className="flex items-center gap-2 rounded-md border border-edge bg-background px-3 py-2"
+            className="flex items-center gap-2 rounded border border-border bg-background px-2.5 py-2"
           >
+            <GripVertical
+              aria-hidden="true"
+              className="size-4 shrink-0 text-muted-foreground/70"
+            />
             <div className="flex flex-col">
               <button
                 type="button"
@@ -148,9 +153,7 @@ export function ColumnManagerDialog({
                 <ArrowDown aria-hidden="true" className="size-3.5" />
               </button>
             </div>
-            <span className="w-20 font-mono text-xs tracking-[0.1em] text-muted-foreground">
-              {KIND_LABELS[column.kind]}
-            </span>
+            <Tag className="w-24 justify-center">{KIND_LABELS[column.kind]}</Tag>
             <Input
               ref={(el) => {
                 inputRefs.current[index] = el;
@@ -159,7 +162,7 @@ export function ColumnManagerDialog({
               onChange={(e) => rename(index, e.target.value)}
               placeholder={strings.columns.namePlaceholder}
               aria-label={`Column ${index + 1} name`}
-              className="flex-1"
+              className="h-8 flex-1"
             />
             {!column.builtin && (
               <Button

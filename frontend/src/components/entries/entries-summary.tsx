@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { TimeEntryPublic } from "@/client/types.gen";
+import { Panel, PanelBody } from "@/components/ui/panel";
 import { strings } from "@/i18n/strings";
 import { formatDuration } from "@/lib/utils";
 
@@ -18,8 +19,12 @@ function startOfDay(date: Date): Date {
   return d;
 }
 
+const labelClass =
+  "mt-1.5 font-mono text-[11px] font-medium tracking-[0.12em] text-muted-foreground uppercase";
+const numberClass = "font-mono text-2xl font-medium tabular-nums";
+
 export function EntriesSummary({ entries, total }: EntriesSummaryProps) {
-  const { totalSeconds, weekSeconds, days } = useMemo(() => {
+  const { totalSeconds, weekSeconds } = useMemo(() => {
     const timed = entries.filter(
       (e) => typeof e.duration_seconds === "number" && e.duration_seconds > 0,
     );
@@ -31,75 +36,27 @@ export function EntriesSummary({ entries, total }: EntriesSummaryProps) {
     const weekSeconds = timed
       .filter((e) => new Date(e.start_time).getTime() >= weekStart)
       .reduce((sum, e) => sum + (e.duration_seconds ?? 0), 0);
-    const today = startOfDay(new Date()).getTime();
-    const days = Array.from({ length: 7 }, (_, i) => {
-      const dayStart = today - (6 - i) * DAY_MS;
-      const dayEnd = dayStart + DAY_MS;
-      const seconds = timed
-        .filter((e) => {
-          const t = new Date(e.start_time).getTime();
-          return t >= dayStart && t < dayEnd;
-        })
-        .reduce((sum, e) => sum + (e.duration_seconds ?? 0), 0);
-      return {
-        key: dayStart,
-        label: new Date(dayStart).toLocaleDateString(undefined, {
-          weekday: "narrow",
-        }),
-        seconds,
-      };
-    });
-    return { totalSeconds, weekSeconds, days };
+    return { totalSeconds, weekSeconds };
   }, [entries]);
 
-  const maxSeconds = Math.max(1, ...days.map((d) => d.seconds));
-
   return (
-    <section
-      aria-label="Entries summary"
-      className="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-border bg-card sm:grid-cols-4"
-    >
-      <div className="px-4 py-3">
-        <div className="font-mono text-lg font-medium tabular-nums">
-          {formatDuration(totalSeconds)}
-        </div>
-        <div className="text-xs text-muted-foreground">
-          {strings.entries.totalHours}
-        </div>
-      </div>
-      <div className="px-4 py-3">
-        <div className="font-mono text-lg font-medium tabular-nums">
-          {formatDuration(weekSeconds)}
-        </div>
-        <div className="text-xs text-muted-foreground">
-          {strings.entries.weekHours}
-        </div>
-      </div>
-      <div className="px-4 py-3">
-        <div className="font-mono text-lg font-medium tabular-nums">
-          {total}
-        </div>
-        <div className="text-xs text-muted-foreground">
-          {strings.entries.entryCountLabel}
-        </div>
-      </div>
-      <div
-        className="flex items-end gap-1 px-4 py-3"
-        role="img"
-        aria-label="Hours per day for the last 7 days"
-      >
-        {days.map((day, i) => (
-          <div
-            key={day.key}
-            title={`${day.label}: ${formatDuration(day.seconds)}`}
-            style={{
-              height: `${Math.max(8, Math.round((day.seconds / maxSeconds) * 40))}px`,
-              backgroundColor: `var(--chart-${(i % 5) + 1})`,
-            }}
-            className="w-full min-w-3 rounded-sm opacity-80"
-          />
-        ))}
-      </div>
+    <section aria-label={strings.entries.summaryLabel}>
+      <Panel>
+        <PanelBody className="grid grid-cols-1 p-0 sm:grid-cols-3">
+          <div className="px-5 py-4">
+            <div className={numberClass}>{formatDuration(totalSeconds)}</div>
+            <div className={labelClass}>{strings.entries.totalHours}</div>
+          </div>
+          <div className="border-t border-border px-5 py-4 sm:border-t-0 sm:border-l">
+            <div className={numberClass}>{formatDuration(weekSeconds)}</div>
+            <div className={labelClass}>{strings.entries.weekHours}</div>
+          </div>
+          <div className="border-t border-border px-5 py-4 sm:border-t-0 sm:border-l">
+            <div className={numberClass}>{total}</div>
+            <div className={labelClass}>{strings.entries.entryCountLabel}</div>
+          </div>
+        </PanelBody>
+      </Panel>
     </section>
   );
 }
