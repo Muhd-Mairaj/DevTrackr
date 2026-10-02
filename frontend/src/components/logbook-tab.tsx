@@ -2,12 +2,36 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/projects/query-state";
 import { Button } from "@/components/ui/button";
+import {
+  Panel,
+  PanelBody,
+  PanelHeader,
+  PanelMeta,
+  PanelTitle,
+} from "@/components/ui/panel";
+import { ROW_HOVER } from "@/components/ui/row-hover";
+import { Textarea } from "@/components/ui/textarea";
 import { strings } from "@/i18n/strings";
+import { getLocale } from "@/lib/utils";
 
 interface LogbookNote {
   id: string;
   text: string;
   updatedAt: string;
+}
+
+let noteTimestampFormat: Intl.DateTimeFormat | null = null;
+
+function formatNoteTimestamp(iso: string): string {
+  noteTimestampFormat ??= new Intl.DateTimeFormat(getLocale(), {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  return noteTimestampFormat.format(new Date(iso));
 }
 
 function storageKey(projectId: string): string {
@@ -87,34 +111,36 @@ export function LogbookTab({ projectId }: { projectId: string }) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <section aria-label={strings.logbook.notesTitle}>
-        <h2 className="text-sm font-semibold">{strings.logbook.notesTitle}</h2>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {strings.logbook.notesDescription}
-        </p>
-        <div className="mt-2 flex flex-col gap-2">
-          <label htmlFor="logbook-note-input" className="sr-only">
-            {strings.logbook.notePlaceholder}
-          </label>
-          <textarea
-            id="logbook-note-input"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder={strings.logbook.notePlaceholder}
-            rows={3}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          />
-          <Button
-            size="sm"
-            className="gap-1.5 self-start"
-            onClick={handleAdd}
-            disabled={!draft.trim()}
-          >
-            <Plus className="size-3.5" aria-hidden="true" />
-            {strings.logbook.addNote}
-          </Button>
-        </div>
+        <Panel>
+          <PanelHeader>
+            <PanelTitle>{strings.logbook.notesTitle}</PanelTitle>
+            <PanelMeta>{strings.logbook.notesDescription}</PanelMeta>
+          </PanelHeader>
+          <PanelBody className="flex flex-col gap-3">
+            <label htmlFor="logbook-note-input" className="sr-only">
+              {strings.logbook.notePlaceholder}
+            </label>
+            <Textarea
+              id="logbook-note-input"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder={strings.logbook.notePlaceholder}
+              rows={3}
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              className="gap-1.5 self-start"
+              onClick={handleAdd}
+              disabled={!draft.trim()}
+            >
+              <Plus className="size-3.5" aria-hidden="true" />
+              {strings.logbook.addNote}
+            </Button>
+          </PanelBody>
+        </Panel>
       </section>
 
       {notes.length === 0 ? (
@@ -123,80 +149,83 @@ export function LogbookTab({ projectId }: { projectId: string }) {
           description={strings.logbook.emptyDescription}
         />
       ) : (
-        <ul className="flex flex-col gap-2">
-          {notes.map((note) => (
-            <li
-              key={note.id}
-              className="rounded-md border border-border bg-card px-3 py-2"
-            >
-              {editingId === note.id ? (
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor={`logbook-edit-${note.id}`}
-                    className="sr-only"
-                  >
-                    {strings.logbook.editNote}
-                  </label>
-                  <textarea
-                    id={`logbook-edit-${note.id}`}
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    rows={3}
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={handleSaveEdit}
-                      disabled={!editText.trim()}
+        <Panel>
+          <PanelHeader>
+            <PanelTitle>{strings.logbook.tab}</PanelTitle>
+            <PanelMeta>{notes.length}</PanelMeta>
+          </PanelHeader>
+          <ul className="divide-y divide-border">
+            {notes.map((note) => (
+              <li key={note.id} className={ROW_HOVER}>
+                {editingId === note.id ? (
+                  <div className="flex flex-col gap-3 px-5 py-3.5">
+                    <label
+                      htmlFor={`logbook-edit-${note.id}`}
+                      className="sr-only"
                     >
-                      {strings.logbook.saveNote}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setEditingId(null)}
-                    >
-                      {strings.logbook.cancelEdit}
-                    </Button>
+                      {strings.logbook.editNote}
+                    </label>
+                    <Textarea
+                      id={`logbook-edit-${note.id}`}
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      rows={3}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleSaveEdit}
+                        disabled={!editText.trim()}
+                      >
+                        {strings.logbook.saveNote}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditingId(null)}
+                      >
+                        {strings.logbook.cancelEdit}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="flex items-start gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm break-words whitespace-pre-wrap">
-                      {note.text}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {new Date(note.updatedAt).toLocaleString()}
-                    </p>
+                ) : (
+                  <div className="flex items-start gap-3 px-5 py-3.5">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+                        {note.text}
+                      </p>
+                      <p className="mt-1.5 font-mono text-[11px] tracking-[0.1em] text-muted-foreground uppercase tabular-nums">
+                        {formatNoteTimestamp(note.updatedAt)}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`${strings.logbook.editNote}: ${note.text.slice(0, 30)}`}
+                        onClick={() => {
+                          setEditingId(note.id);
+                          setEditText(note.text);
+                        }}
+                      >
+                        <Pencil className="size-3.5" aria-hidden="true" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`${strings.logbook.deleteNote}: ${note.text.slice(0, 30)}`}
+                        onClick={() => handleDelete(note.id)}
+                      >
+                        <Trash2 className="size-3.5" aria-hidden="true" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex shrink-0 gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={`${strings.logbook.editNote}: ${note.text.slice(0, 30)}`}
-                      onClick={() => {
-                        setEditingId(note.id);
-                        setEditText(note.text);
-                      }}
-                    >
-                      <Pencil className="size-3.5" aria-hidden="true" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={`${strings.logbook.deleteNote}: ${note.text.slice(0, 30)}`}
-                      onClick={() => handleDelete(note.id)}
-                    >
-                      <Trash2 className="size-3.5" aria-hidden="true" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </Panel>
       )}
     </div>
   );
