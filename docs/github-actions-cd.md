@@ -43,9 +43,11 @@ Create two environments in the repository settings:
 | Variable | Description |
 |---|---|
 | `VPS_PROJECT_ROOT` | Directory on the VPS containing compose files |
-| `DOMAIN` | Public domain |
-| `FRONTEND_HOST` | Public frontend URL |
+| `DOMAIN` | Bare public hostname, no scheme or port (e.g. `staging.devtracker.duckdns.org`). Used as the Caddy host label. |
+| `FRONTEND_HOST` | Public frontend URL (including scheme, and port if applicable, e.g. `https://staging.devtracker.duckdns.org:4433`) |
 | `BACKEND_CORS_ORIGINS` | Allowed CORS origins |
+| `GITHUB_APP_SLUG` | GitHub App slug for the GitHub integration |
+| `GITHUB_PRIVATE_KEY_PATH` | Path to the GitHub App private key inside the backend container |
 | `POSTGRES_USER` | Database user |
 | `POSTGRES_DB` | Database name |
 | `POSTGRES_PORT` | Database host port |
