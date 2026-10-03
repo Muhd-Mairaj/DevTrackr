@@ -3,11 +3,7 @@ import { AppDialog } from "@/components/ui/app-dialog";
 import { ErrorBanner } from "@/components/ui/error-banner";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/ii8n/strings";
-import {
-  entryToRecreatePayload,
-  useCreateEntry,
-  useDeleteEntry,
-} from "@/lib/entries";
+import { useUndoDeleteEntry } from "@/lib/entries";
 import { formatDate, formatDuration } from "@/lib/utils";
 
 interface DeleteEntryDialogProps {
@@ -27,8 +23,8 @@ export function DeleteEntryDialog({
   onDeleted,
 }: DeleteEntryDialogProps) {
   const { toast } = useToast();
-  const deleteEntry = useDeleteEntry(projectId);
-  const createEntry = useCreateEntry(projectId);
+  const { remove, undo, isPending, isError, error, reset } =
+    useUndoDeleteEntry(projectId);
 
   const entryName = entry?.description?.trim() || strings.entries.untitledEntry;
   const description = entry
@@ -43,17 +39,15 @@ export function DeleteEntryDialog({
     // Server entries always carry an id; the generated type keeps it
     // optional, so guard before passing it to the mutation.
     if (!entry?.id) return;
-    const snapshot = entry;
     try {
-      await deleteEntry.mutateAsync(entry.id);
+      await remove(entry);
       toast("success", strings.entries.deletedToast, {
         actionLabel: strings.common.undo,
         durationMs: 8000,
         onAction: () => {
-          createEntry.mutate(entryToRecreatePayload(snapshot), {
-            onSuccess: () => toast("success", strings.entries.createdToast),
-            onError: (err) => toast("error", (err as Error).message),
-          });
+          void undo()
+            .then(() => toast("success", strings.entries.createdToast))
+            .catch((err) => toast("error", (err as Error).message));
         },
       });
       onDeleted?.(entry);
@@ -64,7 +58,7 @@ export function DeleteEntryDialog({
   };
 
   const handleOpenChange = (open: boolean) => {
-    if (!open) deleteEntry.reset();
+    if (!open) reset();
     onOpenChange(open);
   };
 
@@ -77,12 +71,10 @@ export function DeleteEntryDialog({
       actionLabel={strings.entries.deleteButton}
       actionVariant="destructive"
       onAction={handleDelete}
-      isPending={deleteEntry.isPending}
+      isPending={isPending}
       id="delete-entry-dialog"
     >
-      {deleteEntry.isError && (
-        <ErrorBanner message={(deleteEntry.error as Error)?.message} />
-      )}
+      {isError && <ErrorBanner message={(error as Error)?.message} />}
     </AppDialog>
   );
 }
