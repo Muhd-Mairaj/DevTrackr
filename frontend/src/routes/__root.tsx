@@ -8,7 +8,12 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { AppNav } from "@/components/nav/app-nav";
 import { RootErrorComponent } from "@/components/root-error";
-import { AuthProvider, isPublicPageRoute, useAuth } from "@/contexts/auth";
+import {
+  AuthProvider,
+  getAuthRedirectTarget,
+  isPublicPageRoute,
+  useAuth,
+} from "@/contexts/auth";
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -21,15 +26,11 @@ function AuthShell() {
   const navigate = useNavigate();
   const isPublic = isPublicPageRoute(location.pathname);
 
-  // Redirect based on auth state. user === undefined (session still resolving)
-  // must not trigger either branch: navigate({ to: "/" }) during the probe
-  // flips the pathname away from /login, so the 401 interceptor's
-  // redirectToLogin() sees a non-public path and full-reloads in a loop.
+  // Redirect based on auth state once the session probe has resolved.
   useEffect(() => {
-    if (user === null && !isPublic) {
-      navigate({ to: "/login", replace: true });
-    } else if (user && isPublic) {
-      navigate({ to: "/", replace: true });
+    const target = getAuthRedirectTarget(user, isPublic);
+    if (target) {
+      navigate({ to: target, replace: true });
     }
   }, [user, isPublic, navigate]);
 
