@@ -118,22 +118,24 @@ export function RegisterForm() {
                     aria-describedby="register-password-hint"
                     {...field}
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon-sm"
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={
                       showPassword
                         ? strings.login.hidePassword
                         : strings.login.showPassword
                     }
-                    className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                    className="absolute top-1/2 right-2 -translate-y-1/2"
                   >
                     {showPassword ? (
                       <EyeOff className="size-4" aria-hidden="true" />
                     ) : (
                       <Eye className="size-4" aria-hidden="true" />
                     )}
-                  </button>
+                  </Button>
                 </div>
               </FormControl>
               <p
