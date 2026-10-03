@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 
 export function OfflineBanner() {
   const [online, setOnline] = useState(

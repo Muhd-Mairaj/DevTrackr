@@ -2,7 +2,7 @@ import { Pause, Pencil, Plus, Trash2 } from "lucide-react";
 import { memo, useMemo } from "react";
 import type { ProjectColumnItem, TimeEntryPublic } from "@/client/types.gen";
 import { Button } from "@/components/ui/button";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { PAGE_SIZE } from "@/lib/entries";
 import { formatDuration, formatTime, formatTimeRange } from "@/lib/utils";
 import { Pagination } from "./pagination";

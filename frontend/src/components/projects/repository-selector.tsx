@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { startGithubInstall } from "@/lib/integrations";
 import { useRepositories } from "@/lib/repositories";
 

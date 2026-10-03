@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { UtilsService } from "@/client";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 
 type PingResponse = {
   status?: string;

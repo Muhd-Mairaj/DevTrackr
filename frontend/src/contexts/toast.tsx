@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { cn } from "@/lib/utils";
 
 type ToastTone = "success" | "error";

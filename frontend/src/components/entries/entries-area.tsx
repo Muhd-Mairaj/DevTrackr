@@ -5,7 +5,7 @@ import { EntriesTable } from "@/components/entries/entries-table";
 import { EmptyState, QueryError } from "@/components/projects/query-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { useColumns } from "@/lib/columns";
 import type { EntryPageData } from "@/lib/entries";
 

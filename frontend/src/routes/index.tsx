@@ -22,7 +22,7 @@ import { ShortcutHelpDialog } from "@/components/shortcut-help-dialog";
 import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/page-container";
 import { useToast } from "@/contexts/toast";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { consumeGithubReturn } from "@/lib/github-return";
 import { integrationKeys, useGithubStatus } from "@/lib/integrations";
 import { useCreateProject, useProjects } from "@/lib/projects";

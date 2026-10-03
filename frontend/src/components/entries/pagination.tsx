@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { PAGE_SIZE } from "@/lib/entries";
 import { cn } from "@/lib/utils";
 
