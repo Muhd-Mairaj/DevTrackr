@@ -4,7 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useRef } from "react";
 import { ProjectsService } from "@/client";
 import type {
   ProjectCreate,
@@ -211,32 +211,35 @@ export function useUndoDeleteProject() {
   const queryClient = useQueryClient();
   const deleteMutation = useDeleteProject();
   const createMutation = useCreateProject();
-  const [lastDeleted, setLastDeleted] = useState<ProjectPublic | null>(null);
+  // A ref, not state: the undo runs from a toast action that fires after the
+  // render which deleted the project, where a state closure would be stale.
+  const lastDeleted = useRef<ProjectPublic | null>(null);
 
   const remove = useCallback(
     async (project: ProjectPublic) => {
-      setLastDeleted(project);
+      lastDeleted.current = project;
       return deleteMutation.mutateAsync(project.id);
     },
     [deleteMutation],
   );
 
   const undo = useCallback(async () => {
-    if (!lastDeleted) return null;
-    const snapshot = lastDeleted;
-    setLastDeleted(null);
+    const snapshot = lastDeleted.current;
+    if (!snapshot) return null;
+    lastDeleted.current = null;
     const created = await createMutation.mutateAsync(
       projectToRecreatePayload(snapshot),
     );
     queryClient.invalidateQueries({ queryKey: projectKeys.all });
     return created;
-  }, [lastDeleted, createMutation, queryClient]);
+  }, [createMutation, queryClient]);
 
   return {
     remove,
     undo,
-    lastDeleted,
-    canUndo: lastDeleted !== null,
-    isPending: deleteMutation.isPending || createMutation.isPending,
+    isPending: deleteMutation.isPending,
+    isError: deleteMutation.isError,
+    error: deleteMutation.error,
+    reset: deleteMutation.reset,
   };
 }
