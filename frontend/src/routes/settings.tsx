@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { DayStamp } from "@/components/day-stamp";
 import { GithubSettingsCard } from "@/components/settings/github-settings-card";
 import { PageContainer } from "@/components/ui/page-container";
+import { Section, SectionHeading } from "@/components/ui/section";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/i18n/strings";
 import { consumeGithubReturn } from "@/lib/github-return";
@@ -82,16 +83,19 @@ function SettingsPage() {
   return (
     <PageContainer>
       <DayStamp date={new Date()} />
-      <div className="mt-4 mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">
+      <div className="mt-4 mb-7">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {strings.settings.title}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1.5 text-sm text-muted-foreground">
           {strings.settings.subtitle}
         </p>
       </div>
 
-      <GithubSettingsCard />
+      <Section>
+        <SectionHeading title={strings.settings.connectionsTitle} />
+        <GithubSettingsCard />
+      </Section>
     </PageContainer>
   );
 }
