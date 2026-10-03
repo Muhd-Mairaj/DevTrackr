@@ -25,6 +25,9 @@ services:
     # This mapping exists so the CD health check can curl http://localhost:${BACKEND_PORT}/api/ping.
     ports:
       - "127.0.0.1:${BACKEND_PORT}:8000"
+    # GitHub App private key, materialised by the CD before `up`.
+    volumes:
+      - ./github-app.pem:/run/secrets/github-app.pem:ro
 
   frontend:
     container_name: devtrackr-${ENVIRONMENT}-frontend

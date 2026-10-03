@@ -55,6 +55,11 @@ services:
 
   backend:
     container_name: devtrackr-backend
+    # Project-scoped alias; the frontend proxies to this name.
+    networks:
+      default:
+        aliases:
+          - devtrackr-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -95,6 +100,9 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+
+networks:
+  default:
 
 volumes:
   devtrackr-postgres-data:
