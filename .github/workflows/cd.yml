@@ -111,11 +111,16 @@ jobs:
             git fetch --quiet origin
             git checkout --quiet --force "$GIT_SHA"
 
+            # The caddy-docker-proxy label needs a bare host; strip any port.
+            CADDY_DOMAIN="${{ vars.DOMAIN }}"
+            CADDY_DOMAIN="${CADDY_DOMAIN%%:*}"
+
             # Write environment file from GitHub secrets and variables
-            cat > .env <<'EOF'
+            {
+            printf 'DOMAIN=%s\n' "$CADDY_DOMAIN"
+            cat <<'EOF'
             COMPOSE_PROJECT_NAME=devtrackr-${{ env.ENVIRONMENT }}
             PROJECT_NAME=DevTrackr
-            DOMAIN=${{ vars.DOMAIN }}
             FRONTEND_HOST=${{ vars.FRONTEND_HOST }}
             ENVIRONMENT=${{ env.ENVIRONMENT }}
             SECRET_KEY=${{ secrets.SECRET_KEY }}
@@ -133,6 +138,8 @@ jobs:
             FRONTEND_IMAGE=${{ env.FRONTEND_IMAGE_SHA }}
             GITHUB_CLIENT_ID=${{ secrets.GH_OAUTH_CLIENT_ID }}
             GITHUB_CLIENT_SECRET=${{ secrets.GH_OAUTH_CLIENT_SECRET }}
+            GITHUB_APP_SLUG=${{ vars.GITHUB_APP_SLUG }}
+            GITHUB_PRIVATE_KEY_PATH=${{ vars.GITHUB_PRIVATE_KEY_PATH }}
             SMTP_API_KEY=${{ secrets.SMTP_API_KEY }}
             SMTP_HOST=${{ vars.SMTP_HOST }}
             SMTP_PORT=${{ vars.SMTP_PORT }}
@@ -140,6 +147,7 @@ jobs:
             EMAILS_FROM_EMAIL=${{ vars.EMAILS_FROM_EMAIL }}
             EMAILS_FROM_NAME=${{ vars.EMAILS_FROM_NAME }}
             EOF
+            } > .env
 
             # Capture current images for potential rollback
             BACKEND_CONTAINER=$(docker compose $COMPOSE_FLAGS ps -q backend || true)
