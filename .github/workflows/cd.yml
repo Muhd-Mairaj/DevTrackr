@@ -87,6 +87,7 @@ jobs:
         env:
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
+          GH_APP_PRIVATE_KEY_B64: ${{ secrets.GH_APP_PRIVATE_KEY }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
@@ -94,7 +95,7 @@ jobs:
           # Forward GHCR creds into the remote shell. The runner's GHCR login
           # does not reach the VPS, so the VPS needs its own credentials to
           # pull private images.
-          envs: GHCR_USER,GHCR_TOKEN
+          envs: GHCR_USER,GHCR_TOKEN,GH_APP_PRIVATE_KEY_B64
           script: |
             set -euo pipefail
 
@@ -114,6 +115,12 @@ jobs:
             # The caddy-docker-proxy label needs a bare host; strip any port.
             CADDY_DOMAIN="${{ vars.DOMAIN }}"
             CADDY_DOMAIN="${CADDY_DOMAIN%%:*}"
+
+            # Materialise the GitHub App private key the backend reads at
+            # GITHUB_PRIVATE_KEY_PATH. Base64 so it survives the SSH hop.
+            : "${GH_APP_PRIVATE_KEY_B64:?GH_APP_PRIVATE_KEY_B64 is required}"
+            printf '%s' "$GH_APP_PRIVATE_KEY_B64" | base64 -d > github-app.pem
+            chmod 600 github-app.pem
 
             # Write environment file from GitHub secrets and variables
             {
@@ -139,7 +146,7 @@ jobs:
             GITHUB_CLIENT_ID=${{ secrets.GH_OAUTH_CLIENT_ID }}
             GITHUB_CLIENT_SECRET=${{ secrets.GH_OAUTH_CLIENT_SECRET }}
             GITHUB_APP_SLUG=${{ vars.GITHUB_APP_SLUG }}
-            GITHUB_PRIVATE_KEY_PATH=${{ vars.GITHUB_PRIVATE_KEY_PATH }}
+            GITHUB_PRIVATE_KEY_PATH=/run/secrets/github-app.pem
             SMTP_API_KEY=${{ secrets.SMTP_API_KEY }}
             SMTP_HOST=${{ vars.SMTP_HOST }}
             SMTP_PORT=${{ vars.SMTP_PORT }}
