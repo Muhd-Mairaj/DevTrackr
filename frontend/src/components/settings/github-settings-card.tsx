@@ -4,6 +4,12 @@ import { useState } from "react";
 import { GithubMark } from "@/components/github-mark";
 import { StatusChip } from "@/components/status-chip";
 import { Button } from "@/components/ui/button";
+import {
+  Panel,
+  PanelBody,
+  PanelHeader,
+  PanelTitle,
+} from "@/components/ui/panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/i18n/strings";
@@ -68,98 +74,118 @@ export function GithubSettingsCard() {
 
   const lastSynced =
     syncedTs ?? (dataUpdatedAt ? new Date(dataUpdatedAt).toISOString() : null);
+  const hasInstallations = Boolean(installations && installations.length > 0);
 
   return (
-    <section className="mt-4 max-w-xl rounded-md border border-border bg-card p-5">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold">
-          {strings.settings.githubTitle}
-        </h2>
-        {!isLoading &&
-          !isError &&
-          installations &&
-          installations.length > 0 && (
+    <Panel className="mt-4 max-w-xl">
+      <PanelHeader>
+        <PanelTitle>{strings.settings.githubTitle}</PanelTitle>
+        <div className="flex items-center gap-2">
+          {!isLoading && !isError && (
+            <StatusChip tone={hasInstallations ? "success" : "neutral"}>
+              {hasInstallations
+                ? strings.projects.active
+                : strings.projects.inactive}
+            </StatusChip>
+          )}
+          {!isLoading && !isError && hasInstallations && (
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               className="gap-1.5"
               onClick={handleSyncNow}
               disabled={syncing}
             >
-              <RefreshCw className="size-3.5" aria-hidden="true" />
+              <RefreshCw
+                className={syncing ? "size-3.5 animate-spin" : "size-3.5"}
+                aria-hidden="true"
+              />
               {strings.integrations.githubSyncNowButton}
             </Button>
           )}
-      </div>
-      {lastSynced && !isLoading && !isError && (
-        <p className="mt-1 text-xs text-muted-foreground">
-          {strings.integrations.githubLastSynced(
-            new Date(lastSynced).toLocaleString(),
-          )}
-        </p>
-      )}
-      <div className="mt-4">
+        </div>
+      </PanelHeader>
+      <PanelBody>
+        {lastSynced && !isLoading && !isError && (
+          <p className="mb-3 font-mono text-[11px] tracking-[0.1em] text-muted-foreground uppercase tabular-nums">
+            {strings.integrations.githubLastSynced(
+              new Date(lastSynced).toLocaleString(),
+            )}
+          </p>
+        )}
         {isLoading ? (
           <div className="space-y-2">
             <Skeleton className="h-4 w-2/3" />
             <Skeleton className="h-4 w-1/3" />
           </div>
         ) : isError ? (
-          <div className="flex flex-col items-start gap-2.5">
+          <div className="flex flex-col items-start gap-3">
             <p className="text-xs text-muted-foreground">
               {strings.integrations.githubInstallationsError}
             </p>
-            <Button variant="ghost" size="sm" onClick={() => refetch()}>
-              <RefreshCw className="size-3.5" />
+            <Button
+              variant="secondary"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => refetch()}
+            >
+              <RefreshCw className="size-3.5" aria-hidden="true" />
               {strings.common.retry}
             </Button>
           </div>
-        ) : !installations || installations.length === 0 ? (
-          <div className="flex flex-col items-start gap-2.5">
+        ) : !hasInstallations ? (
+          <div className="flex flex-col items-start gap-3">
             <p className="text-xs text-muted-foreground">
               {strings.integrations.githubSetupPrompt}
             </p>
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               className="gap-1.5"
               onClick={() => startGithubInstall("/settings")}
             >
-              <GithubMark />
+              <GithubMark size={14} />
               {strings.integrations.githubInstallButton}
             </Button>
           </div>
         ) : (
           <div>
-            <ul className="flex flex-col gap-3">
-              {installations.map((installation) => (
+            <ul className="flex flex-col divide-y divide-border">
+              {(installations ?? []).map((installation) => (
                 <li
                   key={installation.installation_id}
-                  className="flex items-center justify-between gap-3"
+                  className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
                 >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <GithubMark size={16} />
-                      <span className="truncate text-sm font-medium">
-                        {installation.account_login}
-                      </span>
-                      {installation.suspended_at && (
-                        <StatusChip tone="warning">
-                          {strings.settings.githubSuspended}
-                        </StatusChip>
-                      )}
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span
+                      aria-hidden="true"
+                      className="flex size-[26px] shrink-0 items-center justify-center rounded bg-muted text-muted-foreground"
+                    >
+                      <GithubMark size={14} />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="truncate text-sm font-medium">
+                          {installation.account_login}
+                        </span>
+                        {installation.suspended_at && (
+                          <StatusChip tone="warning">
+                            {strings.settings.githubSuspended}
+                          </StatusChip>
+                        )}
+                      </div>
+                      <p className="mt-0.5 font-mono text-[11px] tracking-[0.1em] text-muted-foreground uppercase">
+                        {installation.account_type === "Organization"
+                          ? strings.settings.githubAccountTypeOrg
+                          : strings.settings.githubAccountTypeUser}
+                      </p>
                     </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {installation.account_type === "Organization"
-                        ? strings.settings.githubAccountTypeOrg
-                        : strings.settings.githubAccountTypeUser}
-                    </p>
                   </div>
                   <Button
                     asChild
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
-                    className="gap-1.5"
+                    className="shrink-0 gap-1.5"
                   >
                     <a
                       href={githubManageUrl(installation)}
@@ -167,18 +193,18 @@ export function GithubSettingsCard() {
                       rel="noopener noreferrer"
                     >
                       {strings.settings.githubManageLink}
-                      <ExternalLink className="size-3.5" />
+                      <ExternalLink className="size-3.5" aria-hidden="true" />
                     </a>
                   </Button>
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-xs text-muted-foreground">
+            <p className="mt-3 text-xs text-muted-foreground">
               {strings.settings.githubManageHint}
             </p>
           </div>
         )}
-      </div>
-    </section>
+      </PanelBody>
+    </Panel>
   );
 }
