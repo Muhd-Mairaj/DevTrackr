@@ -111,16 +111,11 @@ jobs:
             git fetch --quiet origin
             git checkout --quiet --force "$GIT_SHA"
 
-            # The caddy-docker-proxy label needs a bare host; strip any port.
-            CADDY_DOMAIN="${{ vars.DOMAIN }}"
-            CADDY_DOMAIN="${CADDY_DOMAIN%%:*}"
-
             # Write environment file from GitHub secrets and variables
-            {
-            printf 'DOMAIN=%s\n' "$CADDY_DOMAIN"
-            cat <<'EOF'
+            cat > .env <<'EOF'
             COMPOSE_PROJECT_NAME=devtrackr-${{ env.ENVIRONMENT }}
             PROJECT_NAME=DevTrackr
+            DOMAIN=${{ vars.DOMAIN }}
             FRONTEND_HOST=${{ vars.FRONTEND_HOST }}
             ENVIRONMENT=${{ env.ENVIRONMENT }}
             SECRET_KEY=${{ secrets.SECRET_KEY }}
@@ -147,7 +142,6 @@ jobs:
             EMAILS_FROM_EMAIL=${{ vars.EMAILS_FROM_EMAIL }}
             EMAILS_FROM_NAME=${{ vars.EMAILS_FROM_NAME }}
             EOF
-            } > .env
 
             # Capture current images for potential rollback
             BACKEND_CONTAINER=$(docker compose $COMPOSE_FLAGS ps -q backend || true)
