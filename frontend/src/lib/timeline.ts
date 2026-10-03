@@ -117,7 +117,9 @@ export function groupByDay(entries: TimeEntryPublic[]): DayLane[] {
         new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
     );
   }
-  return [...lanes.values()].sort((a, b) => b.date.getTime() - a.date.getTime());
+  return [...lanes.values()].sort(
+    (a, b) => b.date.getTime() - a.date.getTime(),
+  );
 }
 
 export const RULER_TICKS = [0, 6, 12, 18, 24];

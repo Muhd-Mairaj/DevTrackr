@@ -153,7 +153,9 @@ export function ColumnManagerDialog({
                 <ArrowDown aria-hidden="true" className="size-3.5" />
               </button>
             </div>
-            <Tag className="w-24 justify-center">{KIND_LABELS[column.kind]}</Tag>
+            <Tag className="w-24 justify-center">
+              {KIND_LABELS[column.kind]}
+            </Tag>
             <Input
               ref={(el) => {
                 inputRefs.current[index] = el;

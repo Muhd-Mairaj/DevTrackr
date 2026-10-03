@@ -1,7 +1,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { EntriesService } from "@/client";
 import type { ProjectPublic, TimeEntryPublic } from "@/client/types.gen";
-import { type EntryPageData, PAGE_SIZE, entryKeys } from "@/lib/entries";
+import { type EntryPageData, entryKeys, PAGE_SIZE } from "@/lib/entries";
 import { startOfDay } from "@/lib/timeline";
 
 /** A time entry annotated with the project it belongs to. */
@@ -79,9 +79,7 @@ export function useConsoleFeed(projects: ProjectPublic[] | undefined) {
     hasData,
     isLoading: list.length > 0 && results.some((r) => r.isLoading),
     isError:
-      list.length > 0 &&
-      results.length > 0 &&
-      results.every((r) => r.isError),
+      list.length > 0 && results.length > 0 && results.every((r) => r.isError),
     refetch: () => {
       for (const result of results) void result.refetch();
     },
@@ -98,7 +96,8 @@ export function totalSeconds(
       return sum + entry.duration_seconds;
     }
     if (!entry.end_time) {
-      const elapsed = (now.getTime() - new Date(entry.start_time).getTime()) / 1000;
+      const elapsed =
+        (now.getTime() - new Date(entry.start_time).getTime()) / 1000;
       return sum + Math.max(0, Math.floor(elapsed));
     }
     return sum;

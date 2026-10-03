@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { TimeEntryPublic } from "@/client/types.gen";
-import { dayKey, groupByDay, lanePosition, minutesIntoDay, packRows, startOfDay } from "./timeline";
+import {
+  dayKey,
+  groupByDay,
+  lanePosition,
+  minutesIntoDay,
+  packRows,
+  startOfDay,
+} from "./timeline";
 
 /** Local wall-clock moment, independent of the machine timezone. */
 function at(hours: number, minutes = 0, day = 27): Date {
@@ -78,7 +85,7 @@ describe("lanePosition", () => {
   it("clamps an entry that crosses midnight to the start day", () => {
     const result = lanePosition(entry(at(23, 0, 27), at(1, 0, 28)));
     // Clamped end is local midnight, so the bar spans the last hour of the day.
-    expect(result.left).toBeCloseTo((23 * 60) / 1440 * 100, 5);
+    expect(result.left).toBeCloseTo(((23 * 60) / 1440) * 100, 5);
     expect(result.width).toBeCloseTo((60 / 1440) * 100, 5);
     expect(result.running).toBe(false);
   });
