@@ -36,6 +36,7 @@ Create two environments in the repository settings:
 | `POSTGRES_PASSWORD` | Database password |
 | `GH_OAUTH_CLIENT_ID` | GitHub OAuth app ID |
 | `GH_OAUTH_CLIENT_SECRET` | GitHub OAuth app secret |
+| `GH_APP_PRIVATE_KEY` | GitHub App private key (PEM), base64-encoded — written to `github-app.pem` and mounted at `/run/secrets/github-app.pem` |
 | `SMTP_API_KEY` | Optional email API key |
 
 ### Variables per environment
@@ -47,7 +48,6 @@ Create two environments in the repository settings:
 | `FRONTEND_HOST` | Public frontend URL (including scheme and port, e.g. `https://staging.devtracker.duckdns.org:4433`) |
 | `BACKEND_CORS_ORIGINS` | Allowed CORS origins |
 | `GITHUB_APP_SLUG` | GitHub App slug for the GitHub integration |
-| `GITHUB_PRIVATE_KEY_PATH` | Path to the GitHub App private key inside the backend container |
 | `POSTGRES_USER` | Database user |
 | `POSTGRES_DB` | Database name |
 | `POSTGRES_PORT` | Database host port |

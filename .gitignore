@@ -77,3 +77,8 @@ env/
 
 # Ruff
 .ruff_cache/
+
+
+# Deploy secrets (materialised by CD; never commit)
+# =================================
+github-app.pem

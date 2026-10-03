@@ -6,7 +6,8 @@
 #
 # This file points services to published GHCR images, renames containers so
 # staging and production can coexist on one VPS, and exposes the frontend to
-# the caddy-docker-proxy reverse proxy via labels on the shared `caddy` network.
+# the caddy-docker-proxy reverse proxy via labels on an environment-scoped
+# ingress network, so service names are not shared across stacks.
 
 services:
   database:
@@ -25,6 +26,9 @@ services:
     # This mapping exists so the CD health check can curl http://localhost:${BACKEND_PORT}/api/ping.
     ports:
       - "127.0.0.1:${BACKEND_PORT?Backend Port Not Set}:8000"
+    # GitHub App private key, materialised by the CD before `up`.
+    volumes:
+      - ./github-app.pem:/run/secrets/github-app.pem:ro
 
   frontend:
     container_name: devtrackr-${ENVIRONMENT}-frontend
@@ -40,7 +44,8 @@ services:
     # No published ports: nginx listens on port 80
     networks:
       - default
-      - caddy
+      # Environment-scoped ingress network; Caddy joins it to read labels.
+      - devtrackr-prod-ingress
     labels:
       # Hostname injected via $DOMAIN (bare host, no scheme); set per env in CD.
       caddy: ${DOMAIN}
@@ -48,5 +53,5 @@ services:
 
 networks:
   default:
-  caddy:
+  devtrackr-prod-ingress:
     external: true
