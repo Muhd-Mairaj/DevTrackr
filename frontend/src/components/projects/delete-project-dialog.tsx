@@ -5,11 +5,7 @@ import { ErrorBanner } from "@/components/ui/error-banner";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/ii8n/strings";
-import {
-  projectToRecreatePayload,
-  useCreateProject,
-  useDeleteProject,
-} from "@/lib/projects";
+import { useUndoDeleteProject } from "@/lib/projects";
 
 interface DeleteProjectDialogProps {
   project: ProjectPublic | null;
@@ -24,8 +20,8 @@ export function DeleteProjectDialog({
   entryCount,
 }: DeleteProjectDialogProps) {
   const { toast } = useToast();
-  const deleteProject = useDeleteProject();
-  const createProject = useCreateProject();
+  const { remove, undo, isPending, isError, error, reset } =
+    useUndoDeleteProject();
   const [confirmText, setConfirmText] = useState("");
 
   useEffect(() => {
@@ -36,19 +32,17 @@ export function DeleteProjectDialog({
 
   const confirm = async () => {
     if (!project || !confirmed) return;
-    const snapshot = project;
     try {
-      await deleteProject.mutateAsync(project.id);
+      await remove(project);
       onOpenChange(false);
       setConfirmText("");
       toast("success", strings.projects.deletedToast, {
         actionLabel: strings.common.undo,
         durationMs: 8000,
         onAction: () => {
-          createProject.mutate(projectToRecreatePayload(snapshot), {
-            onSuccess: () => toast("success", strings.projects.createdToast),
-            onError: (err) => toast("error", (err as Error).message),
-          });
+          void undo()
+            .then(() => toast("success", strings.projects.createdToast))
+            .catch((err) => toast("error", (err as Error).message));
         },
       });
     } catch (err) {
@@ -58,7 +52,7 @@ export function DeleteProjectDialog({
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      deleteProject.reset();
+      reset();
       setConfirmText("");
     }
     onOpenChange(open);
@@ -78,7 +72,7 @@ export function DeleteProjectDialog({
       actionVariant="destructive"
       onAction={confirm}
       actionDisabled={!confirmed}
-      isPending={deleteProject.isPending}
+      isPending={isPending}
       id="delete-project-dialog"
       actionButtonId="delete-project-confirm-btn"
     >
@@ -101,9 +95,7 @@ export function DeleteProjectDialog({
           autoComplete="off"
         />
       </div>
-      {deleteProject.isError && (
-        <ErrorBanner message={(deleteProject.error as Error)?.message} />
-      )}
+      {isError && <ErrorBanner message={(error as Error)?.message} />}
     </AppDialog>
   );
 }
