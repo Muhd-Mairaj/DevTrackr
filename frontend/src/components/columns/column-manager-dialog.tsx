@@ -5,7 +5,7 @@ import { AppDialog } from "@/components/ui/app-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/contexts/toast";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { useColumns, useSaveColumns } from "@/lib/columns";
 
 const KIND_LABELS: Record<ProjectColumnItem["kind"], string> = {

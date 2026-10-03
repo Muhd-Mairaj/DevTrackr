@@ -16,7 +16,7 @@ import {
   isPublicPageRoute,
   useAuth,
 } from "@/contexts/auth";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 
 export const Route = createRootRoute({
   component: RootComponent,

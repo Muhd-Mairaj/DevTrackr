@@ -2,7 +2,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/projects/query-state";
 import { Button } from "@/components/ui/button";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 
 interface LogbookNote {
   id: string;

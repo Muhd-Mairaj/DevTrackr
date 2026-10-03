@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { useAuth } from "@/contexts/auth";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { usePostLoginRedirect } from "@/lib/login-redirect";
 import { Divider } from "../divider";
 import { Button } from "../ui/button";
