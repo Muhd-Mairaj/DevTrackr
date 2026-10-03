@@ -1,79 +1,35 @@
-# General IDE/Editor & OS files
-# =================================
+# OS / editor
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-
-# VS Code
+*.swp
+.idea/
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
 !.vscode/extensions.json
-*.code-workspace
+!.vscode/settings.json
 
-
-# Log files
-# =================================
-*.log
-logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-
-# Environment variables
-# =================================
+# Environment files (.env.template is tracked)
 .env
 .env.local
 .env.*.local
 
+# Logs
+*.log
 
-# Frontend (Node, Bun, React, Vite)
-# =================================
+# Dependencies, at the repo root and nested
 node_modules/
-bun.lockb
-.bun/
 
-# Build outputs for frontend
-build/
-# dist/ is common for Vite (used in this project's frontend) and also general Python
-dist/
-
-# Frontend specific
-*.local
-openapi.json
-routeTree.gen.ts
-
-
-# Backend (Python, FastAPI, alembic, uv)
-# =================================
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.so
-
-# Virtual Environments
-.venv/
-venv/
-ENV/
-env/
-.virtualenv/
-
-# uv
-.uv/
-.uv_cache/
-# Note: backend/uv.lock is committed. If a uv.lock is generated at the root
-# and should NOT be committed, uncomment the line below.
-# uv.lock
-
-# Ruff
+# Ruff can run from the repo root and from backend
 .ruff_cache/
+
+# Generated API schema: backend writes it, then copies it to the repo root
+openapi.json
+
+# Local agent / tooling workspaces (project skills under .claude/skills stay tracked)
+.agents/
+.claude/
+.kiro/
+.opencode/
+.superpowers/
+docs/superpowers/
+graphify-out/
+.impeccable/
