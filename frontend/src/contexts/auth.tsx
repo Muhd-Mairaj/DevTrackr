@@ -31,6 +31,20 @@ export function isPublicApiRoute(url: string): boolean {
   return PUBLIC_API_ROUTES.some((route) => url.includes(route));
 }
 
+/**
+ * Returns the route the auth shell should redirect to for the given session
+ * state, or null when no redirect is needed.
+ */
+export function getAuthRedirectTarget(
+  user: UserPublic | null | undefined,
+  isPublic: boolean,
+): "/" | "/login" | null {
+  if (user === undefined) return null;
+  if (user === null && !isPublic) return "/login";
+  if (user && isPublic) return "/";
+  return null;
+}
+
 type LoginBody = LoginData["body"];
 type RegisterBody = RegisterData["body"];
 
