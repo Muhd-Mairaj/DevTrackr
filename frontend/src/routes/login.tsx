@@ -16,18 +16,6 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-export function resolvePostLoginTarget(raw: string | null): string {
-  if (typeof raw === "string" && raw.startsWith("/") && !raw.startsWith("//")) {
-    return raw;
-  }
-  return "/";
-}
-
-function readLoginSearch(): { next: string | null; expired: boolean } {
-  const params = new URLSearchParams(window.location.search);
-  return { next: params.get("next"), expired: params.get("expired") === "1" };
-}
-
 function LoginPage() {
   const { tab } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -35,7 +23,8 @@ function LoginPage() {
     document.title = `${strings.login.title} · ${strings.common.brand}`;
   }, []);
 
-  const { expired } = readLoginSearch();
+  const expired =
+    new URLSearchParams(window.location.search).get("expired") === "1";
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-background p-4">
