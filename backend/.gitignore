@@ -5,75 +5,21 @@ __pycache__/
 *.so
 .Python
 
-# Virtual Environments
+# Virtual environments
 .venv/
 venv/
 ENV/
 env/
-.virtualenv/
 
-# uv
-.uv/
-.uv_cache/
-# Note: backend/uv.lock is committed. If a uv.lock is generated at the root
-# and should NOT be committed, uncomment the line below.
-# uv.lock
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Alembic
-# Keep alembic.ini and versions/ folder, but ignore temporary files
-*.pyc
-
-# Testing
+# Type checking / testing
+.mypy_cache/
 .pytest_cache/
 .coverage
 htmlcov/
 .tox/
 .hypothesis/
 
-# Distribution / packaging
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Logs
-*.log
-logs/
-
-# Type checking
-.mypy_cache/
-.dmypy.json
-dmypy.json
-.pytype/
-
-# Ruff
-.ruff_cache/
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
