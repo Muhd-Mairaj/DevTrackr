@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { TimeEntryPublic } from "@/client/types.gen";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { formatDuration } from "@/lib/utils";
 
 interface EntriesSummaryProps {

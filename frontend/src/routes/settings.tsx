@@ -5,7 +5,7 @@ import { DayStamp } from "@/components/day-stamp";
 import { GithubSettingsCard } from "@/components/settings/github-settings-card";
 import { PageContainer } from "@/components/ui/page-container";
 import { useToast } from "@/contexts/toast";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { consumeGithubReturn } from "@/lib/github-return";
 import { integrationKeys } from "@/lib/integrations";
 import { repositoryKeys } from "@/lib/repositories";

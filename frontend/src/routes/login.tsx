@@ -6,7 +6,7 @@ import { LogoMark } from "@/components/logo-mark";
 import { Card, CardContent } from "@/components/ui/card";
 import { ErrorBanner } from "@/components/ui/error-banner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>): { tab?: string } => {

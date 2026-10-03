@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { CheckCircle2, Circle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { cn } from "@/lib/utils";
 
 export const ONBOARD_DISMISSED_KEY = "devtrackr-onboard-dismissed";

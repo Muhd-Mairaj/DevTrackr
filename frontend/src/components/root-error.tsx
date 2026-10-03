@@ -2,7 +2,7 @@ import type { ErrorComponentProps } from "@tanstack/react-router";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ErrorBanner } from "@/components/ui/error-banner";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 
 export function RootErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error?.message);

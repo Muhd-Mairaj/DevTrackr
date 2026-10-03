@@ -1,7 +1,7 @@
 import { AlertCircle, FolderSearch, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { cn } from "@/lib/utils";
 
 interface LoadingSkeletonProps {

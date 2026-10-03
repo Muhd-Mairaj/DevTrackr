@@ -19,7 +19,7 @@ import { PageContainer } from "@/components/ui/page-container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/contexts/toast";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { PAGE_SIZE, useEntries, usePauseEntry } from "@/lib/entries";
 import { downloadCsv, exportEntriesCsv } from "@/lib/export";
 import { useProject } from "@/lib/projects";

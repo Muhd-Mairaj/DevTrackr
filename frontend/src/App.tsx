@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, Link, RouterProvider } from "@tanstack/react-router";
 import { ThemeProvider } from "@/contexts/theme";
 import { ToastProvider } from "@/contexts/toast";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { routeTree } from "./routeTree.gen";
 
 const queryClient = new QueryClient({

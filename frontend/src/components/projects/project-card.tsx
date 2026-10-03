@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {

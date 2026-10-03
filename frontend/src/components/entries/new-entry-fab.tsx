@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 
 interface NewEntryFabProps {
   onClick: () => void;

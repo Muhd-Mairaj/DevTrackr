@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/contexts/toast";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { useUpdateProject } from "@/lib/projects";
 
 const updateSchema = z.object({

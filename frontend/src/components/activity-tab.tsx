@@ -3,7 +3,7 @@ import type { ProjectPublic } from "@/client/types.gen";
 import { GithubMark } from "@/components/github-mark";
 import { EmptyState } from "@/components/projects/query-state";
 import { Button } from "@/components/ui/button";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 
 export function ActivityTab({ project }: { project: ProjectPublic }) {
   const repos = project.repositories ?? [];

@@ -5,7 +5,7 @@ import { LogoMark } from "@/components/logo-mark";
 import { ThemeToggle } from "@/components/nav/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { startGithubInstall, useGithubStatus } from "@/lib/integrations";
 import { cn } from "@/lib/utils";
 

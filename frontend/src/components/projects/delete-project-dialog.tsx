@@ -4,7 +4,7 @@ import { AppDialog } from "@/components/ui/app-dialog";
 import { ErrorBanner } from "@/components/ui/error-banner";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/contexts/toast";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { useUndoDeleteProject } from "@/lib/projects";
 
 interface DeleteProjectDialogProps {

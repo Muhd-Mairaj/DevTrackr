@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 
 interface EntriesFilterBarProps {
   query: string;
