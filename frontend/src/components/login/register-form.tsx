@@ -1,11 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { useAuth } from "@/contexts/auth";
 import { strings } from "@/ii8n/strings";
+import { usePostLoginRedirect } from "@/lib/login-redirect";
 import { Divider } from "../divider";
 import { Button } from "../ui/button";
 import { ErrorBanner } from "../ui/error-banner";
@@ -22,7 +22,7 @@ import { GitHubButton } from "./github-button";
 
 export function RegisterForm() {
   const { register } = useAuth();
-  const navigate = useNavigate();
+  const redirectAfterLogin = usePostLoginRedirect();
   const [showPassword, setShowPassword] = useState(false);
 
   const registerSchema = z.object({
@@ -41,14 +41,7 @@ export function RegisterForm() {
   const onSubmit = async (values: RegisterValues) => {
     try {
       await register(values);
-      const params = new URLSearchParams(window.location.search);
-      const raw = params.get("next");
-      const target = raw?.startsWith("/") && !raw.startsWith("//") ? raw : "/";
-      const [pathname, search] = target.split("?");
-      navigate({
-        to: pathname as "/",
-        search: Object.fromEntries(new URLSearchParams(search ?? "")) as never,
-      });
+      redirectAfterLogin();
     } catch (err) {
       form.setError("root", { message: (err as Error).message });
     }
