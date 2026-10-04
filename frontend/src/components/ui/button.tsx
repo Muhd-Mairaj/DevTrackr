@@ -4,10 +4,7 @@ import type * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-// Button hierarchy: default = the single accent action per view, secondary /
-// outline = secondary actions, ghost / link = tertiary or inline actions,
-// destructive = dangerous confirmations only. Controls are 8px, the accent is
-// coral ink, and elevation is soft (see design.md).
+// Variant action weights: see design.md (Buttons).
 const buttonVariants = cva(
   "inline-flex shrink-0 items-center justify-center gap-2 rounded font-medium whitespace-nowrap transition-[color,background-color,border-color,transform] duration-150 outline-none select-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background active:translate-y-px disabled:pointer-events-none disabled:opacity-45 aria-invalid:border-destructive aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
