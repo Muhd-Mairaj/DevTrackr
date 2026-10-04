@@ -102,11 +102,6 @@ export function useCreateEntry(
             : prev,
       );
       queryClient.invalidateQueries({ queryKey: entryKeys.list(projectId) });
-      try {
-        localStorage.setItem("devtrackr-has-entry", "1");
-      } catch {
-        // storage unavailable; flag is best-effort onboarding state
-      }
       onSuccess?.(data, vars, context, mutationContext);
     },
     onError: (err, vars, context, mutationContext) => {
