@@ -82,12 +82,22 @@ pixels.
 - Toasts are silent-success; destructive actions are confirmed in a dialog.
 - No zero-offset halos, no gradients, no glassmorphism.
 
-## CTA voice
+## Buttons
 
-- Primary: solid coral-ink fill, 8px radius, `font-medium`, sentence case.
-- Secondary: hairline outline on leaf, ink text, same radius.
-- Ghost: text-only for inline/row actions.
-- Destructive: solid `--destructive`, only for confirmations.
+One variant per action weight, and at most one primary action per view.
+
+- **Primary (`default`)** — the single accent action on a view. Solid coral-ink
+  fill, `font-medium`, sentence case.
+- **Secondary (`secondary`, `outline`)** — supporting actions, same weight.
+  `secondary` is a leaf fill with a hairline edge; `outline` is a transparent
+  fill with an edge. Pick between them by surrounding contrast, not by rank.
+- **Tertiary (`ghost`, `link`)** — inline and row actions. `ghost` is text with a
+  hover wash; `link` is accent text, underlined on hover.
+- **Destructive (`destructive`)** — dangerous confirmations only, never a routine
+  action, and only as the primary action of a confirmation dialog.
+
+Controls are 8px radius (`--radius-control`); elevation is soft, never a hard
+shadow. An icon-only control needs an accessible name.
 
 ## Per-page allowances
 
@@ -99,7 +109,7 @@ pixels.
 - The wordmark and the daybook mark.
 - The coral accent, used on ≤ 5% of a viewport.
 - Schibsted Grotesk + IBM Plex Mono.
-- The CTA voice (radius, padding rhythm, case).
+- The button hierarchy (radius, padding rhythm, case).
 - The ruled-hairline divider language and the mono micro-label.
 
 ## What pages MAY differ on
