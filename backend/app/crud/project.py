@@ -1,13 +1,14 @@
 import logging
 import uuid
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, cast
 
 from sqlmodel import func, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.crud.repository import get_repositories_by_github_ids
 from app.models.project import Project, ProjectCreate, ProjectUpdate
+from app.models.time_entry import TimeEntry
 
 logger = logging.getLogger(__name__)
 
@@ -40,12 +41,37 @@ async def create_project(
     return db_obj
 
 
+async def get_project_ids_with_entries(
+    session: AsyncSession, project_ids: Sequence[uuid.UUID]
+) -> set[uuid.UUID]:
+    """Project ids with at least one entry, resolved in a single query."""
+    if not project_ids:
+        return set()
+    project_id_col = cast(Any, TimeEntry.project_id)
+    statement = (
+        select(TimeEntry.project_id).where(project_id_col.in_(project_ids)).distinct()
+    )
+    result = await session.exec(statement)
+    return set(result.all())
+
+
+def _mark_has_entries(
+    projects: Sequence[Project], with_entries: set[uuid.UUID]
+) -> None:
+    for project in projects:
+        cast(Any, project)._has_entries = project.id in with_entries
+
+
 async def get_project_for_user(
     *, session: AsyncSession, id: uuid.UUID, user_id: uuid.UUID
 ) -> Project | None:
     statement = select(Project).where(Project.id == id, Project.user_id == user_id)
     result = await session.exec(statement)
-    return result.one_or_none()
+    project = result.one_or_none()
+    if project is not None:
+        with_entries = await get_project_ids_with_entries(session, [project.id])
+        _mark_has_entries([project], with_entries)
+    return project
 
 
 async def get_projects_by_user(
@@ -55,7 +81,12 @@ async def get_projects_by_user(
         select(Project).where(Project.user_id == user_id).offset(skip).limit(limit)
     )
     result = await session.exec(statement)
-    return result.all()
+    projects = result.all()
+    with_entries = await get_project_ids_with_entries(
+        session, [project.id for project in projects]
+    )
+    _mark_has_entries(projects, with_entries)
+    return projects
 
 
 async def get_project_count_by_user(

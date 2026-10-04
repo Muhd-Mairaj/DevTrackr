@@ -29,14 +29,6 @@ import { useCreateProject, useProjects } from "@/lib/projects";
 import { repositoryKeys } from "@/lib/repositories";
 import { focusSearchInput, useKeyboardShortcuts } from "@/lib/shortcuts";
 
-function readFlag(key: string): boolean {
-  try {
-    return localStorage.getItem(key) === "1";
-  } catch {
-    return false;
-  }
-}
-
 export const Route = createFileRoute("/")({
   component: HomePage,
 });
@@ -52,8 +44,8 @@ function HomePage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { data: githubStatus } = useGithubStatus();
-  const [entryDone] = useState(() => readFlag("devtrackr-has-entry"));
-  const [columnsDone] = useState(() => readFlag("devtrackr-has-columns"));
+  const entryDone = (projects ?? []).some((p) => p.has_entries);
+  const columnsDone = (projects ?? []).some((p) => p.has_custom_columns);
   const createProject = useCreateProject({
     onSuccess: () => toast("success", strings.onboarding.sampleCreatedToast),
   });

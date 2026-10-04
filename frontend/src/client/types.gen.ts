@@ -178,6 +178,14 @@ export type ProjectPublic = {
      * Repositories
      */
     repositories?: Array<RepositoryPublic>;
+    /**
+     * Has Custom Columns
+     */
+    has_custom_columns?: boolean;
+    /**
+     * Has Entries
+     */
+    has_entries?: boolean;
 };
 
 /**
