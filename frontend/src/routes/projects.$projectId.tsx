@@ -20,7 +20,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/i18n/strings";
-import { PAGE_SIZE, useEntries, usePauseEntry } from "@/lib/entries";
+import {
+  PAGE_SIZE,
+  useEntries,
+  usePauseEntry,
+  useRecentDescriptions,
+} from "@/lib/entries";
 import { downloadCsv, exportEntriesCsv } from "@/lib/export";
 import { useProject } from "@/lib/projects";
 import { focusSearchInput, useKeyboardShortcuts } from "@/lib/shortcuts";
@@ -60,6 +65,7 @@ function ProjectPage() {
   } = useProject(projectId);
   const navigate = Route.useNavigate();
   const entriesQuery = useEntries(projectId, page);
+  const { data: recentDescriptions } = useRecentDescriptions(projectId);
   const { pause, isPausing } = usePauseEntry(projectId);
   const { toast } = useToast();
   const [formOpen, setFormOpen] = useState(false);
@@ -324,6 +330,8 @@ function ProjectPage() {
           onOpenChange={setFormOpen}
           projectId={projectId}
           entry={editing}
+          recentDescriptions={recentDescriptions}
+          existingEntries={pageItems}
           onCreated={() => {
             // A new entry lands at the top of page 1 (newest first).
             if (page !== 1) navigate({ search: { page: 1 } });
