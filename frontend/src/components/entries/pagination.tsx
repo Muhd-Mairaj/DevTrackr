@@ -42,7 +42,7 @@ export function Pagination({
     [page, pageCount],
   );
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-2.5">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-3">
       <span className="flex items-center gap-2 font-mono text-xs tabular-nums text-muted-foreground">
         <span>{strings.entries.pageRange(start, end, total)}</span>
         <span aria-hidden="true">·</span>
@@ -89,7 +89,8 @@ export function Pagination({
               onClick={() => onPageChange(n)}
               className={cn(
                 "font-mono text-xs tabular-nums",
-                n === page && "font-semibold text-foreground",
+                n === page &&
+                  "border border-signal/50 bg-signal/10 font-medium text-signal hover:bg-signal/20 hover:text-signal",
               )}
               aria-current={n === page ? "page" : undefined}
             >

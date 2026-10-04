@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { CircleHelp } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,14 +9,26 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { strings } from "@/i18n/strings";
-import { useKeyboardShortcuts } from "@/lib/shortcuts";
+import { SHORTCUTS_EVENT } from "@/lib/events";
+import { isMacPlatform, useKeyboardShortcuts } from "@/lib/shortcuts";
 
 export function ShortcutHelpDialog() {
   const [open, setOpen] = useState(false);
 
   useKeyboardShortcuts({ onHelp: () => setOpen(true) });
 
+  // The command palette opens this dialog through a window event.
+  useEffect(() => {
+    const openDialog = () => setOpen(true);
+    window.addEventListener(SHORTCUTS_EVENT, openDialog);
+    return () => window.removeEventListener(SHORTCUTS_EVENT, openDialog);
+  }, []);
+
   const rows: Array<{ keys: string; label: string }> = [
+    {
+      keys: isMacPlatform() ? "⌘ K" : "Ctrl K",
+      label: strings.shortcuts.commandPalette,
+    },
     { keys: "n", label: strings.shortcuts.newItem },
     { keys: "/", label: strings.shortcuts.search },
     { keys: "←", label: strings.shortcuts.prevPage },
@@ -28,12 +41,12 @@ export function ShortcutHelpDialog() {
     <>
       <Button
         variant="ghost"
-        size="sm"
+        size="icon-sm"
         onClick={() => setOpen(true)}
         aria-label={strings.shortcuts.openLabel}
-        title="?"
+        className="text-muted-foreground hover:text-foreground"
       >
-        ?
+        <CircleHelp className="size-4" aria-hidden="true" />
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
@@ -43,14 +56,14 @@ export function ShortcutHelpDialog() {
               {strings.shortcuts.description}
             </DialogDescription>
           </DialogHeader>
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {rows.map((row) => (
               <li
                 key={row.keys}
-                className="flex items-center justify-between text-sm"
+                className="flex items-center justify-between gap-4 border-b border-border py-1.5 text-sm last:border-b-0"
               >
                 <span className="text-muted-foreground">{row.label}</span>
-                <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs">
+                <kbd className="inline-flex min-w-6 items-center justify-center rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] font-medium text-foreground tabular-nums">
                   {row.keys}
                 </kbd>
               </li>

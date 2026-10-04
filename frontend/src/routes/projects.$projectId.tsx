@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download, Plus } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { TimeEntryPublic } from "@/client/types.gen";
 import { ActivityTab } from "@/components/activity-tab";
 import { ColumnManagerDialog } from "@/components/columns/column-manager-dialog";
@@ -11,13 +11,16 @@ import { EntriesFilterBar } from "@/components/entries/entries-filter-bar";
 import { EntriesSummary } from "@/components/entries/entries-summary";
 import { EntryFormDialog } from "@/components/entries/entry-form-dialog";
 import { NewEntryFab } from "@/components/entries/new-entry-fab";
+import { TimeLane } from "@/components/entries/time-lane";
 import { LogbookTab } from "@/components/logbook-tab";
+import { usePageCommands } from "@/components/nav/command-palette";
 import { QueryError } from "@/components/projects/query-state";
 import { ShortcutHelpDialog } from "@/components/shortcut-help-dialog";
 import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/page-container";
+import { Panel, PanelBody } from "@/components/ui/panel";
+import { Section, SectionHeading } from "@/components/ui/section";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/contexts/toast";
 import { strings } from "@/i18n/strings";
 import {
@@ -26,9 +29,11 @@ import {
   usePauseEntry,
   useRecentDescriptions,
 } from "@/lib/entries";
+import { NEW_ENTRY_EVENT } from "@/lib/events";
 import { downloadCsv, exportEntriesCsv } from "@/lib/export";
-import { useProject } from "@/lib/projects";
+import { useProject, useProjects } from "@/lib/projects";
 import { focusSearchInput, useKeyboardShortcuts } from "@/lib/shortcuts";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/projects/$projectId")({
   validateSearch: (search: Record<string, unknown>): { page: number } => {
@@ -45,11 +50,104 @@ function BackToProjectsLink() {
   return (
     <Link
       to="/"
-      aria-label={strings.nav.projects}
-      className="mb-2 inline-block text-sm text-muted-foreground hover:text-foreground"
+      className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
     >
-      {strings.nav.backToProjects}
+      <span aria-hidden="true">←</span>
+      {strings.nav.console}
     </Link>
+  );
+}
+
+const SECTION_IDS = ["summary", "timeline", "entries", "activity", "notes"];
+
+const CONTENTS = [
+  { id: "summary", label: strings.timeline.summaryTab },
+  { id: "timeline", label: strings.timeline.tab },
+  { id: "entries", label: strings.logbook.entriesTab },
+  { id: "activity", label: strings.activity.tab },
+  { id: "notes", label: strings.logbook.notesTab },
+];
+
+/** Highlights the section currently in the reading position. */
+function useActiveSection(): string {
+  const [active, setActive] = useState(SECTION_IDS[0]);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActive(visible[0].target.id);
+      },
+      { rootMargin: "-140px 0px -65% 0px", threshold: 0 },
+    );
+    for (const id of SECTION_IDS) {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, []);
+  return active;
+}
+
+/** Sticky contents index for the project document. */
+function ContentsNav() {
+  const active = useActiveSection();
+  return (
+    <nav
+      aria-label={strings.nav.primary}
+      className="sticky top-14 z-30 -mx-5 border-y border-border bg-background px-5 sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10"
+    >
+      <ul className="flex gap-1 overflow-x-auto py-2">
+        {CONTENTS.map((item) => (
+          <li key={item.id}>
+            <button
+              type="button"
+              onClick={() =>
+                document
+                  .getElementById(item.id)
+                  ?.scrollIntoView({ block: "start" })
+              }
+              aria-current={active === item.id ? "true" : undefined}
+              className={cn(
+                "rounded-full px-3 py-1 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background",
+                active === item.id
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {item.label}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+function ProjectSwitcher({ currentId }: { currentId: string }) {
+  const { data: projects } = useProjects();
+  if (!projects || projects.length < 2) return null;
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {projects.map((project) => (
+        <Link
+          key={project.id}
+          to="/projects/$projectId"
+          params={{ projectId: project.id }}
+          search={{ page: 1 }}
+          aria-current={project.id === currentId ? "page" : undefined}
+          className={cn(
+            "rounded-full border px-3 py-1 text-sm whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background",
+            project.id === currentId
+              ? "border-edge bg-muted font-medium text-foreground"
+              : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
+          )}
+        >
+          {project.name}
+        </Link>
+      ))}
+    </div>
   );
 }
 
@@ -131,14 +229,14 @@ function ProjectPage() {
       : `${strings.entries.projectNotFoundTitle} · ${strings.common.brand}`;
   }, [project]);
 
-  const openNewEntry = () => {
+  const openNewEntry = useCallback(() => {
     setEditing(null);
     setFormOpen(true);
-  };
+  }, []);
 
   const handlePageChange = (next: number) => {
     navigate({ search: { page: next } });
-    window.scrollTo({ top: 0 });
+    document.getElementById("entries")?.scrollIntoView({ block: "start" });
   };
 
   useKeyboardShortcuts({
@@ -150,6 +248,23 @@ function ProjectPage() {
     onNextPage:
       page < totalPages ? () => handlePageChange(page + 1) : undefined,
   });
+
+  usePageCommands("project", [
+    {
+      id: "project-new-entry",
+      label: strings.palette.newEntry,
+      group: strings.palette.actions,
+      icon: Plus,
+      run: openNewEntry,
+    },
+  ]);
+
+  // Shell commands (command palette) open the entry dialog via an event.
+  useEffect(() => {
+    const openNew = () => openNewEntry();
+    window.addEventListener(NEW_ENTRY_EVENT, openNew);
+    return () => window.removeEventListener(NEW_ENTRY_EVENT, openNew);
+  }, [openNewEntry]);
 
   const handleDeleteSuccess = () => {
     // Deleting the last row of a non-first page steps back one page.
@@ -170,8 +285,9 @@ function ProjectPage() {
   if (isLoading) {
     return (
       <PageContainer>
-        <div className="mt-4 mb-6 flex flex-col gap-3">
-          <Skeleton className="h-7 w-64" />
+        <DayStamp date={new Date()} />
+        <div className="mt-5 mb-6 flex flex-col gap-3">
+          <Skeleton className="h-8 w-64" />
           <Skeleton className="h-4 w-80" />
         </div>
       </PageContainer>
@@ -194,14 +310,14 @@ function ProjectPage() {
     return (
       <PageContainer>
         <BackToProjectsLink />
-        <div className="mt-4 mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight">
+        <div className="mt-5 mb-6">
+          <h1 className="font-display text-3xl font-semibold tracking-tight">
             {strings.entries.projectNotFoundTitle}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             {strings.entries.projectNotFoundDescription}
           </p>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-5 flex flex-wrap gap-2">
             <Button variant="secondary" size="sm" onClick={() => refetch()}>
               {strings.common.retry}
             </Button>
@@ -225,17 +341,18 @@ function ProjectPage() {
     <PageContainer>
       <BackToProjectsLink />
       <DayStamp date={new Date()} />
-      <div className="mt-4 mb-6 flex flex-col gap-6">
+
+      <div className="mt-4 flex flex-col gap-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
+          <div className="min-w-0">
+            <h1 className="truncate font-display text-3xl font-semibold tracking-tight">
               {project.name}
             </h1>
-            <p className="mt-1 font-mono text-xs text-muted-foreground">
+            <p className="mt-1.5 font-mono text-xs text-muted-foreground tabular-nums">
               {strings.entries.metaLine(project.created_at, total)}
             </p>
           </div>
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
             <ShortcutHelpDialog />
             <Button
               id="columns-btn"
@@ -269,32 +386,57 @@ function ProjectPage() {
           </div>
         </div>
 
-        <Tabs defaultValue="entries">
-          <TabsList>
-            <TabsTrigger value="entries">
-              {strings.logbook.entriesTab}
-            </TabsTrigger>
-            <TabsTrigger value="activity">{strings.activity.tab}</TabsTrigger>
-            <TabsTrigger value="logbook">{strings.logbook.tab}</TabsTrigger>
-          </TabsList>
-          <TabsContent value="entries">
+        <ProjectSwitcher currentId={projectId} />
+      </div>
+
+      <div className="mt-5">
+        <ContentsNav />
+      </div>
+
+      <div className="flex flex-col gap-12 pt-8">
+        <Section id="summary" className="scroll-mt-32">
+          <SectionHeading title={strings.timeline.summaryTab} />
+          <EntriesSummary entries={pageItems} total={total} />
+        </Section>
+
+        <Section id="timeline" className="scroll-mt-32">
+          <SectionHeading
+            title={strings.timeline.tab}
+            meta={String(pageItems.length)}
+          />
+          <Panel>
+            <PanelBody>
+              <TimeLane
+                entries={pageItems}
+                onEdit={(entry) => {
+                  setEditing(entry);
+                  setFormOpen(true);
+                }}
+              />
+            </PanelBody>
+          </Panel>
+        </Section>
+
+        <Section id="entries" className="scroll-mt-32">
+          <SectionHeading
+            title={strings.logbook.entriesTab}
+            meta={String(total)}
+          />
+          <div className="flex flex-col gap-4">
             {entriesQuery.data && total > 0 && (
-              <div className="mb-4 flex flex-col gap-4">
-                <EntriesSummary entries={pageItems} total={total} />
-                <EntriesFilterBar
-                  query={filterQuery}
-                  from={filterFrom}
-                  to={filterTo}
-                  runningOnly={runningOnly}
-                  filteredCount={filteredItems.length}
-                  totalCount={pageItems.length}
-                  onQueryChange={setFilterQuery}
-                  onFromChange={setFilterFrom}
-                  onToChange={setFilterTo}
-                  onRunningOnlyChange={setRunningOnly}
-                  onClear={clearFilters}
-                />
-              </div>
+              <EntriesFilterBar
+                query={filterQuery}
+                from={filterFrom}
+                to={filterTo}
+                runningOnly={runningOnly}
+                filteredCount={filteredItems.length}
+                totalCount={pageItems.length}
+                onQueryChange={setFilterQuery}
+                onFromChange={setFilterFrom}
+                onToChange={setFilterTo}
+                onRunningOnlyChange={setRunningOnly}
+                onClear={clearFilters}
+              />
             )}
             <EntriesArea
               entriesQuery={entriesQuery}
@@ -316,43 +458,47 @@ function ProjectPage() {
               onPageChange={handlePageChange}
               onNewEntry={openNewEntry}
             />
-          </TabsContent>
-          <TabsContent value="activity">
-            <ActivityTab project={project} />
-          </TabsContent>
-          <TabsContent value="logbook">
-            <LogbookTab projectId={projectId} />
-          </TabsContent>
-        </Tabs>
+          </div>
+        </Section>
 
-        <EntryFormDialog
-          open={formOpen}
-          onOpenChange={setFormOpen}
-          projectId={projectId}
-          entry={editing}
-          recentDescriptions={recentDescriptions}
-          existingEntries={pageItems}
-          onCreated={() => {
-            // A new entry lands at the top of page 1 (newest first).
-            if (page !== 1) navigate({ search: { page: 1 } });
-          }}
-        />
-        <DeleteEntryDialog
-          open={deleting !== null}
-          onOpenChange={(open) => {
-            if (!open) setDeleting(null);
-          }}
-          projectId={projectId}
-          entry={deleting}
-          onDeleted={handleDeleteSuccess}
-        />
-        <ColumnManagerDialog
-          open={columnsOpen}
-          onOpenChange={setColumnsOpen}
-          projectId={projectId}
-        />
-        <NewEntryFab onClick={openNewEntry} />
+        <Section id="activity" className="scroll-mt-32">
+          <SectionHeading title={strings.activity.tab} />
+          <ActivityTab project={project} entries={pageItems} />
+        </Section>
+
+        <Section id="notes" className="scroll-mt-32">
+          <SectionHeading title={strings.logbook.notesTab} />
+          <LogbookTab projectId={projectId} />
+        </Section>
       </div>
+
+      <EntryFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        projectId={projectId}
+        entry={editing}
+        recentDescriptions={recentDescriptions}
+        existingEntries={pageItems}
+        onCreated={() => {
+          // A new entry lands at the top of page 1 (newest first).
+          if (page !== 1) navigate({ search: { page: 1 } });
+        }}
+      />
+      <DeleteEntryDialog
+        open={deleting !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleting(null);
+        }}
+        projectId={projectId}
+        entry={deleting}
+        onDeleted={handleDeleteSuccess}
+      />
+      <ColumnManagerDialog
+        open={columnsOpen}
+        onOpenChange={setColumnsOpen}
+        projectId={projectId}
+      />
+      <NewEntryFab onClick={openNewEntry} />
     </PageContainer>
   );
 }

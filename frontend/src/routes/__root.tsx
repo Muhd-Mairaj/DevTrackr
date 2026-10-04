@@ -6,7 +6,9 @@ import {
 } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { AppNav } from "@/components/nav/app-nav";
+import { CommandPaletteProvider } from "@/components/nav/command-palette";
+import { Masthead } from "@/components/nav/masthead";
+import { TransportDock } from "@/components/nav/transport-dock";
 import { OfflineBanner } from "@/components/offline-banner";
 import { RootErrorComponent } from "@/components/root-error";
 import { Button } from "@/components/ui/button";
@@ -35,9 +37,9 @@ function LoadingSpinner() {
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-3">
-      <div role="status" aria-label="Loading">
+      <div role="status" aria-label={strings.common.loading}>
         <Loader2
-          className="size-6 animate-spin text-muted-foreground"
+          className="size-6 animate-spin text-signal"
           aria-hidden="true"
         />
       </div>
@@ -93,13 +95,20 @@ function AuthShell() {
   }
 
   return (
-    <div className="flex min-h-svh flex-col">
-      <AppNav />
-      <main id="main" tabIndex={-1} className="flex-1 outline-none">
-        <Outlet />
-      </main>
-      <OfflineBanner />
-    </div>
+    <CommandPaletteProvider>
+      <div className="flex min-h-svh flex-col">
+        <Masthead />
+        <main
+          id="main"
+          tabIndex={-1}
+          className="flex-1 pb-24 outline-none sm:pb-20"
+        >
+          <Outlet />
+        </main>
+        <TransportDock />
+        <OfflineBanner />
+      </div>
+    </CommandPaletteProvider>
   );
 }
 

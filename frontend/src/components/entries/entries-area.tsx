@@ -4,6 +4,7 @@ import type { TimeEntryPublic } from "@/client/types.gen";
 import { EntriesTable } from "@/components/entries/entries-table";
 import { EmptyState, QueryError } from "@/components/projects/query-state";
 import { Button } from "@/components/ui/button";
+import { Panel } from "@/components/ui/panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { strings } from "@/i18n/strings";
 import { useColumns } from "@/lib/columns";
@@ -42,11 +43,7 @@ export function EntriesArea({
 
   if (entriesQuery.isLoading) {
     return (
-      <div
-        role="status"
-        aria-label="Loading entries"
-        className="overflow-hidden rounded-md border border-border bg-card"
-      >
+      <Panel role="status" aria-label={strings.entries.loadingEntries}>
         <div className="flex gap-3 border-b border-border bg-muted/40 px-3 py-2.5">
           <Skeleton className="h-3 w-16" />
           <Skeleton className="h-3 w-12" />
@@ -63,7 +60,7 @@ export function EntriesArea({
             <Skeleton className="h-3 w-2/5" />
           </div>
         ))}
-      </div>
+      </Panel>
     );
   }
 
@@ -84,6 +81,8 @@ export function EntriesArea({
         action={
           <Button
             id="empty-new-entry-btn"
+            variant="secondary"
+            size="sm"
             className="gap-1.5"
             onClick={onNewEntry}
           >
@@ -97,11 +96,7 @@ export function EntriesArea({
 
   if (columnsQuery.isLoading) {
     return (
-      <div
-        role="status"
-        aria-label="Loading columns"
-        className="overflow-hidden rounded-md border border-border bg-card"
-      >
+      <Panel role="status" aria-label={strings.entries.loadingColumns}>
         <div className="flex gap-3 border-b border-border bg-muted/40 px-3 py-2.5">
           <Skeleton className="h-3 w-20" />
           <Skeleton className="h-3 w-20" />
@@ -118,7 +113,7 @@ export function EntriesArea({
             <Skeleton className="h-3 w-2/5" />
           </div>
         ))}
-      </div>
+      </Panel>
     );
   }
 
@@ -127,7 +122,7 @@ export function EntriesArea({
       {columnsQuery.isError && (
         <div
           role="alert"
-          className="mb-2 flex items-center gap-2 rounded-md border border-destructive/35 bg-destructive/5 px-3 py-2 text-xs font-medium text-destructive"
+          className="mb-2 flex items-center gap-2 rounded-lg border border-destructive/35 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
         >
           <span className="flex-1">{strings.entries.columnsFailed}</span>
           <Button

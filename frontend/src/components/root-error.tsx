@@ -1,5 +1,6 @@
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
+import { LogoMark } from "@/components/logo-mark";
 import { Button } from "@/components/ui/button";
 import { ErrorBanner } from "@/components/ui/error-banner";
 import { strings } from "@/i18n/strings";
@@ -9,28 +10,27 @@ export function RootErrorComponent({ error, reset }: ErrorComponentProps) {
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center p-6 text-center">
-      <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-md border bg-card p-6">
-        <div className="flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-          <AlertTriangle className="size-6" />
-        </div>
+      <div className="mx-auto flex max-w-md flex-col items-center gap-5">
+        <LogoMark size={34} />
         <div className="space-y-2">
-          <h2 className="font-semibold text-xl tracking-tight">
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
             {strings.error.rootTitle}
-          </h2>
-          <p className="text-muted-foreground text-sm">
+          </h1>
+          <p className="text-sm text-muted-foreground">
             {strings.error.rootDescription}
           </p>
           {error instanceof Error && error.message && (
             <ErrorBanner message={error.message} />
           )}
         </div>
-        <div className="flex items-center gap-3 pt-2">
+        <div className="flex items-center gap-3 pt-1">
           {reset && (
-            <Button variant="secondary" size="sm" onClick={() => reset()}>
-              <RefreshCw className="mr-2 size-4" /> {strings.common.retry}
+            <Button variant="secondary" onClick={() => reset()}>
+              <RefreshCw className="size-4" aria-hidden="true" />
+              {strings.common.retry}
             </Button>
           )}
-          <Button size="sm" onClick={() => window.location.assign("/")}>
+          <Button onClick={() => window.location.assign("/")}>
             {strings.common.goHome}
           </Button>
         </div>

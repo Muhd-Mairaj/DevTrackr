@@ -11,7 +11,7 @@ export function ErrorBanner({ message, className }: ErrorBannerProps) {
     <p
       role="alert"
       className={cn(
-        "rounded-md bg-destructive/10 px-3 py-2 text-center text-destructive text-xs",
+        "rounded border border-destructive/25 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive",
         className,
       )}
     >
