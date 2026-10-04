@@ -26,6 +26,12 @@ export const entryKeys = {
     ["entries", projectId, { page }] as const,
 };
 
+// Not under entryKeys.list: that prefix is treated as page data by the
+// optimistic mutators, and this query holds a plain list of strings.
+export const entryDescriptionKeys = {
+  recent: (projectId: string) => ["entry-descriptions", projectId] as const,
+};
+
 export function useEntries(projectId: string, page: number) {
   return useQuery({
     queryKey: entryKeys.page(projectId, page),
@@ -37,6 +43,47 @@ export function useEntries(projectId: string, page: number) {
       if (!res.data) throw new Error("No data returned from server");
       return res.data;
     },
+  });
+}
+
+/**
+ * Distinct, non-empty descriptions from entries given newest-first, keeping
+ * the first spelling seen per case-insensitive match.
+ */
+export function distinctRecentDescriptions(
+  entries: TimeEntryPublic[],
+  limit = 8,
+): string[] {
+  const seen = new Set<string>();
+  const descriptions: string[] = [];
+  for (const entry of entries) {
+    const description = entry.description?.trim();
+    if (!description) continue;
+    const key = description.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    descriptions.push(description);
+    if (descriptions.length === limit) break;
+  }
+  return descriptions;
+}
+
+/**
+ * Recent descriptions for the entry form's autocomplete, drawn from the
+ * project's newest entries (the endpoint returns entries newest-first).
+ */
+export function useRecentDescriptions(projectId: string, limit = 50) {
+  return useQuery({
+    queryKey: [...entryDescriptionKeys.recent(projectId), { limit }] as const,
+    queryFn: async () => {
+      const res = await EntriesService.getEntriesForProject({
+        path: { id: projectId },
+        query: { skip: 0, limit },
+      });
+      if (!res.data) throw new Error("No data returned from server");
+      return distinctRecentDescriptions(res.data.items);
+    },
+    staleTime: 60_000,
   });
 }
 
@@ -102,6 +149,9 @@ export function useCreateEntry(
             : prev,
       );
       queryClient.invalidateQueries({ queryKey: entryKeys.list(projectId) });
+      queryClient.invalidateQueries({
+        queryKey: entryDescriptionKeys.recent(projectId),
+      });
       onSuccess?.(data, vars, context, mutationContext);
     },
     onError: (err, vars, context, mutationContext) => {
@@ -172,6 +222,9 @@ export function useUpdateEntry(
             : prev,
       );
       queryClient.invalidateQueries({ queryKey: entryKeys.list(projectId) });
+      queryClient.invalidateQueries({
+        queryKey: entryDescriptionKeys.recent(projectId),
+      });
       onSuccess?.(data, vars, context, mutationContext);
     },
     onError: (err, vars, context, mutationContext) => {
@@ -247,6 +300,9 @@ export function useDeleteEntry(
     },
     onSuccess: (data, id, context, mutationContext) => {
       queryClient.invalidateQueries({ queryKey: entryKeys.list(projectId) });
+      queryClient.invalidateQueries({
+        queryKey: entryDescriptionKeys.recent(projectId),
+      });
       onSuccess?.(data, id, context, mutationContext);
     },
     onError: (err, id, context, mutationContext) => {
