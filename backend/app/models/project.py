@@ -60,6 +60,16 @@ class Project(ProjectBase, BaseModel, table=True):
         sa_relationship_kwargs={"lazy": "selectin"},
     )
 
+    @property
+    def has_custom_columns(self) -> bool:
+        """True once the user has saved a column layout for this project."""
+        return self.column_config is not None
+
+    @property
+    def has_entries(self) -> bool:
+        """True when the project has entries. Populated by the list query."""
+        return bool(getattr(self, "_has_entries", False))
+
 
 class ProjectPublic(ProjectBase):
     id: uuid.UUID
@@ -69,3 +79,5 @@ class ProjectPublic(ProjectBase):
     deleted_at: datetime | None = None
     user_id: uuid.UUID
     repositories: list[RepositoryPublic] = Field(default_factory=list)
+    has_custom_columns: bool = False
+    has_entries: bool = False
