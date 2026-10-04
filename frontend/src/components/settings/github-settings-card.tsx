@@ -1,14 +1,30 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, RefreshCw } from "lucide-react";
+import { useState } from "react";
 import { GithubMark } from "@/components/github-mark";
 import { StatusChip } from "@/components/status-chip";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { strings } from "@/ii8n/strings";
+import { useToast } from "@/contexts/toast";
+import { strings } from "@/i18n/strings";
 import {
   githubManageUrl,
+  integrationKeys,
   startGithubInstall,
   useGithubInstallations,
+  useGithubStatus,
 } from "@/lib/integrations";
+import { repositoryKeys } from "@/lib/repositories";
+
+const SYNCED_KEY = "devtrackr-gh-synced";
+
+function readSyncedTs(): string | null {
+  try {
+    return localStorage.getItem(SYNCED_KEY);
+  } catch {
+    return null;
+  }
+}
 
 export function GithubSettingsCard() {
   const {
@@ -16,11 +32,72 @@ export function GithubSettingsCard() {
     isLoading,
     isError,
     refetch,
+    dataUpdatedAt,
   } = useGithubInstallations();
+  const { refetch: refetchStatus } = useGithubStatus();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [syncedTs, setSyncedTs] = useState<string | null>(() => readSyncedTs());
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSyncNow = async () => {
+    setSyncing(true);
+    try {
+      await Promise.all([
+        refetch(),
+        refetchStatus(),
+        queryClient.invalidateQueries({ queryKey: repositoryKeys.all }),
+        queryClient.invalidateQueries({
+          queryKey: integrationKeys.githubStatus,
+        }),
+      ]);
+      const now = new Date().toISOString();
+      try {
+        localStorage.setItem(SYNCED_KEY, now);
+      } catch {
+        // storage unavailable; timestamp still shown from query below
+      }
+      setSyncedTs(now);
+      toast("success", strings.integrations.githubSyncNowToast);
+    } catch (err) {
+      toast("error", (err as Error)?.message ?? strings.error.defaultMessage);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const lastSynced =
+    syncedTs ?? (dataUpdatedAt ? new Date(dataUpdatedAt).toISOString() : null);
 
   return (
     <section className="mt-4 max-w-xl rounded-md border border-border bg-card p-5">
-      <h2 className="text-sm font-semibold">{strings.settings.githubTitle}</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold">
+          {strings.settings.githubTitle}
+        </h2>
+        {!isLoading &&
+          !isError &&
+          installations &&
+          installations.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={handleSyncNow}
+              disabled={syncing}
+            >
+              <RefreshCw className="size-3.5" aria-hidden="true" />
+              {strings.integrations.githubSyncNowButton}
+            </Button>
+          )}
+      </div>
+      {lastSynced && !isLoading && !isError && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          {strings.integrations.githubLastSynced(
+            new Date(lastSynced).toLocaleString(),
+          )}
+        </p>
+      )}
       <div className="mt-4">
         {isLoading ? (
           <div className="space-y-2">
@@ -46,7 +123,7 @@ export function GithubSettingsCard() {
               variant="outline"
               size="sm"
               className="gap-1.5"
-              onClick={startGithubInstall}
+              onClick={() => startGithubInstall("/settings")}
             >
               <GithubMark />
               {strings.integrations.githubInstallButton}

@@ -1,6 +1,12 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { PAGE_SIZE } from "@/lib/entries";
 import { cn } from "@/lib/utils";
 
@@ -31,10 +37,16 @@ export function Pagination({
 }: PaginationProps) {
   const start = (page - 1) * PAGE_SIZE + 1;
   const end = Math.min(page * PAGE_SIZE, total);
+  const numbers = useMemo(
+    () => pageNumbers(page, pageCount),
+    [page, pageCount],
+  );
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-2.5">
-      <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
-        {strings.entries.pageRange(start, end, total)}
+      <span className="flex items-center gap-2 font-mono text-xs tabular-nums text-muted-foreground">
+        <span>{strings.entries.pageRange(start, end, total)}</span>
+        <span aria-hidden="true">·</span>
+        <span>{strings.entries.pageXOfY(page, pageCount)}</span>
       </span>
       <nav
         className="flex items-center gap-1"
@@ -43,18 +55,29 @@ export function Pagination({
         <Button
           variant="ghost"
           size="icon-sm"
+          onClick={() => onPageChange(1)}
+          disabled={page <= 1}
+          aria-label={strings.entries.firstPage}
+          className="h-11 w-11 sm:h-8 sm:w-8"
+        >
+          <ChevronsLeft aria-hidden="true" className="size-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
           aria-label={strings.entries.previousPage}
+          className="h-11 w-11 sm:h-8 sm:w-8"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft aria-hidden="true" className="size-4" />
         </Button>
-        {pageNumbers(page, pageCount).map((n, i) =>
+        {numbers.map((n, i) =>
           n === "…" ? (
             <span
               // biome-ignore lint/suspicious/noArrayIndexKey: static ellipsis list
               key={`ellipsis-${i}`}
-              className="px-1 font-mono text-[11px] text-muted-foreground"
+              className="px-1 font-mono text-xs text-muted-foreground"
             >
               …
             </span>
@@ -65,7 +88,7 @@ export function Pagination({
               size="icon-sm"
               onClick={() => onPageChange(n)}
               className={cn(
-                "font-mono text-[11px] tabular-nums",
+                "font-mono text-xs tabular-nums",
                 n === page && "font-semibold text-foreground",
               )}
               aria-current={n === page ? "page" : undefined}
@@ -80,8 +103,19 @@ export function Pagination({
           onClick={() => onPageChange(page + 1)}
           disabled={page >= pageCount}
           aria-label={strings.entries.nextPage}
+          className="h-11 w-11 sm:h-8 sm:w-8"
         >
-          <ChevronRight className="size-4" />
+          <ChevronRight aria-hidden="true" className="size-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => onPageChange(pageCount)}
+          disabled={page >= pageCount}
+          aria-label={strings.entries.lastPage}
+          className="h-11 w-11 sm:h-8 sm:w-8"
+        >
+          <ChevronsRight aria-hidden="true" className="size-4" />
         </Button>
       </nav>
     </div>

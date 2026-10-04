@@ -107,6 +107,8 @@ function FormLabel({
 function FormControl({ ...props }: React.ComponentProps<typeof Slot.Root>) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
+  // The description id is only referenced when a description could exist;
+  // the error id is appended when there is an error to announce.
   return (
     <Slot.Root
       data-slot="form-control"
@@ -147,6 +149,8 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
     <p
       data-slot="form-message"
       id={formMessageId}
+      role="alert"
+      aria-live="polite"
       className={cn("text-xs text-destructive", className)}
       {...props}
     >

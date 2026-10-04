@@ -1,7 +1,7 @@
 import { AlertCircle, FolderSearch, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { cn } from "@/lib/utils";
 
 interface LoadingSkeletonProps {
@@ -17,7 +17,7 @@ export function LoadingSkeleton({
 }: LoadingSkeletonProps) {
   if (variant === "list") {
     return (
-      <div className={cn("flex flex-col gap-3", className)}>
+      <div role="status" className={cn("flex flex-col gap-3", className)}>
         {Array.from({ length: count }).map((_, i) => (
           <div
             // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton list
@@ -38,6 +38,7 @@ export function LoadingSkeleton({
 
   return (
     <div
+      role="status"
       className={cn(
         "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3",
         className,
@@ -77,12 +78,16 @@ export function QueryError({
 }: QueryErrorProps) {
   return (
     <div
+      role="alert"
       className={cn(
         "flex items-start gap-3 rounded-md border border-destructive/35 bg-destructive/5 px-4 py-3",
         className,
       )}
     >
-      <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
+      <AlertCircle
+        aria-hidden="true"
+        className="mt-0.5 size-4 shrink-0 text-destructive"
+      />
       <div className="flex-1 space-y-1">
         <p className="text-sm font-semibold">{strings.error.loadFailed}</p>
         <p className="text-xs text-muted-foreground">{message}</p>

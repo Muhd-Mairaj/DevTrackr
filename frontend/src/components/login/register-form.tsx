@@ -1,12 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { useAuth } from "@/contexts/auth";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
+import { usePostLoginRedirect } from "@/lib/login-redirect";
 import { Divider } from "../divider";
 import { Button } from "../ui/button";
+import { ErrorBanner } from "../ui/error-banner";
 import {
   Form,
   FormControl,
@@ -20,7 +22,8 @@ import { GitHubButton } from "./github-button";
 
 export function RegisterForm() {
   const { register } = useAuth();
-  const navigate = useNavigate();
+  const redirectAfterLogin = usePostLoginRedirect();
+  const [showPassword, setShowPassword] = useState(false);
 
   const registerSchema = z.object({
     email: z.email(strings.login.emailInvalid),
@@ -38,7 +41,7 @@ export function RegisterForm() {
   const onSubmit = async (values: RegisterValues) => {
     try {
       await register(values);
-      navigate({ to: "/" });
+      redirectAfterLogin();
     } catch (err) {
       form.setError("root", { message: (err as Error).message });
     }
@@ -104,24 +107,48 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>{strings.login.password}</FormLabel>
               <FormControl>
-                <Input
-                  id="register-password"
-                  type="password"
-                  placeholder={strings.login.passwordPlaceholder}
-                  autoComplete="new-password"
-                  disabled={isSubmitting}
-                  {...field}
-                />
+                <div className="relative">
+                  <Input
+                    id="register-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder={strings.login.passwordPlaceholder}
+                    autoComplete="new-password"
+                    disabled={isSubmitting}
+                    className="pr-10"
+                    aria-describedby="register-password-hint"
+                    {...field}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword
+                        ? strings.login.hidePassword
+                        : strings.login.showPassword
+                    }
+                    className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="size-4" aria-hidden="true" />
+                    ) : (
+                      <Eye className="size-4" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
               </FormControl>
+              <p
+                id="register-password-hint"
+                className="text-xs text-muted-foreground"
+              >
+                {strings.login.passwordHint}
+              </p>
               <FormMessage />
             </FormItem>
           )}
         />
 
         {form.formState.errors.root && (
-          <p className="rounded-md bg-destructive/10 px-3 py-2 text-center text-destructive text-xs">
-            {form.formState.errors.root.message}
-          </p>
+          <ErrorBanner message={form.formState.errors.root.message} />
         )}
 
         <Button
