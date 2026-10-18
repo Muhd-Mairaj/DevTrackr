@@ -227,7 +227,7 @@ jobs:
   docker-checks:
     name: Docker Compose Build
     runs-on: ubuntu-latest
-    needs: [frontend-checks, backend-checks, backend-tests]
+    needs: [frontend-checks, frontend-tests, backend-checks, backend-tests]
 
     steps:
       - name: Checkout repository
