@@ -25,6 +25,7 @@ FROM base AS builder
 COPY . .
 
 ENV NODE_ENV=production
+# The generated API client is committed; the image build does not regenerate it.
 RUN bun run build
 
 FROM nginx:alpine AS prod
