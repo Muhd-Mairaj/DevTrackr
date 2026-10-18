@@ -80,6 +80,10 @@ services:
     env_file: .env
     environment:
       - POSTGRES_HOST=database
+    networks:
+      default:
+        aliases:
+          - devtrackr-backend
 
   frontend:
     container_name: devtrackr-frontend
