@@ -10,16 +10,39 @@ on:
 
 jobs:
   images:
-    name: Build ${{ matrix.service }} image
+    name: Build ${{ matrix.environment }} images
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        service: [backend, frontend]
+        environment: [staging, prod]
+
+    env:
+      PROJECT_NAME: DevTrackr
+      DOMAIN: ${{ matrix.environment }}.example.com
+      FRONTEND_HOST: https://${{ matrix.environment }}.example.com
+      ENVIRONMENT: ${{ matrix.environment }}
+      BACKEND_CORS_ORIGINS: "http://localhost,http://localhost:5173"
+      SECRET_KEY: changeme
+      ENCRYPTION_KEY: 2O2FBPk5N3ei2n1ldh5RkvU0TvcT8ia5QLOW4DAyvw0=
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: devtrackr_db
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      VITE_API_URL: http://localhost:8000
+      GITHUB_CLIENT_ID: dummy_client_id
+      GITHUB_CLIENT_SECRET: dummy_client_secret
+      GITHUB_PRIVATE_KEY_PATH: /tmp/dummy.pem
+      GITHUB_APP_SLUG: devtrackr-test
+      BACKEND_PORT: 8000
+      FRONTEND_PORT: 3000
+      BACKEND_IMAGE: devtrackr-backend:${{ matrix.environment }}
+      FRONTEND_IMAGE: devtrackr-frontend:${{ matrix.environment }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build production image
-        run: docker build --target prod -f ${{ matrix.service }}/Dockerfile ./${{ matrix.service }}
+      - name: Build ${{ matrix.environment }} images
+        run: docker compose -f docker-compose.yml -f docker-compose.${{ matrix.environment }}.yml build
