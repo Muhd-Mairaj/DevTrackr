@@ -6,7 +6,7 @@
 #
 # This file points services to published GHCR images, renames containers so
 # staging and production can coexist on one VPS, and exposes the frontend to
-# the caddy-docker-proxy reverse proxy via labels on the shared `caddy` network.
+# the caddy-docker-proxy reverse proxy via labels on the dedicated `devtrackr-edge` network.
 
 services:
   database:
@@ -15,12 +15,10 @@ services:
   prestart:
     container_name: devtrackr-${ENVIRONMENT}-prestart
     image: ${BACKEND_IMAGE}
-    pull_policy: always
 
   backend:
     container_name: devtrackr-${ENVIRONMENT}-backend
     image: ${BACKEND_IMAGE}
-    pull_policy: always
     # Bound to localhost only
     # This mapping exists so the CD health check can curl http://localhost:${BACKEND_PORT}/api/ping.
     ports:
@@ -29,7 +27,6 @@ services:
   frontend:
     container_name: devtrackr-${ENVIRONMENT}-frontend
     image: ${FRONTEND_IMAGE}
-    pull_policy: always
     # nginx:alpine ships busybox wget; confirms nginx is serving the SPA.
     healthcheck:
       test: [ "CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:80/" ]
@@ -40,13 +37,13 @@ services:
     # No published ports: nginx listens on port 80
     networks:
       - default
-      - caddy
+      - devtrackr-edge
     labels:
       # Hostname injected via $DOMAIN (bare host, no scheme); set per env in CD.
       caddy: ${DOMAIN}
-      caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy.reverse_proxy: "devtrackr-staging-frontend:80"
 
 networks:
   default:
-  caddy:
+  devtrackr-edge:
     external: true
