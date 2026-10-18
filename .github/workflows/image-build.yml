@@ -24,7 +24,6 @@ jobs:
       ENVIRONMENT: ${{ matrix.environment }}
       BACKEND_CORS_ORIGINS: "http://localhost,http://localhost:5173"
       SECRET_KEY: changeme
-      ENCRYPTION_KEY: 2O2FBPk5N3ei2n1ldh5RkvU0TvcT8ia5QLOW4DAyvw0=
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: changeme
       POSTGRES_DB: devtrackr_db
@@ -43,6 +42,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+
+      - name: Generate disposable encryption key
+        # Config requires a valid Fernet key at build time; CI uses a per-run value.
+        run: |
+          echo "ENCRYPTION_KEY=$(python3 -c 'import base64, os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())')" >> "$GITHUB_ENV"
 
       - name: Build ${{ matrix.environment }} images
         run: docker compose -f docker-compose.yml -f docker-compose.${{ matrix.environment }}.yml build
