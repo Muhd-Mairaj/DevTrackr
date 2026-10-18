@@ -161,7 +161,7 @@ jobs:
             # Health check
             BACKEND_PORT="${{ vars.BACKEND_PORT }}"
             for i in {1..30}; do
-              if curl -fsS "http://localhost:${BACKEND_PORT}/api/ping" > /dev/null; then
+              if curl -fsS "http://localhost:${BACKEND_PORT}/api/utils/ping" > /dev/null; then
                 echo "Backend is healthy"
                 exit 0
               fi
@@ -186,7 +186,7 @@ jobs:
               docker compose $COMPOSE_FLAGS -f docker-compose.${ENVIRONMENT}.rollback.yml up -d
 
               for i in {1..30}; do
-                if curl -fsS "http://localhost:${BACKEND_PORT}/api/ping" > /dev/null; then
+                if curl -fsS "http://localhost:${BACKEND_PORT}/api/utils/ping" > /dev/null; then
                   echo "Rollback successful"
                   rm -f docker-compose.${ENVIRONMENT}.rollback.yml
                   exit 1
