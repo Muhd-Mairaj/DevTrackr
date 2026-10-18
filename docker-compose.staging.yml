@@ -41,9 +41,10 @@ services:
     labels:
       # Hostname injected via $DOMAIN (bare host, no scheme); set per env in CD.
       caddy: ${DOMAIN}
-      caddy.reverse_proxy: "devtrackr-staging-frontend:80"
+      caddy.reverse_proxy: "devtrackr-${ENVIRONMENT}-frontend:80"
 
 networks:
   default:
   devtrackr-edge:
+    # Created by deploy.sh/CI; Caddy joins this network.
     external: true

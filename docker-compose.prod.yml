@@ -15,12 +15,10 @@ services:
   prestart:
     container_name: devtrackr-${ENVIRONMENT}-prestart
     image: ${BACKEND_IMAGE}
-    pull_policy: always
 
   backend:
     container_name: devtrackr-${ENVIRONMENT}-backend
     image: ${BACKEND_IMAGE}
-    pull_policy: always
     # Bound to localhost only
     # This mapping exists so the CD health check can curl http://localhost:${BACKEND_PORT}/api/ping.
     ports:
@@ -29,7 +27,6 @@ services:
   frontend:
     container_name: devtrackr-${ENVIRONMENT}-frontend
     image: ${FRONTEND_IMAGE}
-    pull_policy: always
     # nginx:alpine ships busybox wget; confirms nginx is serving the SPA.
     healthcheck:
       test: [ "CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:80/" ]
@@ -44,9 +41,10 @@ services:
     labels:
       # Hostname injected via $DOMAIN (bare host, no scheme); set per env in CD.
       caddy: ${DOMAIN}
-      caddy.reverse_proxy: "devtrackr-staging-frontend:80"
+      caddy.reverse_proxy: "devtrackr-${ENVIRONMENT}-frontend:80"
 
 networks:
   default:
   devtrackr-edge:
+    # Created by deploy.sh/CI; Caddy joins this network.
     external: true

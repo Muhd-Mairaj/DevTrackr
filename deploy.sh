@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
-# DevTrackr staging deploy.
+# Deploy DevTrackr for an environment (staging by default).
 set -euo pipefail
-cd "$(dirname "$0")"
+
+SCRIPT_PATH="$(readlink -f -- "${BASH_SOURCE[0]}")"
+cd -- "$(dirname -- "$SCRIPT_PATH")"
+
+ENVIRONMENT="${1:-staging}"
+case "$ENVIRONMENT" in
+  staging|prod) ;;
+  *)
+    echo "Usage: $0 [staging|prod]" >&2
+    exit 2
+    ;;
+esac
+
 docker network inspect devtrackr-edge >/dev/null 2>&1 || docker network create devtrackr-edge
-docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --pull missing "$@"
+exec docker compose -f docker-compose.yml -f "docker-compose.${ENVIRONMENT}.yml" up -d --pull missing
