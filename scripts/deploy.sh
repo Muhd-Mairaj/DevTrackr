@@ -14,5 +14,4 @@ case "$ENVIRONMENT" in
     ;;
 esac
 
-docker network inspect devtrackr-edge >/dev/null 2>&1 || docker network create devtrackr-edge
 exec docker compose -f docker-compose.yml -f "docker-compose.${ENVIRONMENT}.yml" up -d --pull missing
