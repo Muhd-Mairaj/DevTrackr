@@ -3,7 +3,7 @@ name: DevTrackr CD
 on:
   workflow_dispatch:
   workflow_run:
-    # Triggers CD only after the entire DevTrackr CI workflow (Frontend CI, Backend CI, Backend Tests, Docker Build) completes successfully
+    # Triggers CD only after the entire DevTrackr CI workflow (Frontend CI, Frontend Tests, Backend CI, Backend Tests, Docker Build) completes successfully
     workflows: ["DevTrackr CI"]
     types: [completed]
     branches: [dev, prod]
@@ -19,7 +19,7 @@ concurrency:
 jobs:
   deploy:
     name: Deploy to ${{ github.event.workflow_run.head_branch == 'prod' && 'production' || 'staging' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment: ${{ github.event.workflow_run.head_branch == 'prod' && 'production' || 'staging' }}
 
@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout repository at triggering commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
