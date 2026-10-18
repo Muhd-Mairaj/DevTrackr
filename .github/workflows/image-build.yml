@@ -11,7 +11,7 @@ on:
 jobs:
   images:
     name: Build ${{ matrix.environment }} images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Build ${{ matrix.environment }} images
         run: docker compose -f docker-compose.yml -f docker-compose.${{ matrix.environment }}.yml build
