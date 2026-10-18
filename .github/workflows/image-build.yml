@@ -1,0 +1,25 @@
+name: Image Build Check
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/image-build.yml"
+  workflow_dispatch:
+
+jobs:
+  images:
+    name: Build ${{ matrix.service }} image
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [backend, frontend]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build production image
+        run: docker build --target prod -f ${{ matrix.service }}/Dockerfile ./${{ matrix.service }}

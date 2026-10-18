@@ -277,6 +277,3 @@ jobs:
           # EMAILS_FROM_NAME:
 
         run: docker compose build
-
-      - name: Build production frontend image
-        run: docker build --target prod -f frontend/Dockerfile ./frontend
