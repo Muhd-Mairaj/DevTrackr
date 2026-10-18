@@ -155,8 +155,7 @@ jobs:
 
             # Pull only the GHCR-published services (not database, which uses a pinned image)
             docker compose $COMPOSE_FLAGS pull prestart backend frontend
-            docker network inspect devtrackr-edge >/dev/null 2>&1 || docker network create devtrackr-edge
-            docker compose $COMPOSE_FLAGS up -d
+            ./deploy.sh "$ENVIRONMENT"
 
             # Health check
             BACKEND_PORT="${{ vars.BACKEND_PORT }}"
@@ -178,8 +177,7 @@ jobs:
 
             # Rollback to previous images
             if [ -n "$OLD_BACKEND" ] && [ -n "$OLD_FRONTEND" ]; then
-              # pull_policy: never - the override files set pull_policy: always,
-              # but OLD_* are local image IDs (sha256:...) with no registry ref.
+              # pull_policy: never - OLD_* are local image IDs (sha256:...) with no registry ref.
               # Without this, up -d would try `docker pull sha256:<id>` and fail.
               printf 'services:\n  prestart:\n    image: %s\n    pull_policy: never\n  backend:\n    image: %s\n    pull_policy: never\n  frontend:\n    image: %s\n    pull_policy: never\n' "$OLD_BACKEND" "$OLD_BACKEND" "$OLD_FRONTEND" > docker-compose.${ENVIRONMENT}.rollback.yml
 
