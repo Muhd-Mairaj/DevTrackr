@@ -104,6 +104,7 @@ jobs:
             COMPOSE_FLAGS="-f docker-compose.yml -f docker-compose.${ENVIRONMENT}.yml"
 
             cd "$PROJECT_ROOT"
+            # New files (including the .env written below) are owner-only.
             umask 077
 
             # Sync compose files to the exact commit being deployed. Images are
@@ -177,8 +178,9 @@ jobs:
 
             # Rollback to previous images
             if [ -n "$OLD_BACKEND" ] && [ -n "$OLD_FRONTEND" ]; then
-              # pull_policy: never - OLD_* are local image IDs (sha256:...) with no registry ref.
-              # Without this, up -d would try `docker pull sha256:<id>` and fail.
+              # OLD_* are image digests (sha256:...) captured from the running
+              # containers, not registry tags. pull_policy: never stops Compose
+              # from trying to pull them as though they were tagged images.
               printf 'services:\n  prestart:\n    image: %s\n    pull_policy: never\n  backend:\n    image: %s\n    pull_policy: never\n  frontend:\n    image: %s\n    pull_policy: never\n' "$OLD_BACKEND" "$OLD_BACKEND" "$OLD_FRONTEND" > docker-compose.${ENVIRONMENT}.rollback.yml
 
               docker compose $COMPOSE_FLAGS -f docker-compose.${ENVIRONMENT}.rollback.yml up -d
