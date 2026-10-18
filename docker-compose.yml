@@ -80,6 +80,8 @@ services:
     env_file: .env
     environment:
       - POSTGRES_HOST=database
+    volumes:
+      - ./secrets/github-app.pem:/app/github-app.pem:ro
     # Stable DNS name for the frontend nginx upstream.
     networks:
       default:
