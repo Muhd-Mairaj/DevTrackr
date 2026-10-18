@@ -33,3 +33,6 @@ openapi.json
 docs/superpowers/
 graphify-out/
 .impeccable/
+
+# GitHub App private key
+secrets/
