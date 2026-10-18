@@ -30,26 +30,6 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Generate OpenAPI Spec
-        env:
-          PROJECT_NAME: DevTrackr
-          ENVIRONMENT: development
-          SECRET_KEY: dummy_secret_key
-          ENCRYPTION_KEY: 2O2FBPk5N3ei2n1ldh5RkvU0TvcT8ia5QLOW4DAyvw0=
-          POSTGRES_HOST: localhost
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: dummy_password
-          POSTGRES_DB: devtrackr_db
-          GITHUB_CLIENT_ID: dummy_client_id
-          GITHUB_CLIENT_SECRET: dummy_client_secret
-          GITHUB_PRIVATE_KEY_PATH: /tmp/dummy.pem
-          GITHUB_APP_SLUG: devtrackr-test
-        run: |
-          cd ../backend
-          uv sync --frozen
-          uv run generate_openapi.py
-          cp openapi.json ..
-
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -64,7 +44,23 @@ jobs:
         run: bun biome ci .
 
       - name: Generate API Client
-        run: bun run generate-client
+        working-directory: .
+        env:
+          PROJECT_NAME: DevTrackr
+          ENVIRONMENT: development
+          SECRET_KEY: dummy_secret_key
+          ENCRYPTION_KEY: 2O2FBPk5N3ei2n1ldh5RkvU0TvcT8ia5QLOW4DAyvw0=
+          POSTGRES_HOST: localhost
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: dummy_password
+          POSTGRES_DB: devtrackr_db
+          GITHUB_CLIENT_ID: dummy_client_id
+          GITHUB_CLIENT_SECRET: dummy_client_secret
+          GITHUB_PRIVATE_KEY_PATH: /tmp/dummy.pem
+          GITHUB_APP_SLUG: devtrackr-test
+        run: |
+          (cd backend && uv sync --frozen)
+          ./scripts/generate-client.sh
 
       - name: Type Check (TypeScript) & Test Build
         run: bun run build
