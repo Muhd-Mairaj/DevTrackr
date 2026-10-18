@@ -2,8 +2,8 @@
 # Deploy DevTrackr for an environment (staging by default).
 set -euo pipefail
 
-SCRIPT_PATH="$(readlink -f -- "${BASH_SOURCE[0]}")"
-cd -- "$(dirname -- "$SCRIPT_PATH")"
+# Resolve the repo root from the script location.
+cd "$(dirname "$0")/.."
 
 ENVIRONMENT="${1:-staging}"
 case "$ENVIRONMENT" in

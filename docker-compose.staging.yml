@@ -46,5 +46,5 @@ services:
 networks:
   default:
   devtrackr-edge:
-    # Created by deploy.sh/CI; Caddy joins this network.
+    # Created by scripts/deploy.sh/CI; Caddy joins this network.
     external: true

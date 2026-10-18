@@ -155,7 +155,7 @@ jobs:
 
             # Pull only the GHCR-published services (not database, which uses a pinned image)
             docker compose $COMPOSE_FLAGS pull prestart backend frontend
-            ./deploy.sh "$ENVIRONMENT"
+            ./scripts/deploy.sh "$ENVIRONMENT"
 
             # Health check
             BACKEND_PORT="${{ vars.BACKEND_PORT }}"
