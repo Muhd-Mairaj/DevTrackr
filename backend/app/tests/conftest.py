@@ -50,7 +50,9 @@ async def setup_test_db(engine: AsyncEngine) -> AsyncGenerator[None]:
         alembic_cfg = Config("alembic.ini")
         alembic_dir = Path(__file__).parent.parent / "alembic"
         alembic_cfg.set_main_option("script_location", str(alembic_dir))
-        alembic_cfg.set_main_option("sqlalchemy.url", str(settings.TEST_DATABASE_URL))
+        alembic_cfg.set_main_option(
+            "sqlalchemy.url", str(settings.TEST_DATABASE_URL).replace("%", "%%")
+        )
         upgrade(alembic_cfg, "head")
 
     try:
