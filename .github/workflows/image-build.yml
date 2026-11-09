@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Build ${{ matrix.environment }} images
         run: docker compose -f docker-compose.yml -f docker-compose.${{ matrix.environment }}.yml build
