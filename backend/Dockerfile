@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bookworm AS base
+FROM python:3.15-slim-bookworm AS base
 COPY --from=docker.io/astral/uv:0.9.27 /uv /uvx /bin/
 
 WORKDIR /app
