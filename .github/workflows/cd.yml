@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout repository at triggering commit
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
