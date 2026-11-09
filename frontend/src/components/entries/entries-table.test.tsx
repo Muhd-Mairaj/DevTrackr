@@ -66,10 +66,31 @@ describe("EntriesTable", () => {
         onPageChange={vi.fn()}
       />,
     );
-    await user.click(screen.getByLabelText("Edit entry"));
+    await user.click(screen.getByRole("button", { name: /Edit entry/ }));
     expect(onEdit).toHaveBeenCalledWith(entry);
-    await user.click(screen.getByLabelText("Delete entry"));
+    await user.click(screen.getByRole("button", { name: /Delete entry/ }));
     expect(onDelete).toHaveBeenCalledWith(entry);
+  });
+
+  it("calls onPause from a running entry's pause button", async () => {
+    const onPause = vi.fn();
+    const user = userEvent.setup();
+    const running = { ...entry, id: "e2", end_time: null };
+    render(
+      <EntriesTable
+        columns={columns}
+        entries={[running]}
+        page={1}
+        total={1}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onPause={onPause}
+        onConfigureColumns={vi.fn()}
+        onPageChange={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /Pause/ }));
+    expect(onPause).toHaveBeenCalledWith(running);
   });
 
   it("calls onConfigureColumns from the header slot", async () => {

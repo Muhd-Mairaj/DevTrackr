@@ -107,6 +107,8 @@ function FormLabel({
 function FormControl({ ...props }: React.ComponentProps<typeof Slot.Root>) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
+  // The description id is only referenced when a description could exist;
+  // the error id is appended when there is an error to announce.
   return (
     <Slot.Root
       data-slot="form-control"
@@ -135,19 +137,19 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
   )
 }
 
-function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
+  function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   const { error, formMessageId } = useFormField()
   const body = error ? String(error?.message ?? "") : props.children
 
-  if (!body) {
-    return null
-  }
-
+  // The slot is reserved even when empty so an appearing error does not
+  // push the form down (see reference: input-state gate).
   return (
     <p
       data-slot="form-message"
       id={formMessageId}
-      className={cn("text-xs text-destructive", className)}
+      role={body ? "alert" : undefined}
+      aria-live={body ? "polite" : undefined}
+      className={cn("min-h-[1lh] text-xs text-destructive", className)}
       {...props}
     >
       {body}

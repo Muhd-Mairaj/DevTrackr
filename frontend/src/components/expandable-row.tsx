@@ -2,8 +2,9 @@ import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { type LedgerEntry, LedgerRow } from "@/components/ledger-row";
 import { StatusChip } from "@/components/status-chip";
+import { ROW_HOVER } from "@/components/ui/row-hover";
 import { Skeleton } from "@/components/ui/skeleton";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { cn } from "@/lib/utils";
 
 interface ExpandableRowProps {
@@ -32,19 +33,22 @@ export function ExpandableRow({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="grid w-full grid-cols-[88px_44px_1fr_auto] items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-primary/5 hover:shadow-[inset_2px_0_0_0_var(--primary)]"
+        className={cn(
+          "grid w-full grid-cols-[88px_44px_1fr_auto] items-center gap-3 px-3 py-2 text-left transition-colors",
+          ROW_HOVER,
+        )}
         aria-expanded={open}
       >
-        <span className="font-mono text-[10.5px] tabular-nums text-muted-foreground">
+        <span className="font-mono text-[13px] tabular-nums text-muted-foreground">
           {time}
         </span>
-        <span className="font-mono text-[10.5px] font-medium tabular-nums">
+        <span className="font-mono text-[13px] font-medium tabular-nums">
           {duration}
         </span>
         {summaryLoading ? (
           <Skeleton className="h-3 w-3/4" />
         ) : (
-          <span className="truncate text-[12.5px] font-medium">{summary}</span>
+          <span className="truncate text-[13px] font-medium">{summary}</span>
         )}
         <span className="flex items-center gap-2">
           <StatusChip tone="neutral">
@@ -64,7 +68,7 @@ export function ExpandableRow({
           open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
       >
-        <div className="overflow-hidden border-l border-edge pl-4">
+        <div className="overflow-hidden border-l border-signal pl-5">
           {entries.map((entry, i) => (
             <LedgerRow
               // biome-ignore lint/suspicious/noArrayIndexKey: static entry list

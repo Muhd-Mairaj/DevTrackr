@@ -4,6 +4,7 @@ import type {
   GithubInstallationPublic,
   GithubStatus,
 } from "@/client/types.gen";
+import { saveGithubReturn } from "@/lib/github-return";
 
 export const integrationKeys = {
   githubStatus: ["integrations", "github", "status"] as const,
@@ -38,10 +39,15 @@ export function useGithubInstallations() {
   });
 }
 
-export function startGithubInstall() {
+export function startGithubInstall(returnTo?: string) {
   // Full-page navigation to the install endpoint; the backend 302s to
   // GitHub's install page and setup-callback bounces back to the app
-  // with ?github_app=<outcome>.
+  // with ?github_app=<outcome>. Persist returnTo in sessionStorage so the
+  // landing route can navigate back (dialogs stay dialog-local; only the
+  // path is restored).
+  const fallback = `${window.location.pathname}${window.location.search}`;
+  const target = returnTo ?? fallback;
+  saveGithubReturn({ returnTo: target });
   window.location.assign("/api/integrations/github/install");
 }
 

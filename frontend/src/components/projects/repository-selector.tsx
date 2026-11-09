@@ -1,12 +1,12 @@
 import { AlertCircle, ExternalLink, RefreshCw, Search } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { RepositoryPublic } from "@/client/types.gen";
 import { GithubMark } from "@/components/github-mark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { startGithubInstall } from "@/lib/integrations";
 import { useRepositories } from "@/lib/repositories";
 
@@ -26,6 +26,15 @@ export function RepositorySelector({
   const reposErrorStatus = isError
     ? (error as { response?: { status?: number } } | null)?.response?.status
     : undefined;
+  const filtered = useMemo(
+    () =>
+      (repos ?? []).filter(
+        (r) =>
+          r.full_name.toLowerCase().includes(search.toLowerCase()) ||
+          r.repo_name.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [repos, search],
+  );
 
   if (isLoading) {
     return (
@@ -48,7 +57,7 @@ export function RepositorySelector({
       return (
         <div className="min-w-0 space-y-2">
           <Label>{strings.integrations.repoSelectorLabel}</Label>
-          <div className="flex flex-col items-start gap-2.5 rounded-md border bg-card px-3 py-3">
+          <div className="flex flex-col items-start gap-2.5 rounded-lg border border-border bg-card px-3 py-3">
             <p className="text-xs text-muted-foreground">
               {strings.integrations.githubSetupPrompt}
             </p>
@@ -57,7 +66,11 @@ export function RepositorySelector({
               variant="outline"
               size="sm"
               className="gap-1.5"
-              onClick={startGithubInstall}
+              onClick={() =>
+                startGithubInstall(
+                  `${window.location.pathname}${window.location.search}`,
+                )
+              }
             >
               <GithubMark />
               {strings.integrations.githubInstallButton}
@@ -69,8 +82,11 @@ export function RepositorySelector({
     return (
       <div className="min-w-0 space-y-2">
         <Label>{strings.integrations.repoSelectorLabel}</Label>
-        <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-muted-foreground">
-          <AlertCircle className="size-3.5 shrink-0 text-destructive" />
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-muted-foreground">
+          <AlertCircle
+            aria-hidden="true"
+            className="size-3.5 shrink-0 text-destructive"
+          />
           {strings.integrations.githubError}
           <Button
             variant="ghost"
@@ -78,19 +94,13 @@ export function RepositorySelector({
             className="ml-auto h-7 gap-1 px-2 text-xs"
             onClick={() => refetch()}
           >
-            <RefreshCw className="size-3" />
-            Retry
+            <RefreshCw aria-hidden="true" className="size-3" />
+            {strings.common.retry}
           </Button>
         </div>
       </div>
     );
   }
-
-  const filtered = (repos ?? []).filter(
-    (r) =>
-      r.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      r.repo_name.toLowerCase().includes(search.toLowerCase()),
-  );
 
   const toggle = (githubId: number) => {
     if (disabled) return;
@@ -102,26 +112,36 @@ export function RepositorySelector({
   };
 
   return (
-    <div className="min-w-0 space-y-2">
+    <fieldset className="min-w-0 space-y-2">
       <div>
-        <Label>{strings.integrations.repoSelectorLabel}</Label>
-        <p className="text-xs text-muted-foreground">
+        <legend className="flex items-center gap-2 font-mono text-[11px] font-medium tracking-[0.12em] text-muted-foreground uppercase select-none">
+          {strings.integrations.repoSelectorLabel}
+        </legend>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           {strings.integrations.repoSelectorDescription}
         </p>
       </div>
 
       <div className="relative">
-        <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+        />
+        <label htmlFor="repo-search" className="sr-only">
+          {strings.integrations.repoSearchPlaceholder}
+        </label>
         <Input
+          id="repo-search"
+          type="search"
           placeholder={strings.integrations.repoSearchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-8"
+          className="pl-9"
           disabled={disabled}
         />
       </div>
 
-      <div className="max-h-48 overflow-y-auto rounded-md border">
+      <div className="max-h-48 overflow-y-auto rounded-lg border border-border">
         {filtered.length === 0 ? (
           <p className="px-3 py-4 text-center text-xs text-muted-foreground">
             {strings.integrations.noReposFound}
@@ -140,7 +160,7 @@ export function RepositorySelector({
           </ul>
         )}
       </div>
-    </div>
+    </fieldset>
   );
 }
 
@@ -156,14 +176,14 @@ function RepoRow({
   disabled: boolean;
 }) {
   return (
-    <li className="flex items-center gap-2 px-3 py-2">
+    <li className="flex items-center gap-2 px-3 py-2 transition-colors hover:bg-muted/50">
       <input
         type="checkbox"
         id={`repo-${repo.github_id}`}
         checked={checked}
         onChange={onToggle}
         disabled={disabled}
-        className="size-3.5 shrink-0 accent-primary"
+        className="size-5 shrink-0 accent-primary outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
       />
       <label
         htmlFor={`repo-${repo.github_id}`}
@@ -184,7 +204,7 @@ function RepoRow({
           className="shrink-0 text-muted-foreground hover:text-foreground"
           aria-label={strings.integrations.repoOpenLink(repo.full_name)}
         >
-          <ExternalLink className="size-3" />
+          <ExternalLink aria-hidden="true" className="size-3" />
         </a>
       )}
     </li>

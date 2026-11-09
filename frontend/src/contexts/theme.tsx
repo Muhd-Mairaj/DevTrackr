@@ -37,6 +37,7 @@ function writeStoredTheme(theme: Theme): void {
 }
 
 function systemPrefersDark(): boolean {
+  if (typeof window === "undefined" || !window.matchMedia) return false;
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
@@ -50,11 +51,14 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  // Lazy initializer: matchMedia runs once, not on every render.
   const [theme, setThemeState] = useState<Theme>(readStoredTheme);
-  const [prefersDark, setPrefersDark] = useState(systemPrefersDark);
+  const [prefersDark, setPrefersDark] = useState<boolean>(systemPrefersDark);
 
-  // Track OS theme changes so system mode resolves live
+  // Re-sync after mount in case the OS preference changed between the
+  // lazy initializer and the first paint, or window was unavailable.
   useEffect(() => {
+    setPrefersDark(systemPrefersDark());
     const mql = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = (event: MediaQueryListEvent) =>
       setPrefersDark(event.matches);
