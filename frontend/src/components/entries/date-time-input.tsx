@@ -20,7 +20,7 @@ export function DateTimeInput({
   const [date, time] = value.split("T");
 
   return (
-    <div className="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-2">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <Input
         type="date"
         aria-label={dateLabel}
@@ -37,7 +37,13 @@ export function DateTimeInput({
         value={time ?? ""}
         disabled={disabled}
         onChange={(e) => {
-          onChange(date ? `${date}T${e.target.value}` : "");
+          const nextTime = e.target.value;
+          if (!nextTime) {
+            onChange(date ?? "");
+            return;
+          }
+          const effectiveDate = date || new Date().toISOString().slice(0, 10);
+          onChange(`${effectiveDate}T${nextTime}`);
         }}
       />
     </div>

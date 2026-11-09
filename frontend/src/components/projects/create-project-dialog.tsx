@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 import { RepositorySelector } from "@/components/projects/repository-selector";
 import { AppDialog } from "@/components/ui/app-dialog";
+import { ErrorBanner } from "@/components/ui/error-banner";
 import {
   Form,
   FormControl,
@@ -13,8 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/contexts/toast";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { useCreateProject } from "@/lib/projects";
 
 const createSchema = z.object({
@@ -95,7 +97,6 @@ export function CreateProjectDialog({
                   <Input
                     id="project-name"
                     placeholder={strings.projects.namePlaceholder}
-                    autoFocus
                     disabled={isSubmitting}
                     {...field}
                   />
@@ -111,10 +112,12 @@ export function CreateProjectDialog({
               <FormItem>
                 <FormLabel>{strings.projects.descriptionLabel}</FormLabel>
                 <FormControl>
-                  <Input
+                  <Textarea
                     id="project-description"
                     placeholder={strings.projects.descriptionPlaceholder}
                     disabled={isSubmitting}
+                    rows={3}
+                    className="min-h-20"
                     {...field}
                   />
                 </FormControl>
@@ -139,9 +142,7 @@ export function CreateProjectDialog({
             )}
           />
           {form.formState.errors.root && (
-            <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
-              {form.formState.errors.root.message}
-            </p>
+            <ErrorBanner message={form.formState.errors.root.message} />
           )}
         </form>
       </Form>

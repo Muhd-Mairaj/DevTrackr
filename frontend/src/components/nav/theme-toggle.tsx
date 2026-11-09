@@ -1,7 +1,7 @@
 import { Monitor, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type Theme, useTheme } from "@/contexts/theme";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 
 const THEME_ICONS: Record<Theme, typeof Sun> = {
   light: Sun,
@@ -28,10 +28,9 @@ export function ThemeToggle() {
       size="icon-sm"
       className="text-muted-foreground hover:text-foreground"
       aria-label={label}
-      title={label}
       onClick={cycleTheme}
     >
-      <Icon className="size-4" />
+      <Icon className="size-4" aria-hidden="true" />
     </Button>
   );
 }

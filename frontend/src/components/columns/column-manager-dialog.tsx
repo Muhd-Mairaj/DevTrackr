@@ -1,11 +1,12 @@
-import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowDown, ArrowUp, GripVertical, Plus, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import type { ProjectColumnItem } from "@/client/types.gen";
+import { Tag } from "@/components/tag";
 import { AppDialog } from "@/components/ui/app-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/contexts/toast";
-import { strings } from "@/ii8n/strings";
+import { strings } from "@/i18n/strings";
 import { useColumns, useSaveColumns } from "@/lib/columns";
 
 const KIND_LABELS: Record<ProjectColumnItem["kind"], string> = {
@@ -32,6 +33,7 @@ export function ColumnManagerDialog({
   const saveColumns = useSaveColumns(projectId);
   const [columns, setColumns] = useState<ProjectColumnItem[] | null>(null);
   const [nameError, setNameError] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Stage the saved config when the dialog opens or fresh data arrives.
   useEffect(() => {
@@ -79,13 +81,30 @@ export function ColumnManagerDialog({
 
   const handleSave = async () => {
     if (!columns) return;
-    if (columns.some((c) => !c.name.trim())) {
+    const firstEmpty = columns.findIndex((c) => !c.name.trim());
+    if (firstEmpty !== -1) {
       setNameError(true);
+      inputRefs.current[firstEmpty]?.focus();
       return;
     }
+    const previous = savedColumns ? [...savedColumns] : null;
     try {
       await saveColumns.mutateAsync(columns);
-      toast("success", strings.columns.savedToast);
+      if (previous) {
+        toast("success", strings.columns.savedToast, {
+          actionLabel: strings.common.undo,
+          durationMs: 8000,
+          onAction: () => {
+            setColumns(previous);
+            saveColumns.mutate(previous, {
+              onSuccess: () => toast("success", strings.columns.savedToast),
+              onError: (err) => toast("error", (err as Error).message),
+            });
+          },
+        });
+      } else {
+        toast("success", strings.columns.savedToast);
+      }
       onOpenChange(false);
     } catch (err) {
       toast("error", (err as Error).message);
@@ -103,42 +122,49 @@ export function ColumnManagerDialog({
       isPending={saveColumns.isPending}
       actionButtonId="save-columns-btn"
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         {columns.map((column, index) => (
           <div
             // biome-ignore lint/suspicious/noArrayIndexKey: staged list without stable ids; kind plus position keeps rows distinct
             key={`${column.kind}-${index}`}
-            className="flex items-center gap-2 rounded-md border border-edge bg-background px-3 py-2"
+            className="flex items-center gap-2 rounded border border-border bg-background px-2.5 py-2"
           >
+            <GripVertical
+              aria-hidden="true"
+              className="size-4 shrink-0 text-muted-foreground/70"
+            />
             <div className="flex flex-col">
               <button
                 type="button"
                 aria-label={strings.columns.moveUp}
                 onClick={() => move(index, -1)}
                 disabled={index === 0}
-                className="text-muted-foreground hover:text-foreground disabled:opacity-40"
+                className="rounded text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-40"
               >
-                <ArrowUp className="size-3.5" />
+                <ArrowUp aria-hidden="true" className="size-3.5" />
               </button>
               <button
                 type="button"
                 aria-label={strings.columns.moveDown}
                 onClick={() => move(index, 1)}
                 disabled={index === columns.length - 1}
-                className="text-muted-foreground hover:text-foreground disabled:opacity-40"
+                className="rounded text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-40"
               >
-                <ArrowDown className="size-3.5" />
+                <ArrowDown aria-hidden="true" className="size-3.5" />
               </button>
             </div>
-            <span className="w-20 font-mono text-[9.5px] tracking-[0.1em] text-muted-foreground">
+            <Tag className="w-24 justify-center">
               {KIND_LABELS[column.kind]}
-            </span>
+            </Tag>
             <Input
+              ref={(el) => {
+                inputRefs.current[index] = el;
+              }}
               value={column.name}
               onChange={(e) => rename(index, e.target.value)}
               placeholder={strings.columns.namePlaceholder}
-              aria-label={strings.columns.namePlaceholder}
-              className="flex-1"
+              aria-label={`Column ${index + 1} name`}
+              className="h-8 flex-1"
             />
             {!column.builtin && (
               <Button
@@ -147,13 +173,13 @@ export function ColumnManagerDialog({
                 onClick={() => remove(index)}
                 aria-label={strings.columns.removeLabel}
               >
-                <X className="size-4" />
+                <X aria-hidden="true" className="size-4" />
               </Button>
             )}
           </div>
         ))}
         {nameError && (
-          <p className="text-xs text-destructive">
+          <p role="alert" className="text-xs text-destructive">
             {strings.columns.nameRequired}
           </p>
         )}
@@ -164,7 +190,7 @@ export function ColumnManagerDialog({
           className="mt-1 gap-1.5 self-start"
           onClick={addCustom}
         >
-          <Plus className="size-3.5" />
+          <Plus aria-hidden="true" className="size-3.5" />
           {strings.columns.add}
         </Button>
       </div>
