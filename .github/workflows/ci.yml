@@ -160,12 +160,14 @@ jobs:
     name: Backend Tests
     runs-on: ubuntu-24.04
 
+    # Dependabot PR runs do not receive repository secrets, so the ephemeral
+    # test database uses throwaway credentials.
     services:
       postgres:
         image: postgres:18.1-trixie
         env:
           POSTGRES_USER: admin
-          POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
+          POSTGRES_PASSWORD: dummy_password
           POSTGRES_DB: devtrackr_db
         ports:
           - 5432:5432
@@ -198,7 +200,7 @@ jobs:
 
       - name: Create Test Database
         run: |
-          PGPASSWORD=${{ secrets.TEST_POSTGRES_PASSWORD }} psql -h localhost -U admin -d postgres -c "CREATE DATABASE devtrackr_db_test;"
+          PGPASSWORD=dummy_password psql -h localhost -U admin -d postgres -c "CREATE DATABASE devtrackr_db_test;"
 
       - name: Install Dependencies
         run: |
@@ -213,10 +215,10 @@ jobs:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
           POSTGRES_USER: admin
-          POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
+          POSTGRES_PASSWORD: dummy_password
           POSTGRES_DB: devtrackr_db
           SECRET_KEY: changeme
-          ENCRYPTION_KEY: ${{ secrets.TEST_ENCRYPTION_KEY }}
+          ENCRYPTION_KEY: 2O2FBPk5N3ei2n1ldh5RkvU0TvcT8ia5QLOW4DAyvw0=
           ENVIRONMENT: development
           PROJECT_NAME: DevTrackr
           GITHUB_CLIENT_ID: dummy_client_id
